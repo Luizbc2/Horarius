@@ -4,6 +4,14 @@ import { Toaster, toast } from "sonner";
 
 import { EmptyStatePanel, MetricCard, PageShell, SectionCard } from "../components/PageShell";
 import { Button } from "../components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../components/ui/dialog";
 import { Input } from "../components/ui/input";
 import { Textarea } from "../components/ui/textarea";
 
@@ -145,6 +153,7 @@ export function Profissionais() {
   const [formData, setFormData] = useState<ProfessionalFormData>(initialFormData);
   const [formErrors, setFormErrors] = useState<ProfessionalFormErrors>({});
   const [editingProfessionalId, setEditingProfessionalId] = useState<number | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   useEffect(() => {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(professionals));
@@ -158,21 +167,16 @@ export function Profissionais() {
     setFormErrors({});
   };
 
-  const scrollToForm = () => {
-    if (typeof document === "undefined") {
-      return;
-    }
-
-    document.getElementById("professional-form-section")?.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
-    });
+  const closeDialog = () => {
+    setDialogOpen(false);
+    setEditingProfessionalId(null);
+    resetForm();
   };
 
   const openCreateForm = () => {
     setEditingProfessionalId(null);
     resetForm();
-    scrollToForm();
+    setDialogOpen(true);
   };
 
   const openEditForm = (professional: Professional) => {
@@ -184,7 +188,12 @@ export function Profissionais() {
       notes: professional.notes,
     });
     setFormErrors({});
-    scrollToForm();
+    setDialogOpen(true);
+  };
+
+  const clearForm = () => {
+    setEditingProfessionalId(null);
+    resetForm();
   };
 
   const handleChange = (field: keyof ProfessionalFormData, value: string) => {
@@ -231,8 +240,7 @@ export function Profissionais() {
         ),
       );
 
-      setEditingProfessionalId(null);
-      resetForm();
+      closeDialog();
       toast.success("Profissional atualizado com sucesso!");
       return;
     }
@@ -248,7 +256,7 @@ export function Profissionais() {
     };
 
     setProfessionals((currentProfessionals) => [newProfessional, ...currentProfessionals]);
-    resetForm();
+    closeDialog();
     toast.success("Profissional cadastrado com sucesso!");
   };
 
@@ -258,8 +266,7 @@ export function Profissionais() {
     );
 
     if (editingProfessionalId === professionalId) {
-      setEditingProfessionalId(null);
-      resetForm();
+      closeDialog();
     }
 
     toast.success("Profissional removido com sucesso!");
@@ -301,133 +308,6 @@ export function Profissionais() {
             icon={<Clock3 className="h-5 w-5" />}
             accent="coral"
           />
-        </div>
-
-        <div id="professional-form-section">
-          <SectionCard
-            title={editingProfessionalId === null ? "Cadastrar novo profissional" : "Editar profissional"}
-            description="Preencha os dados basicos do profissional. (O cadastro fica salvo localmente no navegador enquanto o backend nao estiver conectado.)"
-            action={<span className="data-pill">{editingProfessionalId === null ? "Cadastro local" : "Modo edicao"}</span>}
-          >
-            <div className="grid gap-5 xl:grid-cols-[minmax(0,1.2fr)_minmax(18rem,0.8fr)]">
-              <form id="professional-form" noValidate onSubmit={handleCreateOrUpdateProfessional} className="grid gap-4">
-                <div className="grid gap-2">
-                  <label htmlFor="professional-name">Nome</label>
-                  <Input
-                    id="professional-name"
-                    value={formData.name}
-                    onChange={(event) => handleChange("name", event.target.value)}
-                    aria-invalid={Boolean(formErrors.name)}
-                    placeholder="Ex.: Carlos Souza"
-                  />
-                  {formErrors.name ? <p className="text-sm text-destructive">{formErrors.name}</p> : null}
-                </div>
-
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="grid gap-2">
-                    <label htmlFor="professional-phone">Telefone</label>
-                    <Input
-                      id="professional-phone"
-                      type="text"
-                      value={formatPhone(formData.phone)}
-                      onChange={(event) => handleChange("phone", event.target.value)}
-                      aria-invalid={Boolean(formErrors.phone)}
-                      placeholder="11999999999"
-                      inputMode="numeric"
-                    />
-                    {formErrors.phone ? (
-                      <p className="text-sm text-destructive">{formErrors.phone}</p>
-                    ) : (
-                      <p className="text-sm text-muted-foreground">Use 10 ou 11 numeros com DDD.</p>
-                    )}
-                  </div>
-
-                  <div className="grid gap-2">
-                    <label htmlFor="professional-specialties">Especialidades</label>
-                    <Input
-                      id="professional-specialties"
-                      value={formData.specialties}
-                      onChange={(event) => handleChange("specialties", event.target.value)}
-                      aria-invalid={Boolean(formErrors.specialties)}
-                      placeholder="Corte, Barba, Sobrancelha"
-                    />
-                    {formErrors.specialties ? (
-                      <p className="text-sm text-destructive">{formErrors.specialties}</p>
-                    ) : (
-                      <p className="text-sm text-muted-foreground">Separe as especialidades por virgula.</p>
-                    )}
-                  </div>
-                </div>
-
-                <div className="grid gap-2">
-                  <label htmlFor="professional-notes">Observacoes</label>
-                  <Textarea
-                    id="professional-notes"
-                    value={formData.notes}
-                    onChange={(event) => handleChange("notes", event.target.value)}
-                    placeholder="Ex.: atende melhor no periodo da tarde e faz acabamento premium."
-                    rows={5}
-                    className="rounded-[1rem] border-white/70 bg-input-background px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.65),0_18px_44px_-28px_rgba(70,47,28,0.32)]"
-                  />
-                </div>
-
-                <div className="flex flex-wrap gap-3 pt-2">
-                  <Button type="submit">
-                    <Plus className="h-4 w-4" />
-                    {editingProfessionalId === null ? "Salvar profissional" : "Salvar alteracoes"}
-                  </Button>
-                  <Button type="button" variant="outline" onClick={openCreateForm}>
-                    Limpar formulario
-                  </Button>
-                </div>
-              </form>
-
-              <div className="rounded-[1.6rem] border border-white/70 bg-white/58 p-5 shadow-[0_22px_52px_-34px_rgba(73,47,22,0.34)]">
-                <span className="soft-badge" data-variant="warm">
-                  Preview do cadastro
-                </span>
-
-                <div className="mt-5 flex items-start gap-4">
-                  <div className="flex h-16 w-16 items-center justify-center rounded-[1.4rem] bg-[linear-gradient(135deg,rgba(31,109,104,0.95),rgba(53,92,125,0.88))] text-2xl text-white shadow-[0_24px_48px_-26px_rgba(31,109,104,0.8)]">
-                    {buildAvatar(formData.name)}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <h3 className="text-xl text-foreground">{formData.name.trim() || "Novo profissional"}</h3>
-                    <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                      {formData.notes.trim() || "Adicione observacoes para descrever a forma de atendimento ou horarios preferenciais."}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="mt-5 flex flex-wrap gap-2">
-                  {(previewSpecialties.length > 0 ? previewSpecialties : ["Especialidades ainda nao informadas"]).map((specialty) => (
-                    <span key={specialty} className="soft-badge" data-variant="warm">
-                      {specialty}
-                    </span>
-                  ))}
-                </div>
-
-                <div className="mt-5 grid gap-3">
-                  <div className="data-pill justify-between">
-                    <span className="flex items-center gap-2 text-muted-foreground">
-                      <Phone className="h-4 w-4" />
-                      Contato
-                    </span>
-                    <span className="text-sm font-medium text-foreground">
-                      {formData.phone ? formatPhone(formData.phone) : "Nao informado"}
-                    </span>
-                  </div>
-                  <div className="data-pill justify-between">
-                    <span className="flex items-center gap-2 text-muted-foreground">
-                      <ShieldCheck className="h-4 w-4" />
-                      Status inicial
-                    </span>
-                    <span className="text-sm font-medium text-foreground">Ativo</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </SectionCard>
         </div>
 
         <SectionCard
@@ -531,6 +411,143 @@ export function Profissionais() {
           )}
         </SectionCard>
       </PageShell>
+
+      <Dialog open={dialogOpen} onOpenChange={(open) => (open ? setDialogOpen(true) : closeDialog())}>
+        <DialogContent className="rounded-[1.75rem] border-white/70 bg-[linear-gradient(180deg,rgba(255,251,246,0.97),rgba(248,241,231,0.94))] p-6 shadow-[0_30px_80px_-38px_rgba(73,47,22,0.34)] sm:max-w-3xl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl text-foreground">
+              {editingProfessionalId === null ? "Novo profissional" : "Editar profissional"}
+            </DialogTitle>
+            <DialogDescription className="leading-6">
+              {editingProfessionalId === null
+                ? "Cadastre os dados do profissional em uma janela rapida, com preview antes de salvar."
+                : "Atualize o cadastro do profissional localmente enquanto a tela ainda opera sem back-end."}
+            </DialogDescription>
+          </DialogHeader>
+
+          <form noValidate onSubmit={handleCreateOrUpdateProfessional} className="grid gap-5 xl:grid-cols-[minmax(0,1.2fr)_minmax(18rem,0.8fr)]">
+            <div className="grid gap-4">
+              <div className="grid gap-2">
+                <label htmlFor="professional-name">Nome</label>
+                <Input
+                  id="professional-name"
+                  value={formData.name}
+                  onChange={(event) => handleChange("name", event.target.value)}
+                  aria-invalid={Boolean(formErrors.name)}
+                  placeholder="Ex.: Carlos Souza"
+                />
+                {formErrors.name ? <p className="text-sm text-destructive">{formErrors.name}</p> : null}
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="grid gap-2">
+                  <label htmlFor="professional-phone">Telefone</label>
+                  <Input
+                    id="professional-phone"
+                    type="text"
+                    value={formatPhone(formData.phone)}
+                    onChange={(event) => handleChange("phone", event.target.value)}
+                    aria-invalid={Boolean(formErrors.phone)}
+                    placeholder="11999999999"
+                    inputMode="numeric"
+                  />
+                  {formErrors.phone ? (
+                    <p className="text-sm text-destructive">{formErrors.phone}</p>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">Use 10 ou 11 numeros com DDD.</p>
+                  )}
+                </div>
+
+                <div className="grid gap-2">
+                  <label htmlFor="professional-specialties">Especialidades</label>
+                  <Input
+                    id="professional-specialties"
+                    value={formData.specialties}
+                    onChange={(event) => handleChange("specialties", event.target.value)}
+                    aria-invalid={Boolean(formErrors.specialties)}
+                    placeholder="Corte, Barba, Sobrancelha"
+                  />
+                  {formErrors.specialties ? (
+                    <p className="text-sm text-destructive">{formErrors.specialties}</p>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">Separe as especialidades por virgula.</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid gap-2">
+                <label htmlFor="professional-notes">Observacoes</label>
+                <Textarea
+                  id="professional-notes"
+                  value={formData.notes}
+                  onChange={(event) => handleChange("notes", event.target.value)}
+                  placeholder="Ex.: atende melhor no periodo da tarde e faz acabamento premium."
+                  rows={5}
+                  className="rounded-[1rem] border-white/70 bg-input-background px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.65),0_18px_44px_-28px_rgba(70,47,28,0.32)]"
+                />
+              </div>
+            </div>
+
+            <div className="rounded-[1.6rem] border border-white/70 bg-white/58 p-5 shadow-[0_22px_52px_-34px_rgba(73,47,22,0.34)]">
+              <span className="soft-badge" data-variant="warm">
+                Preview do cadastro
+              </span>
+
+              <div className="mt-5 flex items-start gap-4">
+                <div className="flex h-16 w-16 items-center justify-center rounded-[1.4rem] bg-[linear-gradient(135deg,rgba(31,109,104,0.95),rgba(53,92,125,0.88))] text-2xl text-white shadow-[0_24px_48px_-26px_rgba(31,109,104,0.8)]">
+                  {buildAvatar(formData.name)}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-xl text-foreground">{formData.name.trim() || "Novo profissional"}</h3>
+                  <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                    {formData.notes.trim() || "Adicione observacoes para descrever a forma de atendimento ou horarios preferenciais."}
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-5 flex flex-wrap gap-2">
+                {(previewSpecialties.length > 0 ? previewSpecialties : ["Especialidades ainda nao informadas"]).map((specialty) => (
+                  <span key={specialty} className="soft-badge" data-variant="warm">
+                    {specialty}
+                  </span>
+                ))}
+              </div>
+
+              <div className="mt-5 grid gap-3">
+                <div className="data-pill justify-between">
+                  <span className="flex items-center gap-2 text-muted-foreground">
+                    <Phone className="h-4 w-4" />
+                    Contato
+                  </span>
+                  <span className="text-sm font-medium text-foreground">
+                    {formData.phone ? formatPhone(formData.phone) : "Nao informado"}
+                  </span>
+                </div>
+                <div className="data-pill justify-between">
+                  <span className="flex items-center gap-2 text-muted-foreground">
+                    <ShieldCheck className="h-4 w-4" />
+                    Status inicial
+                  </span>
+                  <span className="text-sm font-medium text-foreground">Ativo</span>
+                </div>
+              </div>
+            </div>
+
+            <DialogFooter className="xl:col-span-2 pt-2">
+              <Button type="button" variant="outline" onClick={closeDialog}>
+                Cancelar
+              </Button>
+              <Button type="button" variant="outline" onClick={clearForm}>
+                Limpar formulario
+              </Button>
+              <Button type="submit">
+                <Plus className="h-4 w-4" />
+                {editingProfessionalId === null ? "Salvar profissional" : "Salvar alteracoes"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       <Toaster position="bottom-left" closeButton richColors />
     </>
