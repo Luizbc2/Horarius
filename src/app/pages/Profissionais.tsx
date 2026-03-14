@@ -21,6 +21,7 @@ type Professional = {
   avatar: string;
   specialties: string[];
   phone: string;
+  schedule: string;
   status: "ativo" | "inativo";
   notes: string;
 };
@@ -29,6 +30,7 @@ type ProfessionalFormData = {
   name: string;
   phone: string;
   specialties: string;
+  schedule: string;
   notes: string;
 };
 
@@ -40,6 +42,7 @@ const initialFormData: ProfessionalFormData = {
   name: "",
   phone: "",
   specialties: "",
+  schedule: "",
   notes: "",
 };
 
@@ -50,6 +53,7 @@ const defaultProfessionals = [
     avatar: "J",
     specialties: ["Corte", "Barba", "Pigmentacao"],
     phone: "11987654321",
+    schedule: "Seg a Sab, 09:00 as 19:00",
     status: "ativo",
     notes: "Atende cortes classicos, barba completa e finalizacao rapida.",
   },
@@ -68,7 +72,15 @@ function loadProfessionals(): Professional[] {
     }
 
     const parsedProfessionals = JSON.parse(storedProfessionals) as Professional[];
-    return Array.isArray(parsedProfessionals) ? parsedProfessionals : defaultProfessionals;
+
+    if (!Array.isArray(parsedProfessionals)) {
+      return defaultProfessionals;
+    }
+
+    return parsedProfessionals.map((professional) => ({
+      ...professional,
+      schedule: typeof professional.schedule === "string" ? professional.schedule : "",
+    }));
   } catch {
     return defaultProfessionals;
   }
@@ -154,6 +166,9 @@ export function Profissionais() {
   const [formErrors, setFormErrors] = useState<ProfessionalFormErrors>({});
   const [editingProfessionalId, setEditingProfessionalId] = useState<number | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [scheduleDialogOpen, setScheduleDialogOpen] = useState(false);
+  const [scheduleDraft, setScheduleDraft] = useState("");
+  const [scheduleProfessionalId, setScheduleProfessionalId] = useState<number | null>(null);
 
   useEffect(() => {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(professionals));
@@ -181,12 +196,13 @@ export function Profissionais() {
 
   const openEditForm = (professional: Professional) => {
     setEditingProfessionalId(professional.id);
-    setFormData({
-      name: professional.name,
-      phone: professional.phone,
-      specialties: professional.specialties.join(", "),
-      notes: professional.notes,
-    });
+      setFormData({
+        name: professional.name,
+        phone: professional.phone,
+        specialties: professional.specialties.join(", "),
+        schedule: professional.schedule,
+        notes: professional.notes,
+      });
     setFormErrors({});
     setDialogOpen(true);
   };
@@ -194,6 +210,18 @@ export function Profissionais() {
   const clearForm = () => {
     setEditingProfessionalId(null);
     resetForm();
+  };
+
+  const closeScheduleDialog = () => {
+    setScheduleDialogOpen(false);
+    setScheduleProfessionalId(null);
+    setScheduleDraft("");
+  };
+
+  const openScheduleForm = (professional: Professional) => {
+    setScheduleProfessionalId(professional.id);
+    setScheduleDraft(professional.schedule);
+    setScheduleDialogOpen(true);
   };
 
   const handleChange = (field: keyof ProfessionalFormData, value: string) => {
@@ -234,6 +262,7 @@ export function Profissionais() {
                 avatar: buildAvatar(trimmedName),
                 phone: formData.phone.trim(),
                 specialties: parsedSpecialties,
+                schedule: formData.schedule.trim(),
                 notes: formData.notes.trim(),
               }
             : professional,
@@ -251,6 +280,7 @@ export function Profissionais() {
       avatar: buildAvatar(trimmedName),
       phone: formData.phone.trim(),
       specialties: parsedSpecialties,
+      schedule: formData.schedule.trim(),
       status: "ativo",
       notes: formData.notes.trim(),
     };
@@ -270,6 +300,29 @@ export function Profissionais() {
     }
 
     toast.success("Profissional removido com sucesso!");
+  };
+
+  const handleSaveSchedule = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (scheduleProfessionalId === null) {
+      closeScheduleDialog();
+      return;
+    }
+
+    setProfessionals((currentProfessionals) =>
+      currentProfessionals.map((professional) =>
+        professional.id === scheduleProfessionalId
+          ? {
+              ...professional,
+              schedule: scheduleDraft.trim(),
+            }
+          : professional,
+      ),
+    );
+
+    closeScheduleDialog();
+    toast.success("Horarios atualizados com sucesso!");
   };
 
   const previewSpecialties = parseSpecialties(formData.specialties);
@@ -374,8 +427,8 @@ export function Profissionais() {
                             <Clock3 className="h-4 w-4" />
                             Agenda
                           </span>
-                          <span className="text-sm font-medium text-foreground">
-                            {professional.status === "ativo" ? "Disponivel" : "Pausado"}
+                          <span className="text-right text-sm font-medium text-foreground">
+                            {professional.schedule || (professional.status === "ativo" ? "Disponivel" : "Pausado")}
                           </span>
                         </div>
                       </div>
@@ -387,7 +440,12 @@ export function Profissionais() {
                       <Edit className="h-4 w-4" />
                       Editar
                     </Button>
-                    <Button type="button" variant="outline" className="justify-start">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="justify-start"
+                      onClick={() => openScheduleForm(professional)}
+                    >
                       <Clock3 className="h-4 w-4" />
                       Horarios
                     </Button>
@@ -476,6 +534,21 @@ export function Profissionais() {
               </div>
 
               <div className="grid gap-2">
+                <label htmlFor="professional-schedule">Horarios</label>
+                <Textarea
+                  id="professional-schedule"
+                  value={formData.schedule}
+                  onChange={(event) => handleChange("schedule", event.target.value)}
+                  placeholder="Ex.: Seg a Sex, 09:00 as 18:00 | Sab, 08:00 as 14:00"
+                  rows={3}
+                  className="rounded-[1rem] border-white/70 bg-input-background px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.65),0_18px_44px_-28px_rgba(70,47,28,0.32)]"
+                />
+                <p className="text-sm text-muted-foreground">
+                  Informe os dias e periodos de atendimento que devem aparecer no cadastro.
+                </p>
+              </div>
+
+              <div className="grid gap-2">
                 <label htmlFor="professional-notes">Observacoes</label>
                 <Textarea
                   id="professional-notes"
@@ -525,6 +598,15 @@ export function Profissionais() {
                 </div>
                 <div className="data-pill justify-between">
                   <span className="flex items-center gap-2 text-muted-foreground">
+                    <Clock3 className="h-4 w-4" />
+                    Horarios
+                  </span>
+                  <span className="text-right text-sm font-medium text-foreground">
+                    {formData.schedule.trim() || "Nao informado"}
+                  </span>
+                </div>
+                <div className="data-pill justify-between">
+                  <span className="flex items-center gap-2 text-muted-foreground">
                     <ShieldCheck className="h-4 w-4" />
                     Status inicial
                   </span>
@@ -543,6 +625,44 @@ export function Profissionais() {
               <Button type="submit">
                 <Plus className="h-4 w-4" />
                 {editingProfessionalId === null ? "Salvar profissional" : "Salvar alteracoes"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={scheduleDialogOpen} onOpenChange={(open) => (open ? setScheduleDialogOpen(true) : closeScheduleDialog())}>
+        <DialogContent className="rounded-[1.75rem] border-white/70 bg-[linear-gradient(180deg,rgba(255,251,246,0.97),rgba(248,241,231,0.94))] p-6 shadow-[0_30px_80px_-38px_rgba(73,47,22,0.34)] sm:max-w-xl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl text-foreground">Horarios do profissional</DialogTitle>
+            <DialogDescription className="leading-6">
+              Defina como a disponibilidade deve aparecer no card do profissional.
+            </DialogDescription>
+          </DialogHeader>
+
+          <form noValidate onSubmit={handleSaveSchedule} className="grid gap-5">
+            <div className="grid gap-2">
+              <label htmlFor="professional-schedule-dialog">Horarios</label>
+              <Textarea
+                id="professional-schedule-dialog"
+                value={scheduleDraft}
+                onChange={(event) => setScheduleDraft(event.target.value)}
+                placeholder="Ex.: Seg a Sex, 09:00 as 18:00 | Sab, 08:00 as 14:00"
+                rows={4}
+                className="rounded-[1rem] border-white/70 bg-input-background px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.65),0_18px_44px_-28px_rgba(70,47,28,0.32)]"
+              />
+              <p className="text-sm text-muted-foreground">
+                Voce pode descrever turnos, pausas ou dias especificos em texto livre.
+              </p>
+            </div>
+
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={closeScheduleDialog}>
+                Cancelar
+              </Button>
+              <Button type="submit">
+                <Clock3 className="h-4 w-4" />
+                Salvar horarios
               </Button>
             </DialogFooter>
           </form>
