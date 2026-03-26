@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { ArrowRight, CalendarDays, LockKeyhole, Mail, ShieldCheck } from "lucide-react";
-import { Navigate, useLocation, useNavigate } from "react-router";
+import { Link, Navigate, useLocation, useNavigate } from "react-router";
 
 import { useAuth } from "../auth/AuthContext";
 import { Alert, AlertDescription, AlertTitle } from "../components/ui/alert";
@@ -19,7 +19,18 @@ export function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated, login } = useAuth();
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(() => {
+    if (
+      typeof location.state === "object" &&
+      location.state !== null &&
+      "registeredEmail" in location.state &&
+      typeof location.state.registeredEmail === "string"
+    ) {
+      return location.state.registeredEmail;
+    }
+
+    return "";
+  });
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -31,6 +42,13 @@ export function Login() {
     typeof location.state.from === "string"
       ? location.state.from
       : "/agenda/timeline";
+  const successNotice =
+    typeof location.state === "object" &&
+    location.state !== null &&
+    "notice" in location.state &&
+    typeof location.state.notice === "string"
+      ? location.state.notice
+      : "";
 
   if (isAuthenticated) {
     return <Navigate to="/agenda/timeline" replace />;
@@ -80,10 +98,10 @@ export function Login() {
       <div className="relative mx-auto grid w-full max-w-6xl gap-6 lg:grid-cols-[minmax(0,1.05fr)_28rem]">
         <section className="surface-panel flex min-h-[24rem] flex-col justify-between overflow-hidden rounded-[2rem] p-6 lg:p-8">
           <div className="max-w-2xl animate-fade-up">
-            <span className="eyebrow">Acesso interno</span>
-            <h1 className="page-title mt-5 max-w-xl">Entre para gerenciar agenda, equipe e operacao.</h1>
+            <span className="eyebrow">Painel do studio</span>
+            <h1 className="page-title mt-5 max-w-xl">Seu dia comeca aqui, antes da primeira cadeira ocupar.</h1>
             <p className="page-description mt-5 max-w-xl">
-              Esta primeira etapa do fluxo de autenticacao prepara a navegacao para login, persistencia local da sessao e saida segura da area logada.
+              Entre para acompanhar agenda, equipe, servicos e tudo que move a rotina do studio em um so lugar.
             </p>
           </div>
 
@@ -94,7 +112,7 @@ export function Login() {
               </div>
               <h2 className="mt-4 text-xl text-foreground">Agenda central</h2>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                A equipe entra no painel e segue direto para a rotina operacional.
+                Veja os compromissos do dia e ajuste a operacao sem perder tempo pulando de tela.
               </p>
             </div>
 
@@ -104,7 +122,7 @@ export function Login() {
               </div>
               <h2 className="mt-4 text-xl text-foreground">Sessao persistida</h2>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                O acesso fica salvo localmente para voce nao voltar ao login a cada refresh.
+                O acesso continua salvo no navegador para voce voltar ao painel sem refazer o caminho.
               </p>
             </div>
 
@@ -114,7 +132,7 @@ export function Login() {
               </div>
               <h2 className="mt-4 text-xl text-foreground">Fluxo preparado</h2>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                A base fica pronta para plugar sua API de autenticacao depois, sem refazer a navegacao.
+                A estrutura de entrada ja esta pronta para crescer junto com a autenticacao real do sistema.
               </p>
             </div>
           </div>
@@ -125,13 +143,20 @@ export function Login() {
             <p className="text-[0.72rem] font-semibold uppercase tracking-[0.3em] text-muted-foreground">
               Login
             </p>
-            <h2 className="mt-3 text-3xl text-foreground">Acessar painel</h2>
+            <h2 className="mt-3 text-3xl text-foreground">Entrar no Horarius</h2>
             <p className="mt-3 text-sm leading-6 text-muted-foreground">
-              Use seu e-mail e senha para abrir a area interna. Nesta fase, o acesso esta em modo local para encaixar o fluxo do front.
+              Use seu e-mail e sua senha para continuar de onde parou.
             </p>
           </div>
 
           <form noValidate onSubmit={handleSubmit} className="mt-8 grid gap-4">
+            {successNotice ? (
+              <Alert className="border-primary/15 bg-primary/5">
+                <AlertTitle>Cadastro concluido</AlertTitle>
+                <AlertDescription>{successNotice}</AlertDescription>
+              </Alert>
+            ) : null}
+
             <div className="grid gap-2">
               <label htmlFor="login-email">E-mail</label>
               <div className="relative">
@@ -178,6 +203,10 @@ export function Login() {
             <Button type="submit" size="lg" disabled={isSubmitting} className="mt-2 w-full">
               {isSubmitting ? "Entrando..." : "Entrar"}
               {!isSubmitting ? <ArrowRight className="h-4 w-4" /> : null}
+            </Button>
+
+            <Button asChild type="button" variant="ghost" className="w-full">
+              <Link to="/cadastro">Primeiro acesso? Criar conta</Link>
             </Button>
           </form>
         </section>

@@ -10,6 +10,7 @@ import { Servicos } from "./pages/Servicos";
 import { PlanosClientes } from "./pages/PlanosClientes";
 import { Assinatura } from "./pages/Assinatura";
 import { Perfil } from "./pages/Perfil";
+import { CadastroUsuario } from "./pages/CadastroUsuario";
 import { Login } from "./pages/Login";
 
 function ProtectedLayout() {
@@ -33,10 +34,24 @@ function PublicLoginRoute() {
   return <Login />;
 }
 
+function PublicSignupRoute() {
+  const { isAuthenticated } = useAuth();
+
+  if (isAuthenticated) {
+    return <Navigate to="/agenda/timeline" replace />;
+  }
+
+  return <CadastroUsuario />;
+}
+
 export const router = createBrowserRouter([
   {
     path: "/login",
     Component: PublicLoginRoute,
+  },
+  {
+    path: "/cadastro",
+    Component: PublicSignupRoute,
   },
   {
     path: "/",
