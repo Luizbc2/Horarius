@@ -3,6 +3,7 @@ import { ArrowRight, CalendarDays, LockKeyhole, Mail, ShieldCheck } from "lucide
 import { Link, Navigate, useLocation, useNavigate } from "react-router";
 
 import { useAuth } from "../auth/AuthContext";
+import { AuthShowcasePanel } from "../components/auth/AuthShowcasePanel";
 import { Alert, AlertDescription, AlertTitle } from "../components/ui/alert";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -14,6 +15,30 @@ type FormErrors = {
   password?: string;
   submit?: string;
 };
+
+const loginFeatures = [
+  {
+    icon: CalendarDays,
+    title: "Agenda central",
+    description: "Veja os compromissos do dia e ajuste a operação sem trocar de tela.",
+    iconClassName:
+      "bg-[linear-gradient(135deg,rgba(89,184,171,0.96),rgba(31,109,104,0.92))] text-primary-foreground",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Sessão persistida",
+    description: "O acesso continua salvo no navegador para você voltar ao painel depois.",
+    iconClassName:
+      "bg-[linear-gradient(135deg,rgba(211,140,86,0.94),rgba(168,103,53,0.92))] text-white",
+  },
+  {
+    icon: LockKeyhole,
+    title: "Fluxo pronto",
+    description: "A tela de entrada já está preparada para receber a autenticação real.",
+    iconClassName:
+      "bg-[linear-gradient(135deg,rgba(53,92,125,0.94),rgba(31,47,80,0.92))] text-white",
+  },
+];
 
 export function Login() {
   const navigate = useNavigate();
@@ -96,47 +121,12 @@ export function Login() {
       <div className="pointer-events-none absolute bottom-[-8rem] right-[-6rem] h-80 w-80 rounded-full bg-[radial-gradient(circle,rgba(211,140,86,0.22),transparent_68%)] blur-2xl" />
 
       <div className="relative mx-auto grid w-full max-w-6xl gap-6 lg:grid-cols-[minmax(0,1.05fr)_28rem]">
-        <section className="surface-panel flex min-h-[24rem] flex-col justify-between overflow-hidden rounded-[2rem] p-6 lg:p-8">
-          <div className="max-w-2xl animate-fade-up">
-            <span className="eyebrow">Painel do studio</span>
-            <h1 className="page-title mt-5 max-w-xl">Seu dia começa aqui, antes da primeira cadeira ocupar.</h1>
-            <p className="page-description mt-5 max-w-xl">
-              Entre para acompanhar agenda, equipe, serviços e tudo que move a rotina do studio em um só lugar.
-            </p>
-          </div>
-
-          <div className="mt-8 grid gap-4 md:grid-cols-3">
-            <div className="rounded-[1.5rem] border border-white/70 bg-white/70 p-4 shadow-[0_20px_50px_-34px_rgba(73,47,22,0.35)]">
-              <div className="flex h-11 w-11 items-center justify-center rounded-[1rem] bg-[linear-gradient(135deg,rgba(89,184,171,0.96),rgba(31,109,104,0.92))] text-primary-foreground">
-                <CalendarDays className="h-5 w-5" />
-              </div>
-              <h2 className="mt-4 text-xl text-foreground">Agenda central</h2>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                Veja os compromissos do dia e ajuste a operação sem perder tempo pulando de tela.
-              </p>
-            </div>
-
-            <div className="rounded-[1.5rem] border border-white/70 bg-white/70 p-4 shadow-[0_20px_50px_-34px_rgba(73,47,22,0.35)]">
-              <div className="flex h-11 w-11 items-center justify-center rounded-[1rem] bg-[linear-gradient(135deg,rgba(211,140,86,0.94),rgba(168,103,53,0.92))] text-white">
-                <ShieldCheck className="h-5 w-5" />
-              </div>
-              <h2 className="mt-4 text-xl text-foreground">Sessão persistida</h2>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                O acesso continua salvo no navegador para você voltar ao painel sem refazer o caminho.
-              </p>
-            </div>
-
-            <div className="rounded-[1.5rem] border border-white/70 bg-white/70 p-4 shadow-[0_20px_50px_-34px_rgba(73,47,22,0.35)]">
-              <div className="flex h-11 w-11 items-center justify-center rounded-[1rem] bg-[linear-gradient(135deg,rgba(53,92,125,0.94),rgba(31,47,80,0.92))] text-white">
-                <LockKeyhole className="h-5 w-5" />
-              </div>
-              <h2 className="mt-4 text-xl text-foreground">Fluxo preparado</h2>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                A estrutura de entrada já está pronta para crescer junto com a autenticação real do sistema.
-              </p>
-            </div>
-          </div>
-        </section>
+        <AuthShowcasePanel
+          eyebrow="Painel do studio"
+          title="Seu dia começa aqui, antes da primeira cadeira ocupar."
+          description="Entre para acompanhar agenda, equipe, serviços e tudo que move a rotina do studio em um só lugar."
+          features={loginFeatures}
+        />
 
         <section className="surface-panel flex flex-col justify-center rounded-[2rem] p-6 lg:p-7">
           <div className="animate-fade-up animate-fade-up-delay-1">
@@ -166,7 +156,7 @@ export function Login() {
                   type="email"
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
-                  placeholder="você@empresa.com"
+                  placeholder="voce@empresa.com"
                   className="pl-11"
                   aria-invalid={Boolean(errors.email)}
                   autoComplete="email"

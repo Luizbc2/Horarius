@@ -1,11 +1,12 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { CreditCard, LockKeyhole, Mail, ShieldCheck, UserRound } from "lucide-react";
 
 import { useAuth } from "../auth/AuthContext";
+import { ProfileIdentitySection } from "../components/profile/ProfileIdentitySection";
+import { ProfileMetrics } from "../components/profile/ProfileMetrics";
+import { ProfileSecuritySection } from "../components/profile/ProfileSecuritySection";
 import { Alert, AlertDescription, AlertTitle } from "../components/ui/alert";
-import { MetricCard, PageShell, SectionCard } from "../components/PageShell";
+import { PageShell } from "../components/PageShell";
 import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
 
 type ProfileFormData = {
   name: string;
@@ -221,28 +222,7 @@ export function Perfil() {
         </Button>
       }
     >
-      <div className="metric-grid">
-        <MetricCard
-          label="Conta logada"
-          value="Ativa"
-          helper="Esses dados aparecem no painel da conta atual."
-          icon={<UserRound className="h-5 w-5" />}
-        />
-        <MetricCard
-          label="E-mail"
-          value="Bloqueado"
-          helper="O e-mail do cadastro é exibido só para consulta."
-          icon={<Mail className="h-5 w-5" />}
-          accent="sand"
-        />
-        <MetricCard
-          label="Nova senha"
-          value={passwordStatus}
-          helper="Preencha os dois campos abaixo para confirmar a troca."
-          icon={<ShieldCheck className="h-5 w-5" />}
-          accent="coral"
-        />
-      </div>
+      <ProfileMetrics passwordStatus={passwordStatus} />
 
       <form id="profile-form" noValidate onSubmit={handleSubmit} className="grid gap-6">
         {successMessage ? (
@@ -259,123 +239,22 @@ export function Perfil() {
           </Alert>
         ) : null}
 
-        <SectionCard
-          title="Dados do usuário"
-          description="Aqui você altera somente os dados da conta que está logada agora."
-        >
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="grid gap-2">
-              <label htmlFor="profile-name">Nome</label>
-              <Input
-                id="profile-name"
-                value={formData.name}
-                onChange={(event) => handleChange("name", event.target.value)}
-                aria-invalid={Boolean(formErrors.name)}
-              />
-              {formErrors.name ? (
-                <p className="min-h-[1.25rem] text-sm text-destructive">{formErrors.name}</p>
-              ) : (
-                <p className="min-h-[1.25rem] text-sm text-muted-foreground">
-                  Nome exibido no painel da sua conta.
-                </p>
-              )}
-            </div>
+        <ProfileIdentitySection
+          name={formData.name}
+          email={formData.email}
+          cpf={formData.cpf}
+          nameError={formErrors.name}
+          cpfError={formErrors.cpf}
+          onChange={(field, value) => handleChange(field, value)}
+        />
 
-            <div className="grid gap-2">
-              <label htmlFor="profile-email">E-mail</label>
-              <Input
-                id="profile-email"
-                type="email"
-                value={formData.email}
-                disabled
-                readOnly
-                aria-invalid={Boolean(formErrors.email)}
-              />
-              <p className="min-h-[1.25rem] text-sm text-muted-foreground">
-                Este campo não pode ser alterado nesta tela.
-              </p>
-            </div>
-
-            <div className="grid gap-2 md:col-span-2">
-              <label htmlFor="profile-cpf">CPF</label>
-              <div className="relative">
-                <CreditCard className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  id="profile-cpf"
-                  type="text"
-                  value={formData.cpf}
-                  onChange={(event) => handleChange("cpf", event.target.value)}
-                  className="pl-11"
-                  inputMode="numeric"
-                  placeholder="000.000.000-00"
-                  aria-invalid={Boolean(formErrors.cpf)}
-                />
-              </div>
-              {formErrors.cpf ? (
-                <p className="min-h-[1.25rem] text-sm text-destructive">{formErrors.cpf}</p>
-              ) : (
-                <p className="min-h-[1.25rem] text-sm text-muted-foreground">
-                  Digite o CPF da conta sem mudar o e-mail cadastrado.
-                </p>
-              )}
-            </div>
-          </div>
-        </SectionCard>
-
-        <SectionCard
-          title="Segurança"
-          description="Digite a nova senha e repita o mesmo valor no campo ao lado."
-        >
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="grid gap-2">
-              <label htmlFor="profile-password">Nova senha</label>
-              <div className="relative">
-                <LockKeyhole className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  id="profile-password"
-                  type="password"
-                  value={formData.password}
-                  onChange={(event) => handleChange("password", event.target.value)}
-                  className="pl-11"
-                  placeholder="Use 8+ caracteres, maiúscula e número"
-                  autoComplete="new-password"
-                  aria-invalid={Boolean(formErrors.password)}
-                />
-              </div>
-              {formErrors.password ? (
-                <p className="min-h-[1.25rem] text-sm text-destructive">{formErrors.password}</p>
-              ) : (
-                <p className="min-h-[1.25rem] text-sm text-muted-foreground">
-                  Use 8 ou mais caracteres, com letra maiúscula, minúscula e número.
-                </p>
-              )}
-            </div>
-
-            <div className="grid gap-2">
-              <label htmlFor="profile-confirm-password">Confirmar senha</label>
-              <div className="relative">
-                <LockKeyhole className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  id="profile-confirm-password"
-                  type="password"
-                  value={formData.confirmPassword}
-                  onChange={(event) => handleChange("confirmPassword", event.target.value)}
-                  className="pl-11"
-                  placeholder="Repita exatamente a nova senha"
-                  autoComplete="new-password"
-                  aria-invalid={Boolean(formErrors.confirmPassword)}
-                />
-              </div>
-              {formErrors.confirmPassword ? (
-                <p className="min-h-[1.25rem] text-sm text-destructive">{formErrors.confirmPassword}</p>
-              ) : (
-                <p className="min-h-[1.25rem] text-sm text-muted-foreground">
-                  Digite novamente a nova senha.
-                </p>
-              )}
-            </div>
-          </div>
-        </SectionCard>
+        <ProfileSecuritySection
+          password={formData.password}
+          confirmPassword={formData.confirmPassword}
+          passwordError={formErrors.password}
+          confirmPasswordError={formErrors.confirmPassword}
+          onChange={(field, value) => handleChange(field, value)}
+        />
       </form>
     </PageShell>
   );

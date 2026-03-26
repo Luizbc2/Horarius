@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "react-router";
-import { Clock3, Mail, PencilLine, Phone, Plus, Scissors, Search, Sparkles, Trash2 } from "lucide-react";
+import { Clock3, Plus, Scissors, Search, Sparkles } from "lucide-react";
 import { Toaster, toast } from "sonner";
 
 import { CrudPagination } from "../components/CrudPagination";
 import { EmptyStatePanel, MetricCard, PageShell, SectionCard } from "../components/PageShell";
+import { ProfessionalListCard } from "../components/professionals/ProfessionalListCard";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
-import { formatPhone } from "../data/clients";
 import { paginateItems } from "../data/pagination";
 import { deleteProfessional, loadProfessionals, type Professional } from "../data/professionals";
 
@@ -146,52 +146,11 @@ export function Profissionais() {
             <>
               <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                 {paginatedItems.map((professional) => (
-                  <article
+                  <ProfessionalListCard
                     key={professional.id}
-                    className="rounded-[1.4rem] border border-white/70 bg-white/64 p-5 shadow-[0_20px_45px_-30px_rgba(73,47,22,0.32)]"
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <h3 className="text-xl text-foreground">{professional.name}</h3>
-                      <span className="soft-badge" data-variant={professional.status === "ativo" ? "default" : "warm"}>
-                        {professional.status === "ativo" ? "Ativo" : "Férias"}
-                      </span>
-                    </div>
-
-                    <div className="mt-4 space-y-2 text-sm text-muted-foreground">
-                      <p>Especialidade: {professional.specialty}</p>
-                      <p>
-                        Turno: {professional.shiftStart} às {professional.shiftEnd}
-                      </p>
-                    </div>
-
-                    <div className="mt-4 flex flex-wrap gap-2">
-                      <span className="data-pill text-xs">
-                        <Mail className="h-3.5 w-3.5" />
-                        {professional.email}
-                      </span>
-                      <span className="data-pill text-xs">
-                        <Phone className="h-3.5 w-3.5" />
-                        {formatPhone(professional.phone)}
-                      </span>
-                    </div>
-
-                    <div className="mt-6 flex gap-2 border-t border-[rgba(74,52,34,0.08)] pt-4">
-                      <Button variant="outline" className="flex-1" asChild>
-                        <Link to={`/profissionais/${professional.id}/editar`}>
-                          <PencilLine className="h-4 w-4" />
-                          Editar
-                        </Link>
-                      </Button>
-                      <Button
-                        variant="outline"
-                        className="flex-1 text-destructive hover:text-destructive"
-                        onClick={() => handleDelete(professional.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                        Excluir
-                      </Button>
-                    </div>
-                  </article>
+                    professional={professional}
+                    onDelete={handleDelete}
+                  />
                 ))}
               </div>
 

@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { ArrowRight, CalendarDays, CreditCard, LockKeyhole, Mail, UserRound } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 
+import { AuthShowcasePanel } from "../components/auth/AuthShowcasePanel";
 import { Alert, AlertDescription, AlertTitle } from "../components/ui/alert";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -25,6 +26,30 @@ type SignupFormErrors = {
   confirmPassword?: string;
   submit?: string;
 };
+
+const signupFeatures = [
+  {
+    icon: UserRound,
+    title: "Dados básicos",
+    description: "Nome, e-mail, CPF e senha em um fluxo direto, sem excesso de etapas.",
+    iconClassName:
+      "bg-[linear-gradient(135deg,rgba(89,184,171,0.96),rgba(31,109,104,0.92))] text-primary-foreground",
+  },
+  {
+    icon: CalendarDays,
+    title: "Fluxo separado",
+    description: "Cadastro e entrada ficam separados para deixar a experiência mais clara desde o começo.",
+    iconClassName:
+      "bg-[linear-gradient(135deg,rgba(211,140,86,0.94),rgba(168,103,53,0.92))] text-white",
+  },
+  {
+    icon: ArrowRight,
+    title: "Volta ao login",
+    description: "Depois do cadastro, o usuário retorna ao login para acessar o painel.",
+    iconClassName:
+      "bg-[linear-gradient(135deg,rgba(53,92,125,0.94),rgba(31,47,80,0.92))] text-white",
+  },
+];
 
 const initialFormData: SignupFormData = {
   name: "",
@@ -185,47 +210,12 @@ export function CadastroUsuario() {
       <div className="pointer-events-none absolute bottom-[-8rem] right-[-6rem] h-80 w-80 rounded-full bg-[radial-gradient(circle,rgba(211,140,86,0.18),transparent_68%)] blur-2xl" />
 
       <div className="relative mx-auto grid w-full max-w-6xl gap-6 lg:grid-cols-[minmax(0,1.05fr)_30rem]">
-        <section className="surface-panel flex min-h-[24rem] flex-col justify-between overflow-hidden rounded-[2rem] p-6 lg:p-8">
-          <div className="max-w-2xl animate-fade-up">
-            <span className="eyebrow">Primeiro acesso</span>
-            <h1 className="page-title mt-5 max-w-xl">Crie sua conta e deixe o painel pronto para rodar com você.</h1>
-            <p className="page-description mt-5 max-w-xl">
-              O cadastro organiza os dados básicos de quem vai usar o sistema e prepara a entrada no painel logo em seguida.
-            </p>
-          </div>
-
-          <div className="mt-8 grid gap-4 md:grid-cols-3">
-            <div className="rounded-[1.5rem] border border-white/70 bg-white/70 p-4 shadow-[0_20px_50px_-34px_rgba(73,47,22,0.35)]">
-              <div className="flex h-11 w-11 items-center justify-center rounded-[1rem] bg-[linear-gradient(135deg,rgba(89,184,171,0.96),rgba(31,109,104,0.92))] text-primary-foreground">
-                <UserRound className="h-5 w-5" />
-              </div>
-              <h2 className="mt-4 text-xl text-foreground">Dados básicos</h2>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                Nome, e-mail, CPF e senha em um fluxo direto, sem excesso de etapas.
-              </p>
-            </div>
-
-            <div className="rounded-[1.5rem] border border-white/70 bg-white/70 p-4 shadow-[0_20px_50px_-34px_rgba(73,47,22,0.35)]">
-              <div className="flex h-11 w-11 items-center justify-center rounded-[1rem] bg-[linear-gradient(135deg,rgba(211,140,86,0.94),rgba(168,103,53,0.92))] text-white">
-                <CalendarDays className="h-5 w-5" />
-              </div>
-              <h2 className="mt-4 text-xl text-foreground">Fluxo separado</h2>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                Cadastro e entrada ficam separados para deixar a experiência mais clara desde o primeiro uso.
-              </p>
-            </div>
-
-            <div className="rounded-[1.5rem] border border-white/70 bg-white/70 p-4 shadow-[0_20px_50px_-34px_rgba(73,47,22,0.35)]">
-              <div className="flex h-11 w-11 items-center justify-center rounded-[1rem] bg-[linear-gradient(135deg,rgba(53,92,125,0.94),rgba(31,47,80,0.92))] text-white">
-                <ArrowRight className="h-5 w-5" />
-              </div>
-              <h2 className="mt-4 text-xl text-foreground">Retorno ao login</h2>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                Assim que terminar, você volta para o login com os dados frescos para entrar.
-              </p>
-            </div>
-          </div>
-        </section>
+        <AuthShowcasePanel
+          eyebrow="Primeiro acesso"
+          title="Crie sua conta e deixe o painel pronto para rodar com você."
+          description="O cadastro organiza os dados básicos de quem vai usar o sistema e prepara a entrada no painel logo em seguida."
+          features={signupFeatures}
+        />
 
         <section className="surface-panel flex flex-col justify-center rounded-[2rem] p-6 lg:p-7">
           <div className="animate-fade-up animate-fade-up-delay-1">
@@ -248,7 +238,7 @@ export function CadastroUsuario() {
                   type="text"
                   value={formData.name}
                   onChange={(event) => handleChange("name", event.target.value)}
-                  placeholder="Ex.: Luiz Otávio"
+                  placeholder="Ex.: Luiz Otavio"
                   className="pl-11"
                   autoComplete="name"
                   aria-invalid={Boolean(formErrors.name)}
@@ -266,7 +256,7 @@ export function CadastroUsuario() {
                   type="email"
                   value={formData.email}
                   onChange={(event) => handleChange("email", event.target.value)}
-                  placeholder="você@empresa.com"
+                  placeholder="voce@empresa.com"
                   className="pl-11"
                   autoComplete="email"
                   aria-invalid={Boolean(formErrors.email)}
@@ -347,7 +337,7 @@ export function CadastroUsuario() {
               </Button>
 
               <Button asChild type="button" variant="ghost" className="w-full">
-                <Link to="/login">Já tenho conta</Link>
+                <Link to="/login">Ja tenho conta</Link>
               </Button>
             </div>
           </form>
