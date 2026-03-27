@@ -6,19 +6,27 @@ export class AuthController {
   constructor(private readonly loginService: LoginService) {}
 
   public async login(request: Request, response: Response): Promise<Response> {
-    const { email = "", password = "" } = request.body as {
-      email?: string;
-      password?: string;
-    };
+    try {
+      const { email = "", password = "" } = request.body as {
+        email?: string;
+        password?: string;
+      };
 
-    const result = await this.loginService.execute({ email, password });
+      const result = await this.loginService.execute({ email, password });
 
-    if (!result.success) {
-      return response.status(result.statusCode).json({
-        message: result.message
+      if (!result.success) {
+        return response.status(result.statusCode).json({
+          message: result.message
+        });
+      }
+
+      return response.status(200).json(result.data);
+    } catch (error) {
+      console.error("Login request failed.", error);
+
+      return response.status(500).json({
+        message: "Unable to process login right now."
       });
     }
-
-    return response.status(200).json(result.data);
   }
 }

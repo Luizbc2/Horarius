@@ -18,7 +18,7 @@ export const env = {
     user: process.env.DB_USER || "",
     password: process.env.DB_PASSWORD || ""
   },
-  authDemoUser: {
+  authSeedUser: {
     name: process.env.AUTH_USER_NAME || "Usuario Horarius",
     email: process.env.AUTH_USER_EMAIL || "admin@horarius.com",
     cpf: process.env.AUTH_USER_CPF || "52998224725",

@@ -6,6 +6,7 @@ import { hashPassword, isPasswordHashed } from "../modules/auth/utils/password.u
 
 class Database {
   private sequelize: Sequelize | null = null;
+  private modelsInitialized = false;
 
   public isConfigured(): boolean {
     const { host, name, user, password } = env.database;
@@ -27,31 +28,44 @@ class Database {
   }
 
   private initializeModels(): void {
+    if (this.modelsInitialized) {
+      return;
+    }
+
     UserModel.initialize(this.getConnection());
+    this.modelsInitialized = true;
   }
 
   private async seedAuthUser(): Promise<void> {
-    const hashedPassword = await hashPassword(env.authDemoUser.password);
-    const [user] = await UserModel.findOrCreate({
+    const email = env.authSeedUser.email.toLowerCase();
+    const hashedPassword = await hashPassword(env.authSeedUser.password);
+    const existingUser = await UserModel.findOne({
       where: {
-        email: env.authDemoUser.email.toLowerCase()
-      },
-      defaults: {
-        name: env.authDemoUser.name,
-        email: env.authDemoUser.email.toLowerCase(),
-        cpf: env.authDemoUser.cpf,
-        password: hashedPassword
+        email
       }
     });
 
-    if (!isPasswordHashed(user.password)) {
-      await user.update({
+    if (!existingUser) {
+      await UserModel.create({
+        name: env.authSeedUser.name.trim(),
+        email,
+        cpf: env.authSeedUser.cpf,
+        password: hashedPassword
+      });
+
+      return;
+    }
+
+    if (!isPasswordHashed(existingUser.password)) {
+      await existingUser.update({
         password: hashedPassword
       });
     }
   }
 
   public async connect(): Promise<boolean> {
+    this.initializeModels();
+
     if (!this.isConfigured()) {
       console.log("Database connection skipped: configure PostgreSQL variables when ready.");
       return false;
@@ -69,8 +83,6 @@ class Database {
   }
 
   public async synchronize(): Promise<void> {
-    this.initializeModels();
-
     await this.getConnection().sync();
     await this.seedAuthUser();
 

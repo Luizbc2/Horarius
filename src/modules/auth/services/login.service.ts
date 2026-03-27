@@ -38,7 +38,17 @@ export class LoginService {
       };
     }
 
-    const user = await this.userRepository.findByEmail(email);
+    let user;
+
+    try {
+      user = await this.userRepository.findByEmail(email);
+    } catch {
+      return {
+        success: false,
+        message: "Authentication service is unavailable right now.",
+        statusCode: 503
+      };
+    }
 
     if (!user) {
       return {

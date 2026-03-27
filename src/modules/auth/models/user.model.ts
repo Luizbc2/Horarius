@@ -31,16 +31,25 @@ export class UserModel extends Model<InferAttributes<UserModel>, InferCreationAt
         email: {
           type: DataTypes.STRING,
           allowNull: false,
-          unique: true
+          unique: true,
+          validate: {
+            isEmail: true
+          }
         },
         cpf: {
           type: DataTypes.STRING(11),
           allowNull: false,
-          unique: true
+          unique: true,
+          validate: {
+            len: [11, 11]
+          }
         },
         password: {
           type: DataTypes.STRING,
-          allowNull: false
+          allowNull: false,
+          validate: {
+            notEmpty: true
+          }
         },
         createdAt: {
           type: DataTypes.DATE,
@@ -55,7 +64,14 @@ export class UserModel extends Model<InferAttributes<UserModel>, InferCreationAt
         sequelize,
         modelName: "User",
         tableName: "users",
-        timestamps: true
+        timestamps: true,
+        hooks: {
+          beforeValidate: (user) => {
+            user.name = user.name.trim();
+            user.email = user.email.trim().toLowerCase();
+            user.cpf = user.cpf.replace(/\D/g, "");
+          }
+        }
       }
     );
   }
