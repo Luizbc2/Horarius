@@ -1,5 +1,6 @@
 import { LoginInput, LoginResponse } from "../auth.types";
 import { UserRepository } from "../repositories/user.repository";
+import { comparePassword } from "../utils/password.util";
 
 type ServiceResult<T> =
   | {
@@ -29,7 +30,17 @@ export class LoginService {
 
     const user = await this.userRepository.findByEmail(email);
 
-    if (!user || user.password !== password) {
+    if (!user) {
+      return {
+        success: false,
+        message: "Invalid email or password.",
+        statusCode: 401
+      };
+    }
+
+    const passwordMatches = await comparePassword(password, user.password);
+
+    if (!passwordMatches) {
       return {
         success: false,
         message: "Invalid email or password.",

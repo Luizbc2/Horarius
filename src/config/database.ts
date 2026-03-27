@@ -2,6 +2,7 @@ import { Sequelize } from "sequelize";
 
 import { env } from "./env";
 import { UserModel } from "../modules/auth/models/user.model";
+import { hashPassword, isPasswordHashed } from "../modules/auth/utils/password.util";
 
 class Database {
   private sequelize: Sequelize | null = null;
@@ -30,7 +31,8 @@ class Database {
   }
 
   private async seedAuthUser(): Promise<void> {
-    await UserModel.findOrCreate({
+    const hashedPassword = await hashPassword(env.authDemoUser.password);
+    const [user] = await UserModel.findOrCreate({
       where: {
         email: env.authDemoUser.email.toLowerCase()
       },
@@ -38,9 +40,15 @@ class Database {
         name: env.authDemoUser.name,
         email: env.authDemoUser.email.toLowerCase(),
         cpf: env.authDemoUser.cpf,
-        password: env.authDemoUser.password
+        password: hashedPassword
       }
     });
+
+    if (!isPasswordHashed(user.password)) {
+      await user.update({
+        password: hashedPassword
+      });
+    }
   }
 
   public async connect(): Promise<boolean> {
