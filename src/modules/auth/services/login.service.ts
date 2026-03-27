@@ -1,6 +1,7 @@
 import { LoginInput, LoginResponse } from "../auth.types";
 import { UserRepository } from "../repositories/user.repository";
 import { comparePassword } from "../utils/password.util";
+import { generateAccessToken } from "../utils/jwt.util";
 import { isValidEmail } from "../../../shared/utils/email.util";
 
 type ServiceResult<T> =
@@ -61,6 +62,7 @@ export class LoginService {
       success: true,
       data: {
         message: "Login successful.",
+        token: generateAccessToken(user),
         user: {
           id: user.id,
           name: user.name,

@@ -23,5 +23,9 @@ export const env = {
     email: process.env.AUTH_USER_EMAIL || "admin@horarius.com",
     cpf: process.env.AUTH_USER_CPF || "52998224725",
     password: process.env.AUTH_USER_PASSWORD || "123456"
+  },
+  jwt: {
+    secret: process.env.JWT_SECRET || "horarius_jwt_secret",
+    expiresIn: process.env.JWT_EXPIRES_IN || "1d"
   }
 };
