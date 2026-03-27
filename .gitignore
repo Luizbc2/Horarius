@@ -39,3 +39,6 @@ venv/
 # Temp
 tmp/
 temp/
+
+# Local references
+__frontend_reference/

@@ -27,3 +27,17 @@ Base inicial do backend em Node.js com TypeScript, Express, Sequelize e PostgreS
 ## Primeira rota
 
 - `GET /api/health`
+
+## Login inicial
+
+- `POST /api/auth/login`
+- corpo esperado:
+
+```json
+{
+  "email": "admin@horarius.com",
+  "password": "123456"
+}
+```
+
+- usuario temporario lido do `.env` ate a etapa de banco/cadastro
