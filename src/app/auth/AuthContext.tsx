@@ -4,6 +4,8 @@ import {
   clearStoredSession,
   type AuthSession,
   type AuthUser,
+  getStoredToken,
+  normalizeCpf,
   persistSession,
   readStoredSession,
   syncStoredSignupProfile,
@@ -18,6 +20,7 @@ type UpdateUserProfileInput = {
 
 type AuthContextValue = {
   isAuthenticated: boolean;
+  token: string | null;
   user: AuthUser | null;
   login: (email: string, password: string) => Promise<void>;
   updateUserProfile: (input: UpdateUserProfileInput) => Promise<void>;
@@ -62,7 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user: {
         ...session.user,
         name: input.name.trim(),
-        cpf: input.cpf.replace(/\D/g, "").slice(0, 11),
+        cpf: normalizeCpf(input.cpf),
       },
     };
 
@@ -80,6 +83,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     <AuthContext.Provider
       value={{
         isAuthenticated: session !== null,
+        token: getStoredToken(),
         user: session?.user ?? null,
         login,
         updateUserProfile,

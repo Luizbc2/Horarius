@@ -2,6 +2,7 @@ export const AUTH_STORAGE_KEY = "horarius:auth";
 export const SIGNUP_STORAGE_KEY = "horarius:last-signup";
 
 export type AuthUser = {
+  id: number;
   name: string;
   email: string;
   cpf: string;
@@ -16,9 +17,16 @@ type StoredSignup = Partial<AuthUser> & {
   createdAt?: string;
 };
 
-const normalizeCpf = (value: string): string => value.replace(/\D/g, "").slice(0, 11);
+export const normalizeCpf = (value: string): string => value.replace(/\D/g, "").slice(0, 11);
 
 const canUseLocalStorage = (): boolean => typeof window !== "undefined";
+
+const normalizeAuthUser = (user: AuthUser): AuthUser => ({
+  id: user.id,
+  name: user.name.trim(),
+  email: user.email.trim().toLowerCase(),
+  cpf: normalizeCpf(user.cpf),
+});
 
 export function readStoredSignup(): StoredSignup | null {
   if (!canUseLocalStorage()) {
@@ -63,7 +71,12 @@ export function readStoredSession(): AuthSession | null {
 
     const parsedSession = JSON.parse(rawSession) as Partial<AuthSession>;
 
-    if (!parsedSession.token || !parsedSession.user?.email || !parsedSession.user?.name) {
+    if (
+      !parsedSession.token ||
+      typeof parsedSession.user?.id !== "number" ||
+      !parsedSession.user.email ||
+      !parsedSession.user.name
+    ) {
       return null;
     }
 
@@ -74,6 +87,7 @@ export function readStoredSession(): AuthSession | null {
     return {
       token: parsedSession.token,
       user: {
+        id: parsedSession.user.id,
         email: parsedSession.user.email,
         name: parsedSession.user.name,
         cpf:
@@ -92,7 +106,13 @@ export function persistSession(session: AuthSession): void {
     return;
   }
 
-  window.localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(session));
+  window.localStorage.setItem(
+    AUTH_STORAGE_KEY,
+    JSON.stringify({
+      token: session.token,
+      user: normalizeAuthUser(session.user),
+    } satisfies AuthSession),
+  );
 }
 
 export function clearStoredSession(): void {
@@ -101,6 +121,10 @@ export function clearStoredSession(): void {
   }
 
   window.localStorage.removeItem(AUTH_STORAGE_KEY);
+}
+
+export function getStoredToken(): string | null {
+  return readStoredSession()?.token ?? null;
 }
 
 export function syncStoredSignupProfile(email: string, user: AuthUser): void {
