@@ -18,6 +18,20 @@ export class SequelizeUserRepository implements UserRepository {
     return this.toAuthenticatedUser(user);
   }
 
+  public async findByCpf(cpf: string): Promise<AuthenticatedUser | null> {
+    const user = await UserModel.findOne({
+      where: {
+        cpf
+      }
+    });
+
+    if (!user) {
+      return null;
+    }
+
+    return this.toAuthenticatedUser(user);
+  }
+
   public async create(input: CreateUserInputDto): Promise<AuthenticatedUser> {
     const user = await UserModel.create({
       name: input.name,

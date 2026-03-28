@@ -73,6 +73,16 @@ export class CreateUserService {
       };
     }
 
+    const existingCpfUser = await this.userRepository.findByCpf(cpf);
+
+    if (existingCpfUser) {
+      return {
+        success: false,
+        message: "CPF is already in use.",
+        statusCode: 409,
+      };
+    }
+
     const createdUser = await this.userRepository.create({
       name,
       email,
