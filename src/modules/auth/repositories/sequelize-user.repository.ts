@@ -4,6 +4,16 @@ import { UserModel } from "../models/user.model";
 import { UserRepository } from "./user.repository";
 
 export class SequelizeUserRepository implements UserRepository {
+  public async findById(id: number): Promise<AuthenticatedUser | null> {
+    const user = await UserModel.findByPk(id);
+
+    if (!user) {
+      return null;
+    }
+
+    return this.toAuthenticatedUser(user);
+  }
+
   public async findByEmail(email: string): Promise<AuthenticatedUser | null> {
     const user = await UserModel.findOne({
       where: {
