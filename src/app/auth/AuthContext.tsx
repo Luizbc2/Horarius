@@ -8,6 +8,7 @@ import {
   persistSession,
   readStoredSession,
 } from "../lib/auth-storage";
+import { ApiError } from "../lib/api";
 import { loginWithApi, updateProfileWithApi } from "../services/auth";
 
 type UpdateUserProfileInput = {
@@ -29,6 +30,20 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<AuthSession | null>(readStoredSession);
+
+  const clearSession = () => {
+    clearStoredSession();
+    setSession(null);
+  };
+
+  const handleProtectedRequestError = (error: unknown): never => {
+    if (error instanceof ApiError && error.status === 401) {
+      clearSession();
+      throw new Error("Sua sessao expirou. Entre novamente para continuar.");
+    }
+
+    throw error;
+  };
 
   const login = async (email: string, password: string) => {
     if (!email.trim() || !password.trim()) {
@@ -54,15 +69,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       throw new Error("Nenhum usuario autenticado.");
     }
 
-    const response = await updateProfileWithApi(
-      {
-        name: input.name.trim(),
-        email: session.user.email,
-        cpf: input.cpf,
-        password: input.password,
-      },
-      session.token,
-    );
+    let response;
+
+    try {
+      response = await updateProfileWithApi(
+        {
+          name: input.name.trim(),
+          email: session.user.email,
+          cpf: input.cpf,
+          password: input.password,
+        },
+        session.token,
+      );
+    } catch (error) {
+      handleProtectedRequestError(error);
+    }
 
     const nextSession: AuthSession = {
       ...session,
@@ -74,8 +95,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = () => {
-    clearStoredSession();
-    setSession(null);
+    clearSession();
   };
 
   return (
