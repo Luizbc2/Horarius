@@ -1,5 +1,4 @@
 export const AUTH_STORAGE_KEY = "horarius:auth";
-export const SIGNUP_STORAGE_KEY = "horarius:last-signup";
 
 export type AuthUser = {
   id: number;
@@ -13,10 +12,6 @@ export type AuthSession = {
   user: AuthUser;
 };
 
-type StoredSignup = Partial<AuthUser> & {
-  createdAt?: string;
-};
-
 export const normalizeCpf = (value: string): string => value.replace(/\D/g, "").slice(0, 11);
 
 const canUseLocalStorage = (): boolean => typeof window !== "undefined";
@@ -27,35 +22,6 @@ const normalizeAuthUser = (user: AuthUser): AuthUser => ({
   email: user.email.trim().toLowerCase(),
   cpf: normalizeCpf(user.cpf),
 });
-
-export function readStoredSignup(): StoredSignup | null {
-  if (!canUseLocalStorage()) {
-    return null;
-  }
-
-  try {
-    const rawSignup = window.localStorage.getItem(SIGNUP_STORAGE_KEY);
-
-    if (!rawSignup) {
-      return null;
-    }
-
-    const parsedSignup = JSON.parse(rawSignup) as StoredSignup;
-
-    if (!parsedSignup.email || !parsedSignup.name) {
-      return null;
-    }
-
-    return {
-      ...parsedSignup,
-      email: parsedSignup.email,
-      name: parsedSignup.name,
-      cpf: typeof parsedSignup.cpf === "string" ? normalizeCpf(parsedSignup.cpf) : "",
-    };
-  } catch {
-    return null;
-  }
-}
 
 export function readStoredSession(): AuthSession | null {
   if (!canUseLocalStorage()) {
@@ -80,20 +46,13 @@ export function readStoredSession(): AuthSession | null {
       return null;
     }
 
-    const storedSignup = readStoredSignup();
-    const matchingSignup =
-      storedSignup?.email?.toLowerCase() === parsedSession.user.email.toLowerCase() ? storedSignup : null;
-
     return {
       token: parsedSession.token,
       user: {
         id: parsedSession.user.id,
         email: parsedSession.user.email,
         name: parsedSession.user.name,
-        cpf:
-          typeof parsedSession.user.cpf === "string" && parsedSession.user.cpf.trim()
-            ? normalizeCpf(parsedSession.user.cpf)
-            : matchingSignup?.cpf ?? "",
+        cpf: typeof parsedSession.user.cpf === "string" ? normalizeCpf(parsedSession.user.cpf) : "",
       },
     };
   } catch {
@@ -125,21 +84,4 @@ export function clearStoredSession(): void {
 
 export function getStoredToken(): string | null {
   return readStoredSession()?.token ?? null;
-}
-
-export function syncStoredSignupProfile(email: string, user: AuthUser): void {
-  const storedSignup = readStoredSignup();
-
-  if (!storedSignup?.email || storedSignup.email.toLowerCase() !== email.toLowerCase()) {
-    return;
-  }
-
-  window.localStorage.setItem(
-    SIGNUP_STORAGE_KEY,
-    JSON.stringify({
-      ...storedSignup,
-      name: user.name,
-      cpf: normalizeCpf(user.cpf),
-    }),
-  );
 }

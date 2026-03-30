@@ -9,7 +9,6 @@ import { Input } from "../components/ui/input";
 import { signupWithApi } from "../services/auth";
 import { ApiError } from "../lib/api";
 
-const SIGNUP_STORAGE_KEY = "horarius:last-signup";
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 type SignupFormData = {
@@ -236,16 +235,6 @@ export function CadastroUsuario() {
 
     try {
       const response = await signupWithApi(signupPayload);
-
-      window.localStorage.setItem(
-        SIGNUP_STORAGE_KEY,
-        JSON.stringify({
-          name: response.user.name,
-          email: response.user.email,
-          cpf: response.user.cpf,
-          createdAt: new Date().toISOString(),
-        }),
-      );
 
       navigate("/login", {
         replace: true,

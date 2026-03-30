@@ -8,7 +8,6 @@ import {
   normalizeCpf,
   persistSession,
   readStoredSession,
-  syncStoredSignupProfile,
 } from "../lib/auth-storage";
 import { loginWithApi } from "../services/auth";
 
@@ -71,7 +70,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     persistSession(nextSession);
     setSession(nextSession);
-    syncStoredSignupProfile(session.user.email, nextSession.user);
   };
 
   const logout = () => {
