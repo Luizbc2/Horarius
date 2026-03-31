@@ -21,6 +21,7 @@ export type UpdateClientRequestDto = {
 };
 
 export type ListClientsQueryDto = {
+  limit?: number;
   page?: number;
   search?: string;
 };
