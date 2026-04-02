@@ -166,10 +166,23 @@ export function AgendaTimeline() {
   const [selectedProfessional, setSelectedProfessional] = useState("todos");
   const [selectedStatus, setSelectedStatus] = useState("todos");
   const [professionals, setProfessionals] = useState<Professional[]>([]);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [draggedAppointmentId, setDraggedAppointmentId] = useState<number | null>(null);
+  const [dragOverSlot, setDragOverSlot] = useState<string | null>(null);
 
   useEffect(() => {
     setProfessionals(loadProfessionals());
   }, []);
+
+  useEffect(() => {
+    setAppointments((currentAppointments) => {
+      if (currentAppointments.length > 0) {
+        return currentAppointments;
+      }
+
+      return createTimelineAppointments(professionals);
+    });
+  }, [professionals]);
 
   const timeSlots = useMemo(() => generateTimeSlots(), []);
 
@@ -181,11 +194,9 @@ export function AgendaTimeline() {
     return professionals.filter((professional) => String(professional.id) === selectedProfessional);
   }, [professionals, selectedProfessional]);
 
-  const allAppointments = useMemo(() => createTimelineAppointments(professionals), [professionals]);
-
   const filteredAppointments = useMemo(
     () =>
-      allAppointments.filter((appointment) => {
+      appointments.filter((appointment) => {
         if (selectedProfessional !== "todos" && appointment.professionalId !== selectedProfessional) {
           return false;
         }
@@ -196,7 +207,7 @@ export function AgendaTimeline() {
 
         return true;
       }),
-    [allAppointments, selectedProfessional, selectedStatus],
+    [appointments, selectedProfessional, selectedStatus, professionals],
   );
 
   const appointmentsByProfessional = useMemo(() => {
@@ -251,6 +262,27 @@ export function AgendaTimeline() {
 
   const today = () => {
     setSelectedDate(new Date());
+  };
+
+  const handleDropAppointment = (professionalId: string, time: string) => {
+    if (draggedAppointmentId === null) {
+      return;
+    }
+
+    setAppointments((currentAppointments) =>
+      currentAppointments.map((appointment) =>
+        appointment.id === draggedAppointmentId
+          ? {
+              ...appointment,
+              professionalId,
+              time,
+            }
+          : appointment,
+      ),
+    );
+
+    setDraggedAppointmentId(null);
+    setDragOverSlot(null);
   };
 
   return (
@@ -433,7 +465,23 @@ export function AgendaTimeline() {
                         {timeSlots.map((time) => (
                           <div
                             key={`${professional.id}-${time}-slot`}
-                            className="border-b border-[rgba(74,52,34,0.08)]"
+                            className={cn(
+                              "border-b border-[rgba(74,52,34,0.08)] transition-colors",
+                              dragOverSlot === `${professional.id}-${time}` ? "bg-primary/10" : "",
+                            )}
+                            onDragOver={(event) => {
+                              event.preventDefault();
+                              setDragOverSlot(`${professional.id}-${time}`);
+                            }}
+                            onDragLeave={() => {
+                              setDragOverSlot((current) =>
+                                current === `${professional.id}-${time}` ? null : current,
+                              );
+                            }}
+                            onDrop={(event) => {
+                              event.preventDefault();
+                              handleDropAppointment(String(professional.id), time);
+                            }}
                           />
                         ))}
                       </div>
@@ -461,9 +509,18 @@ export function AgendaTimeline() {
                                 gridRow: `${startIndex + 1} / span ${rowSpan}`,
                               }}
                               className={cn(
-                                "mx-0.5 my-[2px] rounded-[1rem] border px-3 py-2 shadow-[0_16px_35px_-28px_rgba(73,47,22,0.45)]",
+                                "mx-0.5 my-[2px] cursor-grab rounded-[1rem] border px-3 py-2 shadow-[0_16px_35px_-28px_rgba(73,47,22,0.45)] active:cursor-grabbing",
                                 statusStyles[appointment.status].card,
+                                draggedAppointmentId === appointment.id ? "opacity-60" : "",
                               )}
+                              draggable
+                              onDragStart={() => {
+                                setDraggedAppointmentId(appointment.id);
+                              }}
+                              onDragEnd={() => {
+                                setDraggedAppointmentId(null);
+                                setDragOverSlot(null);
+                              }}
                             >
                               <div className="flex items-start justify-between gap-3">
                                 <div className="min-w-0">
