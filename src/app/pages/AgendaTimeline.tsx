@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router";
+import { Toaster, toast } from "sonner";
 import {
   CalendarCheck2,
   CalendarDays,
@@ -32,20 +33,20 @@ type Appointment = {
   service: string;
   professionalId: string;
   status: AppointmentStatus;
-  durationInMinutes: number;
 };
 
 const DAY_START_HOUR = 9;
 const DAY_END_HOUR = 19;
 const SLOT_INTERVAL_MINUTES = 10;
-const SLOT_HEIGHT = 22;
+const SLOT_HEIGHT = 34;
+const APPOINTMENT_DURATION_IN_MINUTES = 30;
 
 const statusStyles: Record<
   AppointmentStatus,
   { card: string; badge: string; label: string }
 > = {
   confirmado: {
-    card: "border-emerald-300 bg-emerald-100/85",
+    card: "border-emerald-300 bg-emerald-100/90",
     badge: "border-emerald-300 bg-emerald-50 text-emerald-800",
     label: "Confirmado",
   },
@@ -55,7 +56,7 @@ const statusStyles: Record<
     label: "Pendente",
   },
   cancelado: {
-    card: "border-rose-300 bg-rose-100/85",
+    card: "border-rose-300 bg-rose-100/90",
     badge: "border-rose-300 bg-rose-50 text-rose-700",
     label: "Cancelado",
   },
@@ -107,7 +108,6 @@ function createTimelineAppointments(professionals: Professional[]): Appointment[
       service: "Corte + barba",
       professionalId: String(firstProfessional.id),
       status: "confirmado",
-      durationInMinutes: 60,
     },
     {
       id: 2,
@@ -116,7 +116,6 @@ function createTimelineAppointments(professionals: Professional[]): Appointment[
       service: "Barba",
       professionalId: String(firstProfessional.id),
       status: "confirmado",
-      durationInMinutes: 30,
     },
     {
       id: 3,
@@ -125,7 +124,6 @@ function createTimelineAppointments(professionals: Professional[]): Appointment[
       service: "Corte",
       professionalId: String(firstProfessional.id),
       status: "confirmado",
-      durationInMinutes: 30,
     },
     {
       id: 4,
@@ -134,7 +132,6 @@ function createTimelineAppointments(professionals: Professional[]): Appointment[
       service: "Sobrancelha",
       professionalId: String(firstProfessional.id),
       status: "pendente",
-      durationInMinutes: 30,
     },
     ...(secondProfessional
       ? [
@@ -145,7 +142,6 @@ function createTimelineAppointments(professionals: Professional[]): Appointment[
             service: "Escova",
             professionalId: String(secondProfessional.id),
             status: "confirmado" as const,
-            durationInMinutes: 40,
           },
           {
             id: 6,
@@ -154,7 +150,6 @@ function createTimelineAppointments(professionals: Professional[]): Appointment[
             service: "Corte feminino",
             professionalId: String(secondProfessional.id),
             status: "pendente" as const,
-            durationInMinutes: 50,
           },
         ]
       : []),
@@ -176,7 +171,7 @@ export function AgendaTimeline() {
 
   useEffect(() => {
     setAppointments((currentAppointments) => {
-      if (currentAppointments.length > 0) {
+      if (currentAppointments.length > 0 || professionals.length === 0) {
         return currentAppointments;
       }
 
@@ -185,6 +180,7 @@ export function AgendaTimeline() {
   }, [professionals]);
 
   const timeSlots = useMemo(() => generateTimeSlots(), []);
+  const timelineHeight = timeSlots.length * SLOT_HEIGHT;
 
   const visibleProfessionals = useMemo(() => {
     if (selectedProfessional === "todos") {
@@ -207,7 +203,7 @@ export function AgendaTimeline() {
 
         return true;
       }),
-    [appointments, selectedProfessional, selectedStatus, professionals],
+    [appointments, selectedProfessional, selectedStatus],
   );
 
   const appointmentsByProfessional = useMemo(() => {
@@ -225,8 +221,8 @@ export function AgendaTimeline() {
       grouped.get(appointment.professionalId)?.push(appointment);
     }
 
-    for (const appointments of grouped.values()) {
-      appointments.sort((left, right) => timeToMinutes(left.time) - timeToMinutes(right.time));
+    for (const appointmentList of grouped.values()) {
+      appointmentList.sort((left, right) => timeToMinutes(left.time) - timeToMinutes(right.time));
     }
 
     return grouped;
@@ -236,10 +232,6 @@ export function AgendaTimeline() {
   const pendingCount = filteredAppointments.filter((appointment) => appointment.status === "pendente").length;
   const occupancyBase = visibleProfessionals.length * timeSlots.length;
   const occupancy = occupancyBase > 0 ? Math.round((filteredAppointments.length / occupancyBase) * 100) : 0;
-
-  const timelineGridStyle = {
-    gridTemplateRows: `repeat(${timeSlots.length}, ${SLOT_HEIGHT}px)`,
-  } satisfies CSSProperties;
 
   const formatTitleDate = (date: Date) =>
     date.toLocaleDateString("pt-BR", {
@@ -266,6 +258,26 @@ export function AgendaTimeline() {
 
   const handleDropAppointment = (professionalId: string, time: string) => {
     if (draggedAppointmentId === null) {
+      return;
+    }
+
+    const targetStart = timeToMinutes(time);
+    const targetEnd = targetStart + APPOINTMENT_DURATION_IN_MINUTES;
+    const hasConflict = appointments.some((appointment) => {
+      if (appointment.id === draggedAppointmentId || appointment.professionalId !== professionalId) {
+        return false;
+      }
+
+      const appointmentStart = timeToMinutes(appointment.time);
+      const appointmentEnd = appointmentStart + APPOINTMENT_DURATION_IN_MINUTES;
+
+      return targetStart < appointmentEnd && targetEnd > appointmentStart;
+    });
+
+    if (hasConflict) {
+      toast.error("Esse horário já está ocupado para esse profissional.");
+      setDraggedAppointmentId(null);
+      setDragOverSlot(null);
       return;
     }
 
@@ -437,14 +449,18 @@ export function AgendaTimeline() {
                 ))}
 
                 <div className="border-r border-[rgba(74,52,34,0.08)] bg-white/45">
-                  <div className="grid" style={timelineGridStyle}>
-                    {timeSlots.map((time) => {
+                  <div className="relative" style={{ height: `${timelineHeight}px` }}>
+                    {timeSlots.map((time, index) => {
                       const shouldLabel = Number(time.split(":")[1]) % 30 === 0;
 
                       return (
                         <div
                           key={time}
-                          className="border-b border-[rgba(74,52,34,0.08)] px-4 text-sm text-muted-foreground"
+                          className="absolute left-0 right-0 border-b border-[rgba(74,52,34,0.08)] px-4 text-sm text-muted-foreground"
+                          style={{
+                            top: `${index * SLOT_HEIGHT}px`,
+                            height: `${SLOT_HEIGHT}px`,
+                          }}
                         >
                           {shouldLabel ? time : ""}
                         </div>
@@ -460,73 +476,71 @@ export function AgendaTimeline() {
                     <div
                       key={`column-${professional.id}`}
                       className="relative border-r border-[rgba(74,52,34,0.08)] bg-white/35 last:border-r-0"
+                      style={{ height: `${timelineHeight}px` }}
                     >
-                      <div className="grid" style={timelineGridStyle}>
-                        {timeSlots.map((time) => (
+                      {timeSlots.map((time, index) => (
+                        <div
+                          key={`${professional.id}-${time}-slot`}
+                          className={cn(
+                            "absolute left-0 right-0 border-b border-[rgba(74,52,34,0.08)] transition-colors",
+                            dragOverSlot === `${professional.id}-${time}` ? "bg-primary/10" : "",
+                          )}
+                          style={{
+                            top: `${index * SLOT_HEIGHT}px`,
+                            height: `${SLOT_HEIGHT}px`,
+                          }}
+                          onDragOver={(event) => {
+                            event.preventDefault();
+                            setDragOverSlot(`${professional.id}-${time}`);
+                          }}
+                          onDragLeave={() => {
+                            setDragOverSlot((current) =>
+                              current === `${professional.id}-${time}` ? null : current,
+                            );
+                          }}
+                          onDrop={(event) => {
+                            event.preventDefault();
+                            handleDropAppointment(String(professional.id), time);
+                          }}
+                        />
+                      ))}
+
+                      {columnAppointments.map((appointment) => {
+                        const top =
+                          ((timeToMinutes(appointment.time) - DAY_START_HOUR * 60) / SLOT_INTERVAL_MINUTES) *
+                          SLOT_HEIGHT;
+                        const height =
+                          (APPOINTMENT_DURATION_IN_MINUTES / SLOT_INTERVAL_MINUTES) * SLOT_HEIGHT - 6;
+
+                        return (
                           <div
-                            key={`${professional.id}-${time}-slot`}
+                            key={appointment.id}
                             className={cn(
-                              "border-b border-[rgba(74,52,34,0.08)] transition-colors",
-                              dragOverSlot === `${professional.id}-${time}` ? "bg-primary/10" : "",
+                              "absolute left-2 right-2 cursor-grab overflow-hidden rounded-[1rem] border px-3 py-2 shadow-[0_16px_35px_-28px_rgba(73,47,22,0.45)] active:cursor-grabbing",
+                              statusStyles[appointment.status].card,
+                              draggedAppointmentId === appointment.id ? "opacity-60" : "",
                             )}
-                            onDragOver={(event) => {
-                              event.preventDefault();
-                              setDragOverSlot(`${professional.id}-${time}`);
+                            style={{
+                              top: `${top + 3}px`,
+                              height: `${Math.max(height, SLOT_HEIGHT - 6)}px`,
                             }}
-                            onDragLeave={() => {
-                              setDragOverSlot((current) =>
-                                current === `${professional.id}-${time}` ? null : current,
-                              );
+                            draggable
+                            onDragStart={() => setDraggedAppointmentId(appointment.id)}
+                            onDragEnd={() => {
+                              setDraggedAppointmentId(null);
+                              setDragOverSlot(null);
                             }}
-                            onDrop={(event) => {
-                              event.preventDefault();
-                              handleDropAppointment(String(professional.id), time);
-                            }}
-                          />
-                        ))}
-                      </div>
-
-                      <div
-                        className="absolute inset-0 grid px-2 py-0.5"
-                        style={timelineGridStyle}
-                      >
-                        {columnAppointments.map((appointment) => {
-                          const startIndex = Math.max(
-                            0,
-                            Math.floor(
-                              (timeToMinutes(appointment.time) - DAY_START_HOUR * 60) / SLOT_INTERVAL_MINUTES,
-                            ),
-                          );
-                          const rowSpan = Math.max(
-                            1,
-                            Math.ceil(appointment.durationInMinutes / SLOT_INTERVAL_MINUTES),
-                          );
-
-                          return (
-                            <div
-                              key={appointment.id}
-                              style={{
-                                gridRow: `${startIndex + 1} / span ${rowSpan}`,
-                              }}
-                              className={cn(
-                                "mx-0.5 my-[2px] cursor-grab rounded-[1rem] border px-3 py-2 shadow-[0_16px_35px_-28px_rgba(73,47,22,0.45)] active:cursor-grabbing",
-                                statusStyles[appointment.status].card,
-                                draggedAppointmentId === appointment.id ? "opacity-60" : "",
-                              )}
-                              draggable
-                              onDragStart={() => {
-                                setDraggedAppointmentId(appointment.id);
-                              }}
-                              onDragEnd={() => {
-                                setDraggedAppointmentId(null);
-                                setDragOverSlot(null);
-                              }}
-                            >
+                          >
+                            <div className="flex h-full flex-col">
                               <div className="flex items-start justify-between gap-3">
                                 <div className="min-w-0">
-                                  <p className="text-lg font-semibold text-foreground">{appointment.time}</p>
-                                  <p className="truncate text-base text-foreground">{appointment.client}</p>
-                                  <p className="mt-1 text-sm text-muted-foreground">{appointment.service}</p>
+                                  <p className="text-lg font-semibold text-foreground">
+                                    {appointment.time}
+                                  </p>
+                                  <p className="truncate text-base text-foreground">
+                                    {appointment.client}
+                                  </p>
+                                  <p className="mt-1 truncate text-sm text-muted-foreground">{appointment.service}</p>
                                 </div>
                                 <button
                                   type="button"
@@ -536,21 +550,10 @@ export function AgendaTimeline() {
                                   <MoreVertical className="h-4 w-4" />
                                 </button>
                               </div>
-
-                              <div className="mt-2">
-                                <span
-                                  className={cn(
-                                    "inline-flex rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em]",
-                                    statusStyles[appointment.status].badge,
-                                  )}
-                                >
-                                  {statusStyles[appointment.status].label}
-                                </span>
-                              </div>
                             </div>
-                          );
-                        })}
-                      </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   );
                 })}
@@ -559,6 +562,7 @@ export function AgendaTimeline() {
           </div>
         )}
       </SectionCard>
+      <Toaster position="bottom-left" closeButton richColors />
     </PageShell>
   );
 }
