@@ -121,7 +121,7 @@ export function ProfessionalListCard({
 
       <div className="mt-6 flex flex-wrap gap-3 border-t border-[rgba(74,52,34,0.08)] pt-5">
         <Button variant="outline" className="min-w-[8.5rem] flex-1 md:flex-none" asChild>
-          <Link to={`/profissionais/${professional.id}/editar`}>
+          <Link to={`/profissionais/${professional.id}/editar`} state={{ professional }}>
             <PencilLine className="h-4 w-4" />
             Editar
           </Link>

@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { ArrowLeft, Save } from "lucide-react";
-import { Link, Navigate, useNavigate, useParams } from "react-router";
+import { Link, Navigate, useLocation, useNavigate, useParams } from "react-router";
 
+import { useAuth } from "../auth/AuthContext";
 import { Alert, AlertDescription, AlertTitle } from "../components/ui/alert";
 import { PageShell, SectionCard } from "../components/PageShell";
 import { Button } from "../components/ui/button";
@@ -15,13 +16,14 @@ import {
 } from "../components/ui/select";
 import { formatPhone, normalizePhone } from "../data/clients";
 import {
-  createProfessional,
-  getProfessionalById,
   updateProfessional,
   validateProfessionalForm,
+  type Professional,
   type ProfessionalFormData,
   type ProfessionalFormErrors,
 } from "../data/professionals";
+import { getApiErrorMessage } from "../lib/api-error";
+import { createProfessionalsService, type ProfessionalApiItem } from "../services/professionals";
 
 const initialFormData: ProfessionalFormData = {
   name: "",
@@ -32,15 +34,20 @@ const initialFormData: ProfessionalFormData = {
 };
 
 export function ProfissionalFormulario() {
+  const { token } = useAuth();
+  const location = useLocation();
   const navigate = useNavigate();
   const params = useParams();
   const professionalId = params.professionalId ? Number(params.professionalId) : null;
+  const locationState = location.state as { professional?: Professional } | null;
   const existingProfessional = useMemo(
-    () => (professionalId === null ? null : getProfessionalById(professionalId)),
-    [professionalId],
+    () => (professionalId === null ? null : locationState?.professional ?? null),
+    [locationState, professionalId],
   );
   const [formData, setFormData] = useState<ProfessionalFormData>(initialFormData);
   const [formErrors, setFormErrors] = useState<ProfessionalFormErrors>({});
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isEditing = professionalId !== null;
 
@@ -72,32 +79,73 @@ export function ProfissionalFormulario() {
       ...currentErrors,
       [field]: undefined,
     }));
+
+    setSubmitError(null);
   };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const errors = validateProfessionalForm(formData);
     setFormErrors(errors);
+    setSubmitError(null);
 
     if (Object.keys(errors).length > 0) {
       return;
     }
 
-    if (isEditing && professionalId !== null) {
-      updateProfessional(professionalId, formData);
-      navigate("/profissionais", {
-        replace: true,
-        state: { notice: "Profissional atualizado com sucesso." },
-      });
+    if (!token) {
+      setSubmitError("Sua sessao expirou. Entre novamente para continuar.");
       return;
     }
 
-    createProfessional(formData);
-    navigate("/profissionais", {
-      replace: true,
-      state: { notice: "Profissional cadastrado com sucesso." },
-    });
+    setIsSubmitting(true);
+
+    if (isEditing && professionalId !== null) {
+      const professionalsService = createProfessionalsService(token);
+
+      try {
+        const response = await professionalsService.update(professionalId, {
+          name: formData.name.trim(),
+          email: formData.email.trim().toLowerCase(),
+          phone: formData.phone.trim(),
+          specialty: formData.specialty.trim(),
+          status: formData.status,
+        });
+
+        updateProfessional(professionalId, formData);
+
+        navigate("/profissionais", {
+          replace: true,
+          state: { notice: response.message },
+        });
+        return;
+      } catch (error) {
+        setSubmitError(getApiErrorMessage(error, "Nao foi possivel atualizar o profissional."));
+        setIsSubmitting(false);
+        return;
+      }
+    }
+
+    try {
+      const professionalsService = createProfessionalsService(token);
+      const response = await professionalsService.create({
+        name: formData.name.trim(),
+        email: formData.email.trim().toLowerCase(),
+        phone: formData.phone.trim(),
+        specialty: formData.specialty.trim(),
+        status: formData.status,
+      });
+
+      navigate("/profissionais", {
+        replace: true,
+        state: { notice: response.message },
+      });
+    } catch (error) {
+      setSubmitError(getApiErrorMessage(error, "Nao foi possivel cadastrar o profissional."));
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const hasErrors = Object.keys(formErrors).length > 0;
@@ -106,7 +154,7 @@ export function ProfissionalFormulario() {
     <PageShell
       eyebrow="Profissionais"
       title={isEditing ? "Editar profissional" : "Novo profissional"}
-      description="Cadastre os dados principais do profissional. Depois você pode ajustar os horários de trabalho com mais calma."
+      description="Cadastre os dados principais do profissional. Depois voce pode ajustar os horarios de trabalho com mais calma."
       actions={
         <Button variant="outline" asChild>
           <Link to="/profissionais">
@@ -119,14 +167,21 @@ export function ProfissionalFormulario() {
       <form noValidate onSubmit={handleSubmit} className="grid gap-6">
         {hasErrors ? (
           <Alert variant="destructive" className="border-destructive/20 bg-destructive/5">
-            <AlertTitle>Formulário inválido</AlertTitle>
+            <AlertTitle>Formulario invalido</AlertTitle>
             <AlertDescription>Revise os campos marcados antes de salvar.</AlertDescription>
+          </Alert>
+        ) : null}
+
+        {submitError ? (
+          <Alert variant="destructive" className="border-destructive/20 bg-destructive/5">
+            <AlertTitle>Nao foi possivel salvar</AlertTitle>
+            <AlertDescription>{submitError}</AlertDescription>
           </Alert>
         ) : null}
 
         <SectionCard
           title="Dados do profissional"
-          description="Aqui ficam os dados principais da pessoa. Os horários não entram neste formulário para não misturar cadastro com agenda."
+          description="Aqui ficam os dados principais da pessoa. Os horarios nao entram neste formulario para nao misturar cadastro com agenda."
         >
           <div className="grid gap-4 md:grid-cols-2">
             <div className="grid gap-2">
@@ -185,7 +240,7 @@ export function ProfissionalFormulario() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="ativo">Ativo</SelectItem>
-                  <SelectItem value="ferias">Férias</SelectItem>
+                  <SelectItem value="ferias">Ferias</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -193,9 +248,9 @@ export function ProfissionalFormulario() {
         </SectionCard>
 
         <div className="flex flex-wrap gap-3">
-          <Button type="submit">
+          <Button type="submit" disabled={isSubmitting}>
             <Save className="h-4 w-4" />
-            {isEditing ? "Salvar alterações" : "Cadastrar profissional"}
+            {isSubmitting ? "Salvando..." : isEditing ? "Salvar alteracoes" : "Cadastrar profissional"}
           </Button>
           <Button type="button" variant="outline" asChild>
             <Link to="/profissionais">Cancelar</Link>
