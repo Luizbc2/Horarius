@@ -9,6 +9,7 @@ import {
   Clock3,
   MoreVertical,
   Pencil,
+  Plus,
   RefreshCw,
   Trash2,
   Users,
@@ -44,6 +45,8 @@ import { cn } from "../components/ui/utils";
 import { getApiErrorMessage } from "../lib/api-error";
 import { loadProfessionals, type Professional } from "../data/professionals";
 import { createAppointmentsService } from "../services/appointments";
+import { createClientsService, type ClientApiItem } from "../services/clients";
+import { createServicesService, type ServiceApiItem } from "../services/services";
 
 type AppointmentStatus = "confirmado" | "pendente" | "cancelado";
 
@@ -62,6 +65,14 @@ type Appointment = {
 type AppointmentDraft = {
   client: string;
   service: string;
+  time: string;
+  professionalId: string;
+  status: AppointmentStatus;
+};
+
+type NewAppointmentDraft = {
+  clientId: string;
+  serviceId: string;
   time: string;
   professionalId: string;
   status: AppointmentStatus;
@@ -155,11 +166,14 @@ export function AgendaTimeline() {
   const [selectedDate, setSelectedDate] = useState(new Date("2026-04-01T10:00:00"));
   const [selectedProfessional, setSelectedProfessional] = useState("todos");
   const [selectedStatus, setSelectedStatus] = useState("todos");
+  const [clients, setClients] = useState<ClientApiItem[]>([]);
   const [professionals, setProfessionals] = useState<Professional[]>([]);
+  const [services, setServices] = useState<ServiceApiItem[]>([]);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [isLoadingAppointments, setIsLoadingAppointments] = useState(false);
   const [draggedAppointmentId, setDraggedAppointmentId] = useState<number | null>(null);
   const [dragOverSlot, setDragOverSlot] = useState<string | null>(null);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingAppointmentId, setEditingAppointmentId] = useState<number | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const [appointmentDraft, setAppointmentDraft] = useState<AppointmentDraft>({
@@ -169,10 +183,61 @@ export function AgendaTimeline() {
     professionalId: "",
     status: "confirmado",
   });
+  const [newAppointmentDraft, setNewAppointmentDraft] = useState<NewAppointmentDraft>({
+    clientId: "",
+    serviceId: "",
+    time: "09:00",
+    professionalId: "",
+    status: "confirmado",
+  });
 
   useEffect(() => {
     setProfessionals(loadProfessionals());
   }, []);
+
+  useEffect(() => {
+    if (!token) {
+      setClients([]);
+      setServices([]);
+      return;
+    }
+
+    let isMounted = true;
+
+    const loadSupportData = async () => {
+      try {
+        const [clientsResponse, servicesResponse] = await Promise.all([
+          createClientsService(token).list({
+            page: 1,
+            limit: 200,
+          }),
+          createServicesService(token).list({
+            page: 1,
+            limit: 200,
+          }),
+        ]);
+
+        if (!isMounted) {
+          return;
+        }
+
+        setClients(clientsResponse.data);
+        setServices(servicesResponse.data);
+      } catch (error) {
+        if (!isMounted) {
+          return;
+        }
+
+        toast.error(getApiErrorMessage(error, "Nao foi possivel carregar clientes e servicos."));
+      }
+    };
+
+    void loadSupportData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [token]);
 
   useEffect(() => {
     if (!token) {
@@ -308,6 +373,17 @@ export function AgendaTimeline() {
     setSelectedDate(new Date());
   };
 
+  const resetCreateDialog = () => {
+    setIsCreateDialogOpen(false);
+    setNewAppointmentDraft({
+      clientId: "",
+      serviceId: "",
+      time: "09:00",
+      professionalId: selectedProfessional !== "todos" ? selectedProfessional : "",
+      status: "confirmado",
+    });
+  };
+
   const resetEditDialog = () => {
     setEditingAppointmentId(null);
     setAppointmentDraft({
@@ -317,6 +393,66 @@ export function AgendaTimeline() {
       professionalId: "",
       status: "confirmado",
     });
+  };
+
+  const handleCreateAppointment = () => {
+    if (!token) {
+      toast.error("Sua sessao expirou. Entre novamente para continuar.");
+      return;
+    }
+
+    const clientId = Number(newAppointmentDraft.clientId);
+    const serviceId = Number(newAppointmentDraft.serviceId);
+    const professionalId = Number(newAppointmentDraft.professionalId);
+
+    if (!clientId || !serviceId || !professionalId) {
+      toast.error("Selecione cliente, servico e profissional.");
+      return;
+    }
+
+    const conflict = appointments.find(
+      (appointment) =>
+        appointment.professionalId === String(professionalId) &&
+        appointment.time === newAppointmentDraft.time,
+    );
+
+    if (conflict) {
+      toast.error("Ja existe um agendamento nesse horario.");
+      return;
+    }
+
+    const appointmentsService = createAppointmentsService(token);
+
+    void appointmentsService
+      .create({
+        clientId,
+        professionalId,
+        serviceId,
+        scheduledAt: buildScheduledAt(selectedDate, newAppointmentDraft.time),
+        status: newAppointmentDraft.status,
+        notes: "",
+      })
+      .then((response) => {
+        setAppointments((currentAppointments) => [
+          ...currentAppointments,
+          {
+            id: response.appointment.id,
+            clientId: response.appointment.clientId,
+            time: formatAppointmentTime(response.appointment.scheduledAt),
+            client: response.appointment.clientName,
+            serviceId: response.appointment.serviceId,
+            service: response.appointment.serviceName,
+            professionalId: String(response.appointment.professionalId),
+            status: response.appointment.status,
+            notes: response.appointment.notes,
+          },
+        ]);
+        toast.success(response.message);
+        resetCreateDialog();
+      })
+      .catch((error) => {
+        toast.error(getApiErrorMessage(error, "Nao foi possivel criar o agendamento."));
+      });
   };
 
   const openEditDialog = (appointment: Appointment) => {
@@ -580,6 +716,10 @@ export function AgendaTimeline() {
       description="Visualize os horários lado a lado por profissional e acompanhe os encaixes do dia com mais clareza."
       actions={
         <>
+          <Button variant="default" onClick={() => setIsCreateDialogOpen(true)}>
+            <Plus className="h-4 w-4" />
+            Novo agendamento
+          </Button>
           <Button variant="outline" onClick={() => setRefreshKey((currentKey) => currentKey + 1)}>
             <RefreshCw className="h-4 w-4" />
             Recarregar
@@ -874,6 +1014,145 @@ export function AgendaTimeline() {
           </div>
         )}
       </SectionCard>
+      <Dialog open={isCreateDialogOpen} onOpenChange={(open) => (!open ? resetCreateDialog() : setIsCreateDialogOpen(true))}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Novo agendamento</DialogTitle>
+            <DialogDescription>
+              Selecione cliente, serviço, profissional e horário para lançar um novo atendimento.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="timeline-new-client">Cliente</Label>
+              <Select
+                value={newAppointmentDraft.clientId}
+                onValueChange={(value) =>
+                  setNewAppointmentDraft((currentDraft) => ({
+                    ...currentDraft,
+                    clientId: value,
+                  }))
+                }
+              >
+                <SelectTrigger id="timeline-new-client">
+                  <SelectValue placeholder="Escolha o cliente" />
+                </SelectTrigger>
+                <SelectContent>
+                  {clients.map((client) => (
+                    <SelectItem key={client.id} value={String(client.id)}>
+                      {client.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="timeline-new-service">Serviço</Label>
+              <Select
+                value={newAppointmentDraft.serviceId}
+                onValueChange={(value) =>
+                  setNewAppointmentDraft((currentDraft) => ({
+                    ...currentDraft,
+                    serviceId: value,
+                  }))
+                }
+              >
+                <SelectTrigger id="timeline-new-service">
+                  <SelectValue placeholder="Escolha o serviço" />
+                </SelectTrigger>
+                <SelectContent>
+                  {services.map((service) => (
+                    <SelectItem key={service.id} value={String(service.id)}>
+                      {service.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="timeline-new-time">Horário</Label>
+                <Select
+                  value={newAppointmentDraft.time}
+                  onValueChange={(value) =>
+                    setNewAppointmentDraft((currentDraft) => ({
+                      ...currentDraft,
+                      time: value,
+                    }))
+                  }
+                >
+                  <SelectTrigger id="timeline-new-time">
+                    <SelectValue placeholder="Escolha o horário" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {timeSlots.map((time) => (
+                      <SelectItem key={time} value={time}>
+                        {time}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="timeline-new-professional">Profissional</Label>
+                <Select
+                  value={newAppointmentDraft.professionalId}
+                  onValueChange={(value) =>
+                    setNewAppointmentDraft((currentDraft) => ({
+                      ...currentDraft,
+                      professionalId: value,
+                    }))
+                  }
+                >
+                  <SelectTrigger id="timeline-new-professional">
+                    <SelectValue placeholder="Escolha o profissional" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {professionals.map((professional) => (
+                      <SelectItem key={professional.id} value={String(professional.id)}>
+                        {professional.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="timeline-new-status">Status</Label>
+              <Select
+                value={newAppointmentDraft.status}
+                onValueChange={(value: AppointmentStatus) =>
+                  setNewAppointmentDraft((currentDraft) => ({
+                    ...currentDraft,
+                    status: value,
+                  }))
+                }
+              >
+                <SelectTrigger id="timeline-new-status">
+                  <SelectValue placeholder="Escolha o status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="confirmado">Confirmado</SelectItem>
+                  <SelectItem value="pendente">Pendente</SelectItem>
+                  <SelectItem value="cancelado">Cancelado</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={resetCreateDialog}>
+              Cancelar
+            </Button>
+            <Button onClick={handleCreateAppointment}>Criar agendamento</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       <Dialog open={editingAppointmentId !== null} onOpenChange={(open) => (!open ? resetEditDialog() : undefined)}>
         <DialogContent>
           <DialogHeader>

@@ -22,6 +22,7 @@ import {
 import { useAuth } from "../auth/AuthContext";
 import { ApiStatusCard } from "./ApiStatusCard";
 import { Button } from "./ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import { cn } from "./ui/utils";
 
 type NavigationItem = {
@@ -360,13 +361,21 @@ export function Layout() {
           <Outlet />
         </main>
 
-        <button
-          type="button"
-          className="fixed right-5 bottom-5 z-30 flex h-15 w-15 items-center justify-center rounded-[1.35rem] border border-white/65 bg-[linear-gradient(135deg,var(--color-primary),color-mix(in_srgb,var(--color-primary)_78%,black))] text-primary-foreground shadow-[0_28px_60px_-26px_rgba(31,109,104,0.92)] transition-transform duration-300 hover:-translate-y-1 lg:right-8 lg:bottom-8"
-          aria-label="Criar novo item"
-        >
-          <Plus className="h-6 w-6" />
-        </button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              type="button"
+              onClick={() => navigate("/agenda/timeline")}
+              className="fixed right-5 bottom-5 z-30 flex h-15 w-15 items-center justify-center rounded-[1.35rem] border border-white/65 bg-[linear-gradient(135deg,var(--color-primary),color-mix(in_srgb,var(--color-primary)_78%,black))] text-primary-foreground shadow-[0_28px_60px_-26px_rgba(31,109,104,0.92)] transition-transform duration-300 hover:-translate-y-1 lg:right-8 lg:bottom-8"
+              aria-label="Novo agendamento"
+            >
+              <Plus className="h-6 w-6" />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="left" sideOffset={10}>
+            Novo agendamento
+          </TooltipContent>
+        </Tooltip>
       </div>
     </div>
   );
