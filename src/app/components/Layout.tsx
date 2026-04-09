@@ -365,7 +365,7 @@ export function Layout() {
           <TooltipTrigger asChild>
             <button
               type="button"
-              onClick={() => navigate("/agenda/timeline")}
+              onClick={() => navigate("/agenda/timeline?novo=1")}
               className="fixed right-5 bottom-5 z-30 flex h-15 w-15 items-center justify-center rounded-[1.35rem] border border-white/65 bg-[linear-gradient(135deg,var(--color-primary),color-mix(in_srgb,var(--color-primary)_78%,black))] text-primary-foreground shadow-[0_28px_60px_-26px_rgba(31,109,104,0.92)] transition-transform duration-300 hover:-translate-y-1 lg:right-8 lg:bottom-8"
               aria-label="Novo agendamento"
             >

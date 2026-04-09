@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router";
+import { Link, useSearchParams } from "react-router";
 import { Toaster, toast } from "sonner";
 import {
   CalendarCheck2,
@@ -163,6 +163,7 @@ function buildScheduledAt(date: Date, time: string) {
 
 export function AgendaTimeline() {
   const { token } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [selectedDate, setSelectedDate] = useState(new Date("2026-04-01T10:00:00"));
   const [selectedProfessional, setSelectedProfessional] = useState("todos");
   const [selectedStatus, setSelectedStatus] = useState("todos");
@@ -194,6 +195,12 @@ export function AgendaTimeline() {
   useEffect(() => {
     setProfessionals(loadProfessionals());
   }, []);
+
+  useEffect(() => {
+    if (searchParams.get("novo") === "1") {
+      setIsCreateDialogOpen(true);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     if (!token) {
@@ -378,6 +385,13 @@ export function AgendaTimeline() {
 
   const resetCreateDialog = () => {
     setIsCreateDialogOpen(false);
+    setSearchParams((currentParams) => {
+      const nextParams = new URLSearchParams(currentParams);
+
+      nextParams.delete("novo");
+
+      return nextParams;
+    });
     setNewAppointmentDraft({
       clientId: "",
       serviceId: "",
@@ -719,7 +733,19 @@ export function AgendaTimeline() {
       description="Visualize os horários lado a lado por profissional e acompanhe os encaixes do dia com mais clareza."
       actions={
         <>
-          <Button variant="default" onClick={() => setIsCreateDialogOpen(true)}>
+          <Button
+            variant="default"
+            onClick={() => {
+              setSearchParams((currentParams) => {
+                const nextParams = new URLSearchParams(currentParams);
+
+                nextParams.set("novo", "1");
+
+                return nextParams;
+              });
+              setIsCreateDialogOpen(true);
+            }}
+          >
             <Plus className="h-4 w-4" />
             Novo agendamento
           </Button>
@@ -1017,7 +1043,24 @@ export function AgendaTimeline() {
           </div>
         )}
       </SectionCard>
-      <Dialog open={isCreateDialogOpen} onOpenChange={(open) => (!open ? resetCreateDialog() : setIsCreateDialogOpen(true))}>
+      <Dialog
+        open={isCreateDialogOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            resetCreateDialog();
+            return;
+          }
+
+          setSearchParams((currentParams) => {
+            const nextParams = new URLSearchParams(currentParams);
+
+            nextParams.set("novo", "1");
+
+            return nextParams;
+          });
+          setIsCreateDialogOpen(true);
+        }}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Novo agendamento</DialogTitle>
