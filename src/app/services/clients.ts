@@ -12,6 +12,7 @@ export type CreateClientRequest = {
   name: string;
   email: string;
   phone: string;
+  cpf?: string;
   notes: string;
 };
 

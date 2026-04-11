@@ -430,13 +430,20 @@ export function AgendaTimeline() {
       return;
     }
 
-    const clientId = Number(newAppointmentDraft.clientId);
+    let clientId = Number(newAppointmentDraft.clientId);
     const serviceId = Number(newAppointmentDraft.serviceId);
     const professionalId = Number(newAppointmentDraft.professionalId);
 
-    if (!clientId || !serviceId || !professionalId) {
-      toast.error("Selecione cliente, servico e profissional.");
+    if (!serviceId || !professionalId) {
+      toast.error("Selecione servico e profissional.");
       return;
+    }
+
+    if (!clientId) {
+      if (!newAppointmentDraft.clientName.trim()) {
+        toast.error("Informe o nome do cliente ou selecione um cliente existente.");
+        return;
+      }
     }
 
     const conflict = appointments.find(
@@ -451,16 +458,38 @@ export function AgendaTimeline() {
     }
 
     const appointmentsService = createAppointmentsService(token);
+    const clientsService = createClientsService(token);
 
-    void appointmentsService
-      .create({
-        clientId,
-        professionalId,
-        serviceId,
-        scheduledAt: buildScheduledAt(selectedDate, newAppointmentDraft.time),
-        status: newAppointmentDraft.status,
+    const resolveClientId = async () => {
+      if (clientId) {
+        return clientId;
+      }
+
+      const createdClient = await clientsService.create({
+        name: newAppointmentDraft.clientName.trim(),
+        email: newAppointmentDraft.clientEmail.trim(),
+        phone: newAppointmentDraft.clientPhone.trim(),
+        cpf: newAppointmentDraft.clientCpf.trim(),
         notes: "",
-      })
+      });
+
+      clientId = createdClient.client.id;
+      setClients((currentClients) => [...currentClients, createdClient.client]);
+
+      return clientId;
+    };
+
+    void resolveClientId()
+      .then((resolvedClientId) =>
+        appointmentsService.create({
+          clientId: resolvedClientId,
+          professionalId,
+          serviceId,
+          scheduledAt: buildScheduledAt(selectedDate, newAppointmentDraft.time),
+          status: newAppointmentDraft.status,
+          notes: "",
+        }),
+      )
       .then((response) => {
         setAppointments((currentAppointments) => [
           ...currentAppointments,
