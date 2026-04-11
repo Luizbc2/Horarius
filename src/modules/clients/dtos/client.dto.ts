@@ -3,6 +3,7 @@ export type ClientDto = {
   name: string;
   email: string;
   phone: string;
+  cpf: string;
   notes: string;
 };
 
@@ -10,6 +11,7 @@ export type CreateClientRequestDto = {
   name: string;
   email: string;
   phone: string;
+  cpf?: string;
   notes: string;
 };
 
@@ -17,6 +19,7 @@ export type UpdateClientRequestDto = {
   name: string;
   email: string;
   phone: string;
+  cpf?: string;
   notes: string;
 };
 

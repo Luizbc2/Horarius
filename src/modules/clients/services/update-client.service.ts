@@ -27,6 +27,7 @@ export class UpdateClientService {
     const name = input.name.trim();
     const email = input.email.trim().toLowerCase();
     const phone = input.phone.trim();
+    const cpf = input.cpf?.trim() ?? "";
     const notes = input.notes.trim();
 
     if (!id || !name || !email || !phone) {
@@ -50,6 +51,7 @@ export class UpdateClientService {
         name,
         email,
         phone,
+        cpf,
         notes
       });
 

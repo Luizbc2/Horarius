@@ -30,6 +30,7 @@ export class ClientsController {
       name: this.parseString(body.name),
       email: this.parseString(body.email),
       phone: this.parseString(body.phone),
+      cpf: this.parseString(body.cpf),
       notes: this.parseString(body.notes),
     });
 
@@ -50,6 +51,7 @@ export class ClientsController {
       name: this.parseString(body.name),
       email: this.parseString(body.email),
       phone: this.parseString(body.phone),
+      cpf: this.parseString(body.cpf),
       notes: this.parseString(body.notes),
     });
 

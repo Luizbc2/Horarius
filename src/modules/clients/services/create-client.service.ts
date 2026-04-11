@@ -25,19 +25,20 @@ export class CreateClientService {
 
   public async execute(input: CreateClientRequestDto): Promise<CreateClientServiceResult> {
     const name = input.name.trim();
-    const email = input.email.trim().toLowerCase();
-    const phone = input.phone.trim();
+    const email = input.email?.trim().toLowerCase() ?? "";
+    const phone = input.phone?.trim() ?? "";
+    const cpf = input.cpf?.trim() ?? "";
     const notes = input.notes.trim();
 
-    if (!name || !email || !phone) {
+    if (!name) {
       return {
         success: false,
-        message: "Nome, e-mail e telefone são obrigatórios.",
+        message: "Nome do cliente é obrigatório.",
         statusCode: 400
       };
     }
 
-    if (!isValidEmail(email)) {
+    if (email && !isValidEmail(email)) {
       return {
         success: false,
         message: "Formato de e-mail inválido.",
@@ -50,6 +51,7 @@ export class CreateClientService {
         name,
         email,
         phone,
+        cpf,
         notes
       });
 
@@ -73,3 +75,4 @@ export class CreateClientService {
     }
   }
 }
+

@@ -73,6 +73,7 @@ export class SequelizeClientRepository implements ClientRepository {
       name: input.name,
       email: input.email,
       phone: input.phone,
+      cpf: input.cpf ?? "",
       notes: input.notes
     });
 
@@ -89,6 +90,7 @@ export class SequelizeClientRepository implements ClientRepository {
     client.name = input.name;
     client.email = input.email;
     client.phone = input.phone;
+    client.cpf = input.cpf ?? "";
     client.notes = input.notes;
 
     await client.save();
@@ -112,6 +114,7 @@ export class SequelizeClientRepository implements ClientRepository {
       name: client.name,
       email: client.email,
       phone: client.phone,
+      cpf: client.cpf ?? "",
       notes: client.notes
     };
   }

@@ -12,6 +12,7 @@ export class ClientModel extends Model<InferAttributes<ClientModel>, InferCreati
   declare name: string;
   declare email: string;
   declare phone: string;
+  declare cpf: string;
   declare notes: string;
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
@@ -39,6 +40,11 @@ export class ClientModel extends Model<InferAttributes<ClientModel>, InferCreati
           type: DataTypes.STRING,
           allowNull: false
         },
+        cpf: {
+          type: DataTypes.STRING,
+          allowNull: true,
+          defaultValue: ""
+        },
         notes: {
           type: DataTypes.TEXT,
           allowNull: false,
@@ -63,6 +69,7 @@ export class ClientModel extends Model<InferAttributes<ClientModel>, InferCreati
             client.name = client.name.trim();
             client.email = client.email.trim().toLowerCase();
             client.phone = client.phone.trim();
+            client.cpf = client.cpf?.trim() ?? "";
             client.notes = client.notes.trim();
           }
         }
