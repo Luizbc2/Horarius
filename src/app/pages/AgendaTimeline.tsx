@@ -72,6 +72,10 @@ type AppointmentDraft = {
 
 type NewAppointmentDraft = {
   clientId: string;
+  clientName: string;
+  clientEmail: string;
+  clientPhone: string;
+  clientCpf: string;
   serviceId: string;
   time: string;
   professionalId: string;
@@ -186,6 +190,10 @@ export function AgendaTimeline() {
   });
   const [newAppointmentDraft, setNewAppointmentDraft] = useState<NewAppointmentDraft>({
     clientId: "",
+    clientName: "",
+    clientEmail: "",
+    clientPhone: "",
+    clientCpf: "",
     serviceId: "",
     time: "09:00",
     professionalId: "",
@@ -394,6 +402,10 @@ export function AgendaTimeline() {
     });
     setNewAppointmentDraft({
       clientId: "",
+      clientName: "",
+      clientEmail: "",
+      clientPhone: "",
+      clientCpf: "",
       serviceId: "",
       time: "09:00",
       professionalId: selectedProfessional !== "todos" ? selectedProfessional : "",
@@ -1092,6 +1104,74 @@ export function AgendaTimeline() {
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+
+            <div className="space-y-3 rounded-[1rem] border border-dashed border-border/80 bg-muted/30 px-4 py-3">
+              <div>
+                <p className="text-sm font-semibold text-foreground">Dados opcionais do cliente</p>
+                <p className="text-xs text-muted-foreground">
+                  Preencha se quiser registrar contato e documento junto ao agendamento.
+                </p>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-2 sm:col-span-2">
+                  <Label htmlFor="timeline-new-client-name">Nome</Label>
+                  <Input
+                    id="timeline-new-client-name"
+                    value={newAppointmentDraft.clientName}
+                    onChange={(event) =>
+                      setNewAppointmentDraft((currentDraft) => ({
+                        ...currentDraft,
+                        clientName: event.target.value,
+                      }))
+                    }
+                    placeholder="Nome do cliente"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="timeline-new-client-email">Email (opcional)</Label>
+                  <Input
+                    id="timeline-new-client-email"
+                    type="email"
+                    value={newAppointmentDraft.clientEmail}
+                    onChange={(event) =>
+                      setNewAppointmentDraft((currentDraft) => ({
+                        ...currentDraft,
+                        clientEmail: event.target.value,
+                      }))
+                    }
+                    placeholder="cliente@email.com"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="timeline-new-client-phone">Telefone (opcional)</Label>
+                  <Input
+                    id="timeline-new-client-phone"
+                    value={newAppointmentDraft.clientPhone}
+                    onChange={(event) =>
+                      setNewAppointmentDraft((currentDraft) => ({
+                        ...currentDraft,
+                        clientPhone: event.target.value,
+                      }))
+                    }
+                    placeholder="(00) 00000-0000"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="timeline-new-client-cpf">CPF (opcional)</Label>
+                  <Input
+                    id="timeline-new-client-cpf"
+                    value={newAppointmentDraft.clientCpf}
+                    onChange={(event) =>
+                      setNewAppointmentDraft((currentDraft) => ({
+                        ...currentDraft,
+                        clientCpf: event.target.value,
+                      }))
+                    }
+                    placeholder="000.000.000-00"
+                  />
+                </div>
+              </div>
             </div>
 
             <div className="space-y-2">
