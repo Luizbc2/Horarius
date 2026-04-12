@@ -31,7 +31,7 @@ export class UsersController {
       console.error("User registration request failed.", error);
 
       return response.status(500).json({
-        message: "Não foi possível processar o cadastro de usuário agora.",
+        message: "Nao foi possivel processar o cadastro de usuario agora.",
       });
     }
   }
@@ -42,7 +42,7 @@ export class UsersController {
 
       if (!authenticatedUserId) {
         return response.status(401).json({
-          message: "Usuário autenticado não identificado.",
+          message: "Usuario autenticado nao identificado.",
         });
       }
 
@@ -66,7 +66,7 @@ export class UsersController {
       console.error("User profile update request failed.", error);
 
       return response.status(500).json({
-        message: "Não foi possível processar a atualização do perfil agora.",
+        message: "Nao foi possivel processar a atualizacao do perfil agora.",
       });
     }
   }
@@ -75,3 +75,5 @@ export class UsersController {
     return typeof value === "string" ? value : "";
   }
 }
+
+

@@ -33,7 +33,7 @@ export class UpdateClientService {
     if (!id || !name || !email || !phone) {
       return {
         success: false,
-        message: "Id, nome, e-mail e telefone são obrigatórios.",
+        message: "Id, nome, e-mail e telefone sao obrigatorios.",
         statusCode: 400
       };
     }
@@ -41,7 +41,7 @@ export class UpdateClientService {
     if (!isValidEmail(email)) {
       return {
         success: false,
-        message: "Formato de e-mail inválido.",
+        message: "Formato de e-mail invalido.",
         statusCode: 400
       };
     }
@@ -58,7 +58,7 @@ export class UpdateClientService {
       if (!updatedClient) {
         return {
           success: false,
-          message: "Cliente não encontrado.",
+          message: "Cliente nao encontrado.",
           statusCode: 404
         };
       }
@@ -74,7 +74,7 @@ export class UpdateClientService {
       if (error instanceof ValidationError) {
         return {
           success: false,
-          message: "Dados de cliente inválidos.",
+          message: "Dados de cliente invalidos.",
           statusCode: 400
         };
       }
@@ -83,3 +83,5 @@ export class UpdateClientService {
     }
   }
 }
+
+

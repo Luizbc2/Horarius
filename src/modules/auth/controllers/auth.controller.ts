@@ -25,8 +25,9 @@ export class AuthController {
       console.error("Login request failed.", error);
 
       return response.status(500).json({
-        message: "Não foi possível processar o login agora."
+        message: "Nao foi possivel processar o login agora."
       });
     }
   }
 }
+

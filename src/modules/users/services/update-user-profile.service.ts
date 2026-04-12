@@ -39,7 +39,7 @@ export class UpdateUserProfileService {
     if (!input.authenticatedUserId || !input.userId || !name || !cpf || !password) {
       return {
         success: false,
-        message: "Id do usuário autenticado, id do usuário, nome, CPF e senha são obrigatórios.",
+        message: "Id do usuario autenticado, id do usuario, nome, CPF e senha sao obrigatorios.",
         statusCode: 400,
       };
     }
@@ -47,7 +47,7 @@ export class UpdateUserProfileService {
     if (input.authenticatedUserId !== input.userId) {
       return {
         success: false,
-        message: "Você só pode editar o próprio perfil.",
+        message: "Voce so pode editar o proprio perfil.",
         statusCode: 403,
       };
     }
@@ -57,7 +57,7 @@ export class UpdateUserProfileService {
     if (!user) {
       return {
         success: false,
-        message: "Usuário não encontrado.",
+        message: "Usuario nao encontrado.",
         statusCode: 404,
       };
     }
@@ -65,7 +65,7 @@ export class UpdateUserProfileService {
     if (input.email && input.email.trim().toLowerCase() !== user.email.toLowerCase()) {
       return {
         success: false,
-        message: "O e-mail não pode ser alterado.",
+        message: "O e-mail nao pode ser alterado.",
         statusCode: 400,
       };
     }
@@ -73,7 +73,7 @@ export class UpdateUserProfileService {
     if (!isValidCpf(cpf)) {
       return {
         success: false,
-        message: "CPF inválido.",
+        message: "CPF invalido.",
         statusCode: 400,
       };
     }
@@ -93,7 +93,7 @@ export class UpdateUserProfileService {
     if (existingCpfUser && existingCpfUser.id !== input.userId) {
       return {
         success: false,
-        message: "CPF já está em uso.",
+        message: "CPF ja esta em uso.",
         statusCode: 409,
       };
     }
@@ -108,7 +108,7 @@ export class UpdateUserProfileService {
       if (!updatedUser) {
         return {
           success: false,
-          message: "Usuário não encontrado.",
+          message: "Usuario nao encontrado.",
           statusCode: 404,
         };
       }
@@ -132,7 +132,7 @@ export class UpdateUserProfileService {
       if (error instanceof ValidationError) {
         return {
           success: false,
-          message: "Dados de usuário inválidos.",
+          message: "Dados de usuario invalidos.",
           statusCode: 400,
         };
       }
@@ -154,9 +154,11 @@ export class UpdateUserProfileService {
     const fields = error.errors.map((item) => item.path);
 
     if (fields.includes("cpf")) {
-      return "CPF já está em uso.";
+      return "CPF ja esta em uso.";
     }
 
-    return "Os dados do usuário entram em conflito com um registro existente.";
+    return "Os dados do usuario entram em conflito com um registro existente.";
   }
 }
+
+

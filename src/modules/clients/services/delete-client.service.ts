@@ -22,7 +22,7 @@ export class DeleteClientService {
     if (!id) {
       return {
         success: false,
-        message: "Id do cliente é obrigatório.",
+        message: "Id do cliente e obrigatorio.",
         statusCode: 400
       };
     }
@@ -32,7 +32,7 @@ export class DeleteClientService {
     if (!deleted) {
       return {
         success: false,
-        message: "Cliente não encontrado.",
+        message: "Cliente nao encontrado.",
         statusCode: 404
       };
     }
@@ -40,8 +40,9 @@ export class DeleteClientService {
     return {
       success: true,
       data: {
-        message: "Cliente excluído com sucesso."
+        message: "Cliente excluido com sucesso."
       }
     };
   }
 }
+
