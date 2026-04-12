@@ -271,6 +271,9 @@ export function AgendaTimeline() {
           date: formatDateForApi(selectedDate),
           limit: 200,
           page: 1,
+          professionalId:
+            selectedProfessional !== "todos" ? Number(selectedProfessional) : undefined,
+          status: selectedStatus !== "todos" ? (selectedStatus as AppointmentStatus) : undefined,
         });
 
         if (!isMounted) {
@@ -312,7 +315,7 @@ export function AgendaTimeline() {
     return () => {
       isMounted = false;
     };
-  }, [selectedDate, token, refreshKey]);
+  }, [selectedDate, selectedProfessional, selectedStatus, token, refreshKey]);
 
   const timeSlots = useMemo(() => generateTimeSlots(), []);
   const timelineHeight = timeSlots.length * SLOT_HEIGHT;
