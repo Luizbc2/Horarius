@@ -409,8 +409,24 @@ export function AgendaLista() {
     }
   };
 
-  const handleUnavailableAction = (label: string) => {
-    toast.error(`${label} ainda vai ser ligada na API nos próximos passos.`);
+  const handleDeleteAppointment = async (appointment: AgendaListItem) => {
+    if (!token) {
+      toast.error("Sua sessão expirou. Entre novamente para continuar.");
+      return;
+    }
+
+    try {
+      const appointmentsService = createAppointmentsService(token);
+      const response = await appointmentsService.remove(appointment.id);
+
+      setAppointments((currentAppointments) =>
+        currentAppointments.filter((currentAppointment) => currentAppointment.id !== appointment.id),
+      );
+
+      toast.success(response.message);
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, "Não foi possível excluir o agendamento."));
+    }
   };
 
   return (
@@ -567,6 +583,12 @@ export function AgendaLista() {
                                 onSelect={() => void handleUpdateAppointmentStatus(appointment, "cancelado")}
                               >
                                 Cancelar
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                variant="destructive"
+                                onSelect={() => void handleDeleteAppointment(appointment)}
+                              >
+                                Excluir
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
