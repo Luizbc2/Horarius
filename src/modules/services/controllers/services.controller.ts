@@ -4,12 +4,27 @@ import { ListServicesQueryDto } from "../dtos/service.dto";
 import { SequelizeServiceRepository } from "../repositories/sequelize-service.repository";
 import { CreateServiceService } from "../services/create-service.service";
 import { DeleteServiceService } from "../services/delete-service.service";
+import { GetServiceService } from "../services/get-service.service";
 import { ListServicesService } from "../services/list-services.service";
 import { UpdateServiceService } from "../services/update-service.service";
 
 const serviceRepository = new SequelizeServiceRepository();
 
 export class ServicesController {
+  public async getById(request: Request, response: Response): Promise<Response> {
+    const getServiceService = new GetServiceService(serviceRepository);
+    const id = Number(request.params.id);
+    const result = await getServiceService.execute(id);
+
+    if (!result.success) {
+      return response.status(result.statusCode).json({
+        message: result.message,
+      });
+    }
+
+    return response.status(200).json(result.data);
+  }
+
   public async list(request: Request, response: Response): Promise<Response> {
     const listServicesService = new ListServicesService(serviceRepository);
     const query: ListServicesQueryDto = {
