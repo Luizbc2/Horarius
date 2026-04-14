@@ -18,35 +18,17 @@ const appointmentRepository = new SequelizeAppointmentRepository();
 export class AppointmentsController {
   public async list(request: Request, response: Response): Promise<Response> {
     const listAppointmentsService = new ListAppointmentsService(appointmentRepository);
-    const query: ListAppointmentsQueryDto = {
-      date: asString(request.query.date),
-      limit: asNumber(request.query.limit),
-      page: asNumber(request.query.page),
-      professionalId: asNumber(request.query.professionalId),
-      status: this.parseStatus(request.query.status),
-    };
-
-    const result = await listAppointmentsService.execute(query);
+    const result = await listAppointmentsService.execute(this.buildListQuery(request));
 
     return response.status(200).json(result.data);
   }
 
   public async create(request: Request, response: Response): Promise<Response> {
     const createAppointmentService = new CreateAppointmentService(appointmentRepository);
-    const body = asRequestBody(request.body);
-    const result = await createAppointmentService.execute({
-      clientId: asNumber(body.clientId) ?? 0,
-      professionalId: asNumber(body.professionalId) ?? 0,
-      serviceId: asNumber(body.serviceId) ?? 0,
-      scheduledAt: asString(body.scheduledAt),
-      status: this.parseBodyStatus(body.status),
-      notes: asString(body.notes),
-    });
+    const result = await createAppointmentService.execute(this.buildAppointmentPayload(request));
 
     if (!result.success) {
-      return response.status(result.statusCode).json({
-        message: result.message,
-      });
+      return this.sendFailure(response, result.statusCode, result.message);
     }
 
     return response.status(201).json(result.data);
@@ -54,21 +36,11 @@ export class AppointmentsController {
 
   public async update(request: Request, response: Response): Promise<Response> {
     const updateAppointmentService = new UpdateAppointmentService(appointmentRepository);
-    const body = asRequestBody(request.body);
     const id = Number(request.params.id);
-    const result = await updateAppointmentService.execute(id, {
-      clientId: asNumber(body.clientId) ?? 0,
-      professionalId: asNumber(body.professionalId) ?? 0,
-      serviceId: asNumber(body.serviceId) ?? 0,
-      scheduledAt: asString(body.scheduledAt),
-      status: this.parseBodyStatus(body.status),
-      notes: asString(body.notes),
-    });
+    const result = await updateAppointmentService.execute(id, this.buildAppointmentPayload(request));
 
     if (!result.success) {
-      return response.status(result.statusCode).json({
-        message: result.message,
-      });
+      return this.sendFailure(response, result.statusCode, result.message);
     }
 
     return response.status(200).json(result.data);
@@ -80,12 +52,37 @@ export class AppointmentsController {
     const result = await deleteAppointmentService.execute(id);
 
     if (!result.success) {
-      return response.status(result.statusCode).json({
-        message: result.message,
-      });
+      return this.sendFailure(response, result.statusCode, result.message);
     }
 
     return response.status(200).json(result.data);
+  }
+
+  private buildListQuery(request: Request): ListAppointmentsQueryDto {
+    return {
+      date: asString(request.query.date),
+      limit: asNumber(request.query.limit),
+      page: asNumber(request.query.page),
+      professionalId: asNumber(request.query.professionalId),
+      status: this.parseStatus(request.query.status),
+    };
+  }
+
+  private buildAppointmentPayload(request: Request) {
+    const body = asRequestBody(request.body);
+
+    return {
+      clientId: asNumber(body.clientId) ?? 0,
+      professionalId: asNumber(body.professionalId) ?? 0,
+      serviceId: asNumber(body.serviceId) ?? 0,
+      scheduledAt: asString(body.scheduledAt),
+      status: this.parseBodyStatus(body.status),
+      notes: asString(body.notes),
+    };
+  }
+
+  private sendFailure(response: Response, statusCode: number, message: string): Response {
+    return response.status(statusCode).json({ message });
   }
 
   private parseStatus(value: RequestValue): AppointmentStatus | undefined {

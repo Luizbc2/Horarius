@@ -32,9 +32,7 @@ export class ProfessionalsController {
     const result = await getProfessionalService.execute(id);
 
     if (!result.success) {
-      return response.status(result.statusCode).json({
-        message: result.message,
-      });
+      return this.sendFailure(response, result.statusCode, result.message);
     }
 
     return response.status(200).json(result.data);
@@ -55,19 +53,10 @@ export class ProfessionalsController {
 
   public async create(request: Request, response: Response): Promise<Response> {
     const createProfessionalService = new CreateProfessionalService(professionalRepository);
-    const body = asRequestBody(request.body);
-    const result = await createProfessionalService.execute({
-      name: asString(body.name),
-      email: asString(body.email),
-      phone: asString(body.phone),
-      specialty: asString(body.specialty),
-      status: asString(body.status),
-    });
+    const result = await createProfessionalService.execute(this.buildProfessionalPayload(request));
 
     if (!result.success) {
-      return response.status(result.statusCode).json({
-        message: result.message,
-      });
+      return this.sendFailure(response, result.statusCode, result.message);
     }
 
     return response.status(201).json(result.data);
@@ -79,9 +68,7 @@ export class ProfessionalsController {
     const result = await listProfessionalWorkDaysService.execute(professionalId);
 
     if (!result.success) {
-      return response.status(result.statusCode).json({
-        message: result.message,
-      });
+      return this.sendFailure(response, result.statusCode, result.message);
     }
 
     return response.status(200).json(result.data);
@@ -89,20 +76,11 @@ export class ProfessionalsController {
 
   public async update(request: Request, response: Response): Promise<Response> {
     const updateProfessionalService = new UpdateProfessionalService(professionalRepository);
-    const body = asRequestBody(request.body);
     const id = Number(request.params.id);
-    const result = await updateProfessionalService.execute(id, {
-      name: asString(body.name),
-      email: asString(body.email),
-      phone: asString(body.phone),
-      specialty: asString(body.specialty),
-      status: asString(body.status),
-    });
+    const result = await updateProfessionalService.execute(id, this.buildProfessionalPayload(request));
 
     if (!result.success) {
-      return response.status(result.statusCode).json({
-        message: result.message,
-      });
+      return this.sendFailure(response, result.statusCode, result.message);
     }
 
     return response.status(200).json(result.data);
@@ -114,9 +92,7 @@ export class ProfessionalsController {
     const result = await deleteProfessionalService.execute(id);
 
     if (!result.success) {
-      return response.status(result.statusCode).json({
-        message: result.message,
-      });
+      return this.sendFailure(response, result.statusCode, result.message);
     }
 
     return response.status(200).json(result.data);
@@ -124,19 +100,38 @@ export class ProfessionalsController {
 
   public async updateWorkDays(request: Request, response: Response): Promise<Response> {
     const updateProfessionalWorkDaysService = new UpdateProfessionalWorkDaysService(professionalRepository);
-    const body = asRequestBody(request.body);
     const id = Number(request.params.id);
-    const result = await updateProfessionalWorkDaysService.execute(id, {
-      workDays: this.parseWorkDays(body.workDays),
-    });
+    const result = await updateProfessionalWorkDaysService.execute(id, this.buildWorkDaysPayload(request));
 
     if (!result.success) {
-      return response.status(result.statusCode).json({
-        message: result.message,
-      });
+      return this.sendFailure(response, result.statusCode, result.message);
     }
 
     return response.status(200).json(result.data);
+  }
+
+  private buildProfessionalPayload(request: Request) {
+    const body = asRequestBody(request.body);
+
+    return {
+      name: asString(body.name),
+      email: asString(body.email),
+      phone: asString(body.phone),
+      specialty: asString(body.specialty),
+      status: asString(body.status),
+    };
+  }
+
+  private buildWorkDaysPayload(request: Request): UpdateProfessionalWorkDaysRequestDto {
+    const body = asRequestBody(request.body);
+
+    return {
+      workDays: this.parseWorkDays(body.workDays),
+    };
+  }
+
+  private sendFailure(response: Response, statusCode: number, message: string): Response {
+    return response.status(statusCode).json({ message });
   }
 
   private parseWorkDays(value: RequestValue): UpdateProfessionalWorkDaysRequestDto["workDays"] {

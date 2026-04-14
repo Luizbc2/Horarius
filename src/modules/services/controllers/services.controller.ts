@@ -23,9 +23,7 @@ export class ServicesController {
     const result = await getServiceService.execute(id);
 
     if (!result.success) {
-      return response.status(result.statusCode).json({
-        message: result.message,
-      });
+      return this.sendFailure(response, result.statusCode, result.message);
     }
 
     return response.status(200).json(result.data);
@@ -46,19 +44,10 @@ export class ServicesController {
 
   public async create(request: Request, response: Response): Promise<Response> {
     const createServiceService = new CreateServiceService(serviceRepository);
-    const body = asRequestBody(request.body);
-    const result = await createServiceService.execute({
-      name: asString(body.name),
-      category: asString(body.category),
-      durationMinutes: asRequiredNumber(body.durationMinutes),
-      price: asRequiredNumber(body.price),
-      description: asString(body.description),
-    });
+    const result = await createServiceService.execute(this.buildServicePayload(request));
 
     if (!result.success) {
-      return response.status(result.statusCode).json({
-        message: result.message,
-      });
+      return this.sendFailure(response, result.statusCode, result.message);
     }
 
     return response.status(201).json(result.data);
@@ -66,20 +55,11 @@ export class ServicesController {
 
   public async update(request: Request, response: Response): Promise<Response> {
     const updateServiceService = new UpdateServiceService(serviceRepository);
-    const body = asRequestBody(request.body);
     const id = Number(request.params.id);
-    const result = await updateServiceService.execute(id, {
-      name: asString(body.name),
-      category: asString(body.category),
-      durationMinutes: asRequiredNumber(body.durationMinutes),
-      price: asRequiredNumber(body.price),
-      description: asString(body.description),
-    });
+    const result = await updateServiceService.execute(id, this.buildServicePayload(request));
 
     if (!result.success) {
-      return response.status(result.statusCode).json({
-        message: result.message,
-      });
+      return this.sendFailure(response, result.statusCode, result.message);
     }
 
     return response.status(200).json(result.data);
@@ -91,11 +71,25 @@ export class ServicesController {
     const result = await deleteServiceService.execute(id);
 
     if (!result.success) {
-      return response.status(result.statusCode).json({
-        message: result.message,
-      });
+      return this.sendFailure(response, result.statusCode, result.message);
     }
 
     return response.status(200).json(result.data);
+  }
+
+  private buildServicePayload(request: Request) {
+    const body = asRequestBody(request.body);
+
+    return {
+      name: asString(body.name),
+      category: asString(body.category),
+      durationMinutes: asRequiredNumber(body.durationMinutes),
+      price: asRequiredNumber(body.price),
+      description: asString(body.description),
+    };
+  }
+
+  private sendFailure(response: Response, statusCode: number, message: string): Response {
+    return response.status(statusCode).json({ message });
   }
 }
