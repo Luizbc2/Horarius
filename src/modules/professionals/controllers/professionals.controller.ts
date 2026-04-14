@@ -8,6 +8,7 @@ import {
 import { SequelizeProfessionalRepository } from "../repositories/sequelize-professional.repository";
 import { CreateProfessionalService } from "../services/create-professional.service";
 import { DeleteProfessionalService } from "../services/delete-professional.service";
+import { GetProfessionalService } from "../services/get-professional.service";
 import { ListProfessionalWorkDaysService } from "../services/list-professional-work-days.service";
 import { ListProfessionalsService } from "../services/list-professionals.service";
 import { UpdateProfessionalService } from "../services/update-professional.service";
@@ -16,6 +17,20 @@ import { UpdateProfessionalWorkDaysService } from "../services/update-profession
 const professionalRepository = new SequelizeProfessionalRepository();
 
 export class ProfessionalsController {
+  public async getById(request: Request, response: Response): Promise<Response> {
+    const getProfessionalService = new GetProfessionalService(professionalRepository);
+    const id = Number(request.params.id);
+    const result = await getProfessionalService.execute(id);
+
+    if (!result.success) {
+      return response.status(result.statusCode).json({
+        message: result.message,
+      });
+    }
+
+    return response.status(200).json(result.data);
+  }
+
   public async list(request: Request, response: Response): Promise<Response> {
     const listProfessionalsService = new ListProfessionalsService(professionalRepository);
     const query: ListProfessionalsQueryDto = {

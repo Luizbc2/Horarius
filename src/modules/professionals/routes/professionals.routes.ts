@@ -8,6 +8,7 @@ const professionalsController = new ProfessionalsController();
 
 professionalsRoutes.use(authenticate);
 
+professionalsRoutes.get("/:id", (request, response) => professionalsController.getById(request, response));
 professionalsRoutes.get("/", (request, response) => professionalsController.list(request, response));
 professionalsRoutes.post("/", (request, response) => professionalsController.create(request, response));
 professionalsRoutes.get("/:id/work-days", (request, response) =>
