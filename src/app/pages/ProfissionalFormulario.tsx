@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { ArrowLeft, Save } from "lucide-react";
 import { Link, Navigate, useLocation, useNavigate, useParams } from "react-router";
 
@@ -40,13 +40,15 @@ export function ProfissionalFormulario() {
   const params = useParams();
   const professionalId = params.professionalId ? Number(params.professionalId) : null;
   const locationState = location.state as { professional?: Professional } | null;
-  const existingProfessional = useMemo(
-    () => (professionalId === null ? null : locationState?.professional ?? null),
-    [locationState, professionalId],
+  const [existingProfessional, setExistingProfessional] = useState<ProfessionalApiItem | null>(
+    professionalId === null ? null : locationState?.professional ?? null,
   );
   const [formData, setFormData] = useState<ProfessionalFormData>(initialFormData);
   const [formErrors, setFormErrors] = useState<ProfessionalFormErrors>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [isLoadingProfessional, setIsLoadingProfessional] = useState(
+    Boolean(professionalId && !locationState?.professional),
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isEditing = professionalId !== null;
@@ -65,7 +67,47 @@ export function ProfissionalFormulario() {
     });
   }, [existingProfessional]);
 
-  if (isEditing && !existingProfessional) {
+  useEffect(() => {
+    if (!isEditing || professionalId === null || existingProfessional || !token) {
+      if (!token && isEditing) {
+        setIsLoadingProfessional(false);
+      }
+
+      return;
+    }
+
+    let isMounted = true;
+
+    const loadProfessional = async () => {
+      try {
+        const response = await createProfessionalsService(token).getById(professionalId);
+
+        if (!isMounted) {
+          return;
+        }
+
+        setExistingProfessional(response.professional);
+      } catch (error) {
+        if (!isMounted) {
+          return;
+        }
+
+        setSubmitError(getApiErrorMessage(error, "Nao foi possivel carregar o profissional."));
+      } finally {
+        if (isMounted) {
+          setIsLoadingProfessional(false);
+        }
+      }
+    };
+
+    void loadProfessional();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [existingProfessional, isEditing, professionalId, token]);
+
+  if (isEditing && !isLoadingProfessional && !existingProfessional) {
     return <Navigate to="/profissionais" replace />;
   }
 
@@ -165,6 +207,13 @@ export function ProfissionalFormulario() {
       }
     >
       <form noValidate onSubmit={handleSubmit} className="grid gap-6">
+        {isEditing && isLoadingProfessional ? (
+          <Alert className="border-border/60 bg-white/70">
+            <AlertTitle>Carregando profissional</AlertTitle>
+            <AlertDescription>Buscando os dados para preencher o formulario.</AlertDescription>
+          </Alert>
+        ) : null}
+
         {hasErrors ? (
           <Alert variant="destructive" className="border-destructive/20 bg-destructive/5">
             <AlertTitle>Formulario invalido</AlertTitle>
