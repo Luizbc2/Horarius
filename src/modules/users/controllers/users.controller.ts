@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
 
 import { CreateUserService } from "../services/create-user.service";
-import { CreateUserRequestDto } from "../dtos/create-user.dto";
 import { UpdateUserProfileService } from "../services/update-user-profile.service";
 import { getAuthenticatedUserId } from "../../auth/utils/auth-request.util";
+import { asRequestBody, asString } from "../../../shared/http/request-parser";
 
 export class UsersController {
   constructor(
@@ -13,11 +13,12 @@ export class UsersController {
 
   public async create(request: Request, response: Response): Promise<Response> {
     try {
+      const body = asRequestBody(request.body as object | null | undefined);
       const result = await this.createUserService.execute({
-        name: this.asString((request.body as Partial<CreateUserRequestDto>).name),
-        email: this.asString((request.body as Partial<CreateUserRequestDto>).email),
-        cpf: this.asString((request.body as Partial<CreateUserRequestDto>).cpf),
-        password: this.asString((request.body as Partial<CreateUserRequestDto>).password),
+        name: asString(body.name),
+        email: asString(body.email),
+        cpf: asString(body.cpf),
+        password: asString(body.password),
       });
 
       if (!result.success) {
@@ -38,6 +39,7 @@ export class UsersController {
 
   public async updateMe(request: Request, response: Response): Promise<Response> {
     try {
+      const body = asRequestBody(request.body as object | null | undefined);
       const authenticatedUserId = getAuthenticatedUserId(request);
 
       if (!authenticatedUserId) {
@@ -49,10 +51,10 @@ export class UsersController {
       const result = await this.updateUserProfileService.execute({
         authenticatedUserId,
         userId: authenticatedUserId,
-        name: this.asString((request.body as { name?: unknown }).name),
-        email: this.asString((request.body as { email?: unknown }).email),
-        cpf: this.asString((request.body as { cpf?: unknown }).cpf),
-        password: this.asString((request.body as { password?: unknown }).password),
+        name: asString(body.name),
+        email: asString(body.email),
+        cpf: asString(body.cpf),
+        password: asString(body.password),
       });
 
       if (!result.success) {
@@ -69,10 +71,6 @@ export class UsersController {
         message: "Nao foi possivel processar a atualizacao do perfil agora.",
       });
     }
-  }
-
-  private asString(value: unknown): string {
-    return typeof value === "string" ? value : "";
   }
 }
 

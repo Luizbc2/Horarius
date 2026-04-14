@@ -6,6 +6,12 @@ import { CreateAppointmentService } from "../services/create-appointment.service
 import { DeleteAppointmentService } from "../services/delete-appointment.service";
 import { ListAppointmentsService } from "../services/list-appointments.service";
 import { UpdateAppointmentService } from "../services/update-appointment.service";
+import {
+  asNumber,
+  asRequestBody,
+  asString,
+  type RequestValue,
+} from "../../../shared/http/request-parser";
 
 const appointmentRepository = new SequelizeAppointmentRepository();
 
@@ -13,10 +19,10 @@ export class AppointmentsController {
   public async list(request: Request, response: Response): Promise<Response> {
     const listAppointmentsService = new ListAppointmentsService(appointmentRepository);
     const query: ListAppointmentsQueryDto = {
-      date: this.parseString(request.query.date),
-      limit: this.parseNumber(request.query.limit),
-      page: this.parseNumber(request.query.page),
-      professionalId: this.parseNumber(request.query.professionalId),
+      date: asString(request.query.date),
+      limit: asNumber(request.query.limit),
+      page: asNumber(request.query.page),
+      professionalId: asNumber(request.query.professionalId),
       status: this.parseStatus(request.query.status),
     };
 
@@ -27,14 +33,14 @@ export class AppointmentsController {
 
   public async create(request: Request, response: Response): Promise<Response> {
     const createAppointmentService = new CreateAppointmentService(appointmentRepository);
-    const body = this.parseBody(request.body);
+    const body = asRequestBody(request.body);
     const result = await createAppointmentService.execute({
-      clientId: this.parseNumber(body.clientId) ?? 0,
-      professionalId: this.parseNumber(body.professionalId) ?? 0,
-      serviceId: this.parseNumber(body.serviceId) ?? 0,
-      scheduledAt: this.parseString(body.scheduledAt),
+      clientId: asNumber(body.clientId) ?? 0,
+      professionalId: asNumber(body.professionalId) ?? 0,
+      serviceId: asNumber(body.serviceId) ?? 0,
+      scheduledAt: asString(body.scheduledAt),
       status: this.parseBodyStatus(body.status),
-      notes: this.parseString(body.notes),
+      notes: asString(body.notes),
     });
 
     if (!result.success) {
@@ -48,15 +54,15 @@ export class AppointmentsController {
 
   public async update(request: Request, response: Response): Promise<Response> {
     const updateAppointmentService = new UpdateAppointmentService(appointmentRepository);
-    const body = this.parseBody(request.body);
+    const body = asRequestBody(request.body);
     const id = Number(request.params.id);
     const result = await updateAppointmentService.execute(id, {
-      clientId: this.parseNumber(body.clientId) ?? 0,
-      professionalId: this.parseNumber(body.professionalId) ?? 0,
-      serviceId: this.parseNumber(body.serviceId) ?? 0,
-      scheduledAt: this.parseString(body.scheduledAt),
+      clientId: asNumber(body.clientId) ?? 0,
+      professionalId: asNumber(body.professionalId) ?? 0,
+      serviceId: asNumber(body.serviceId) ?? 0,
+      scheduledAt: asString(body.scheduledAt),
       status: this.parseBodyStatus(body.status),
-      notes: this.parseString(body.notes),
+      notes: asString(body.notes),
     });
 
     if (!result.success) {
@@ -82,33 +88,7 @@ export class AppointmentsController {
     return response.status(200).json(result.data);
   }
 
-  private parseBody(body: unknown): Record<string, unknown> {
-    if (body && typeof body === "object") {
-      return body as Record<string, unknown>;
-    }
-
-    return {};
-  }
-
-  private parseString(value: unknown): string {
-    return typeof value === "string" ? value : "";
-  }
-
-  private parseNumber(value: unknown): number | undefined {
-    if (typeof value === "number") {
-      return Number.isNaN(value) ? undefined : value;
-    }
-
-    if (typeof value !== "string" || !value.trim()) {
-      return undefined;
-    }
-
-    const parsedValue = Number(value);
-
-    return Number.isNaN(parsedValue) ? undefined : parsedValue;
-  }
-
-  private parseStatus(value: unknown): AppointmentStatus | undefined {
+  private parseStatus(value: RequestValue): AppointmentStatus | undefined {
     if (typeof value !== "string") {
       return undefined;
     }
@@ -126,7 +106,7 @@ export class AppointmentsController {
     return undefined;
   }
 
-  private parseBodyStatus(value: unknown): AppointmentStatus {
-    return this.parseString(value).trim().toLowerCase() as AppointmentStatus;
+  private parseBodyStatus(value: RequestValue): AppointmentStatus {
+    return asString(value).trim().toLowerCase() as AppointmentStatus;
   }
 }

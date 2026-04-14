@@ -13,6 +13,15 @@ import { ListProfessionalWorkDaysService } from "../services/list-professional-w
 import { ListProfessionalsService } from "../services/list-professionals.service";
 import { UpdateProfessionalService } from "../services/update-professional.service";
 import { UpdateProfessionalWorkDaysService } from "../services/update-professional-work-days.service";
+import {
+  asBoolean,
+  asNullableString,
+  asNumber,
+  asRequestBody,
+  asString,
+  type RequestBody,
+  type RequestValue,
+} from "../../../shared/http/request-parser";
 
 const professionalRepository = new SequelizeProfessionalRepository();
 
@@ -34,9 +43,9 @@ export class ProfessionalsController {
   public async list(request: Request, response: Response): Promise<Response> {
     const listProfessionalsService = new ListProfessionalsService(professionalRepository);
     const query: ListProfessionalsQueryDto = {
-      page: this.parseQueryNumber(request.query.page),
-      limit: this.parseQueryNumber(request.query.limit),
-      search: this.parseString(request.query.search),
+      page: asNumber(request.query.page),
+      limit: asNumber(request.query.limit),
+      search: asString(request.query.search),
     };
 
     const result = await listProfessionalsService.execute(query);
@@ -46,13 +55,13 @@ export class ProfessionalsController {
 
   public async create(request: Request, response: Response): Promise<Response> {
     const createProfessionalService = new CreateProfessionalService(professionalRepository);
-    const body = this.parseBody(request.body);
+    const body = asRequestBody(request.body);
     const result = await createProfessionalService.execute({
-      name: this.parseString(body.name),
-      email: this.parseString(body.email),
-      phone: this.parseString(body.phone),
-      specialty: this.parseString(body.specialty),
-      status: this.parseString(body.status),
+      name: asString(body.name),
+      email: asString(body.email),
+      phone: asString(body.phone),
+      specialty: asString(body.specialty),
+      status: asString(body.status),
     });
 
     if (!result.success) {
@@ -80,14 +89,14 @@ export class ProfessionalsController {
 
   public async update(request: Request, response: Response): Promise<Response> {
     const updateProfessionalService = new UpdateProfessionalService(professionalRepository);
-    const body = this.parseBody(request.body);
+    const body = asRequestBody(request.body);
     const id = Number(request.params.id);
     const result = await updateProfessionalService.execute(id, {
-      name: this.parseString(body.name),
-      email: this.parseString(body.email),
-      phone: this.parseString(body.phone),
-      specialty: this.parseString(body.specialty),
-      status: this.parseString(body.status),
+      name: asString(body.name),
+      email: asString(body.email),
+      phone: asString(body.phone),
+      specialty: asString(body.specialty),
+      status: asString(body.status),
     });
 
     if (!result.success) {
@@ -115,7 +124,7 @@ export class ProfessionalsController {
 
   public async updateWorkDays(request: Request, response: Response): Promise<Response> {
     const updateProfessionalWorkDaysService = new UpdateProfessionalWorkDaysService(professionalRepository);
-    const body = this.parseBody(request.body);
+    const body = asRequestBody(request.body);
     const id = Number(request.params.id);
     const result = await updateProfessionalWorkDaysService.execute(id, {
       workDays: this.parseWorkDays(body.workDays),
@@ -130,29 +139,7 @@ export class ProfessionalsController {
     return response.status(200).json(result.data);
   }
 
-  private parseBody(body: unknown): Record<string, unknown> {
-    if (body && typeof body === "object") {
-      return body as Record<string, unknown>;
-    }
-
-    return {};
-  }
-
-  private parseString(value: unknown): string {
-    return typeof value === "string" ? value : "";
-  }
-
-  private parseQueryNumber(value: unknown): number | undefined {
-    if (typeof value !== "string" || !value.trim()) {
-      return undefined;
-    }
-
-    const parsedValue = Number(value);
-
-    return Number.isNaN(parsedValue) ? undefined : parsedValue;
-  }
-
-  private parseWorkDays(value: unknown): UpdateProfessionalWorkDaysRequestDto["workDays"] {
+  private parseWorkDays(value: RequestValue): UpdateProfessionalWorkDaysRequestDto["workDays"] {
     if (!Array.isArray(value)) {
       return [];
     }
@@ -160,30 +147,24 @@ export class ProfessionalsController {
     return value.map((item) => this.parseWorkDay(item));
   }
 
-  private parseWorkDay(value: unknown): ProfessionalWorkDayInputDto {
-    const item = value && typeof value === "object" ? (value as Record<string, unknown>) : {};
+  private parseWorkDay(value: RequestValue): ProfessionalWorkDayInputDto {
+    const item = this.parseWorkDayItem(value);
 
     return {
-      dayOfWeek: this.parseString(item.dayOfWeek),
-      enabled: this.parseBoolean(item.enabled),
-      startTime: this.parseString(item.startTime),
-      endTime: this.parseString(item.endTime),
-      breakStart: this.parseNullableString(item.breakStart),
-      breakEnd: this.parseNullableString(item.breakEnd),
+      dayOfWeek: asString(item.dayOfWeek),
+      enabled: asBoolean(item.enabled),
+      startTime: asString(item.startTime),
+      endTime: asString(item.endTime),
+      breakStart: asNullableString(item.breakStart),
+      breakEnd: asNullableString(item.breakEnd),
     };
   }
 
-  private parseBoolean(value: unknown): boolean {
-    return value === true;
-  }
-
-  private parseNullableString(value: unknown): string | null {
-    if (typeof value !== "string") {
-      return null;
+  private parseWorkDayItem(value: RequestValue): RequestBody {
+    if (!value || typeof value !== "object" || Array.isArray(value)) {
+      return {};
     }
 
-    const normalizedValue = value.trim();
-
-    return normalizedValue || null;
+    return value as RequestBody;
   }
 }

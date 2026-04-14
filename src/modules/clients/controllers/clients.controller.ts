@@ -7,6 +7,7 @@ import { DeleteClientService } from "../services/delete-client.service";
 import { GetClientService } from "../services/get-client.service";
 import { ListClientsService } from "../services/list-clients.service";
 import { UpdateClientService } from "../services/update-client.service";
+import { asNumber, asRequestBody, asString } from "../../../shared/http/request-parser";
 
 const clientRepository = new SequelizeClientRepository();
 
@@ -28,9 +29,9 @@ export class ClientsController {
   public async list(request: Request, response: Response): Promise<Response> {
     const listClientsService = new ListClientsService(clientRepository);
     const query: ListClientsQueryDto = {
-      page: this.parseNumber(request.query.page),
-      limit: this.parseNumber(request.query.limit),
-      search: this.parseString(request.query.search),
+      page: asNumber(request.query.page),
+      limit: asNumber(request.query.limit),
+      search: asString(request.query.search),
     };
 
     const result = await listClientsService.execute(query);
@@ -40,13 +41,13 @@ export class ClientsController {
 
   public async create(request: Request, response: Response): Promise<Response> {
     const createClientService = new CreateClientService(clientRepository);
-    const body = this.parseBody(request.body);
+    const body = asRequestBody(request.body);
     const result = await createClientService.execute({
-      name: this.parseString(body.name),
-      email: this.parseString(body.email),
-      phone: this.parseString(body.phone),
-      cpf: this.parseString(body.cpf),
-      notes: this.parseString(body.notes),
+      name: asString(body.name),
+      email: asString(body.email),
+      phone: asString(body.phone),
+      cpf: asString(body.cpf),
+      notes: asString(body.notes),
     });
 
     if (!result.success) {
@@ -60,14 +61,14 @@ export class ClientsController {
 
   public async update(request: Request, response: Response): Promise<Response> {
     const updateClientService = new UpdateClientService(clientRepository);
-    const body = this.parseBody(request.body);
+    const body = asRequestBody(request.body);
     const id = Number(request.params.id);
     const result = await updateClientService.execute(id, {
-      name: this.parseString(body.name),
-      email: this.parseString(body.email),
-      phone: this.parseString(body.phone),
-      cpf: this.parseString(body.cpf),
-      notes: this.parseString(body.notes),
+      name: asString(body.name),
+      email: asString(body.email),
+      phone: asString(body.phone),
+      cpf: asString(body.cpf),
+      notes: asString(body.notes),
     });
 
     if (!result.success) {
@@ -91,27 +92,5 @@ export class ClientsController {
     }
 
     return response.status(200).json(result.data);
-  }
-
-  private parseBody(body: unknown): Record<string, unknown> {
-    if (body && typeof body === "object") {
-      return body as Record<string, unknown>;
-    }
-
-    return {};
-  }
-
-  private parseString(value: unknown): string {
-    return typeof value === "string" ? value : "";
-  }
-
-  private parseNumber(value: unknown): number | undefined {
-    if (typeof value !== "string" || !value.trim()) {
-      return undefined;
-    }
-
-    const parsedValue = Number(value);
-
-    return Number.isNaN(parsedValue) ? undefined : parsedValue;
   }
 }
