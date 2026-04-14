@@ -7,6 +7,7 @@ import { ClientModel } from "../modules/clients/models/client.model";
 import { hashPassword, isPasswordHashed } from "../modules/auth/utils/password.util";
 import { ServiceModel } from "../modules/services/models/service.model";
 import { ProfessionalModel } from "../modules/professionals/models/professional.model";
+import { ProfessionalWorkDayModel } from "../modules/professionals/models/professional-work-day.model";
 
 class Database {
   private sequelize: Sequelize | null = null;
@@ -40,6 +41,7 @@ class Database {
     ClientModel.initialize(this.getConnection());
     ServiceModel.initialize(this.getConnection());
     ProfessionalModel.initialize(this.getConnection());
+    ProfessionalWorkDayModel.initialize(this.getConnection());
     AppointmentModel.initialize(this.getConnection());
 
     ClientModel.hasMany(AppointmentModel, {
@@ -49,6 +51,10 @@ class Database {
     ProfessionalModel.hasMany(AppointmentModel, {
       foreignKey: "professionalId",
       as: "appointments",
+    });
+    ProfessionalModel.hasMany(ProfessionalWorkDayModel, {
+      foreignKey: "professionalId",
+      as: "workDays",
     });
     ServiceModel.hasMany(AppointmentModel, {
       foreignKey: "serviceId",
@@ -60,6 +66,10 @@ class Database {
       as: "client",
     });
     AppointmentModel.belongsTo(ProfessionalModel, {
+      foreignKey: "professionalId",
+      as: "professional",
+    });
+    ProfessionalWorkDayModel.belongsTo(ProfessionalModel, {
       foreignKey: "professionalId",
       as: "professional",
     });

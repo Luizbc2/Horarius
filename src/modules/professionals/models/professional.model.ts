@@ -4,8 +4,10 @@ import {
   InferAttributes,
   InferCreationAttributes,
   Model,
+  NonAttribute,
   Sequelize,
 } from "sequelize";
+import { ProfessionalWorkDayModel } from "./professional-work-day.model";
 
 export class ProfessionalModel extends Model<
   InferAttributes<ProfessionalModel>,
@@ -17,6 +19,7 @@ export class ProfessionalModel extends Model<
   declare phone: string;
   declare specialty: string;
   declare status: string;
+  declare workDays?: NonAttribute<ProfessionalWorkDayModel[]>;
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
 
