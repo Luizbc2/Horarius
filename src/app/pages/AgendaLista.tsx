@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router";
 import { toast } from "sonner";
 import {
@@ -46,71 +46,26 @@ import {
 } from "../components/ui/dropdown-menu";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
+import {
+  ITEMS_PER_PAGE,
+  buildScheduledAt,
+  createEditAppointmentDraft,
+  filterAppointments,
+  formatAppointmentForList,
+  getStatusColor,
+  getStatusLabel,
+  getTodayDateValue,
+  type AgendaListItem,
+  type EditAppointmentDraft,
+} from "../features/agenda/list-helpers";
 import { getApiErrorMessage, isMissingAuthTokenError } from "../lib/api-error";
 import { createProfessionalsService, type ProfessionalApiItem } from "../services/professionals";
 import {
   createAppointmentsService,
-  type AppointmentApiItem,
   type AppointmentStatus,
 } from "../services/appointments";
 import { createClientsService, type ClientApiItem } from "../services/clients";
 import { createServicesService, type ServiceApiItem } from "../services/services";
-
-type AgendaListItem = {
-  id: number;
-  clientId: number;
-  date: string;
-  notes: string;
-  professionalId: number;
-  time: string;
-  client: string;
-  scheduledAt: string;
-  serviceId: number;
-  professional: string;
-  service: string;
-  status: AppointmentStatus;
-};
-
-type EditAppointmentDraft = {
-  clientId: string;
-  professionalId: string;
-  serviceId: string;
-  time: string;
-  status: AppointmentStatus;
-};
-
-function padDatePart(value: number) {
-  return String(value).padStart(2, "0");
-}
-
-function getTodayDateValue() {
-  const currentDate = new Date();
-
-  return `${currentDate.getFullYear()}-${padDatePart(currentDate.getMonth() + 1)}-${padDatePart(currentDate.getDate())}`;
-}
-
-function formatAppointmentForList(appointment: AppointmentApiItem): AgendaListItem {
-  const scheduledDate = new Date(appointment.scheduledAt);
-
-  return {
-    id: appointment.id,
-    clientId: appointment.clientId,
-    date: scheduledDate.toLocaleDateString("pt-BR"),
-    notes: appointment.notes,
-    professionalId: appointment.professionalId,
-    time: scheduledDate.toLocaleTimeString("pt-BR", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    }),
-    client: appointment.clientName,
-    scheduledAt: appointment.scheduledAt,
-    serviceId: appointment.serviceId,
-    professional: appointment.professionalName,
-    service: appointment.serviceName,
-    status: appointment.status,
-  };
-}
 
 export function AgendaLista() {
   const { token } = useAuth();
@@ -128,15 +83,9 @@ export function AgendaLista() {
   const [editingAppointment, setEditingAppointment] = useState<AgendaListItem | null>(null);
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
   const [detailsAppointment, setDetailsAppointment] = useState<AgendaListItem | null>(null);
-  const [editDraft, setEditDraft] = useState<EditAppointmentDraft>({
-    clientId: "",
-    professionalId: "",
-    serviceId: "",
-    time: "09:00",
-    status: "confirmado",
-  });
+  const [editDraft, setEditDraft] = useState<EditAppointmentDraft>(createEditAppointmentDraft());
   const [refreshKey, setRefreshKey] = useState(0);
-  const itemsPerPage = 10;
+
   useEffect(() => {
     if (!token) {
       setClients([]);
@@ -237,66 +186,25 @@ export function AgendaLista() {
     setCurrentPage(1);
   }, [searchTerm, selectedDate, selectedProfessional, selectedStatus]);
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "confirmado":
-        return "bg-green-100 text-green-800";
-      case "pendente":
-        return "bg-yellow-100 text-yellow-800";
-      case "cancelado":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case "confirmado":
-        return "Confirmado";
-      case "pendente":
-        return "Pendente";
-      case "cancelado":
-        return "Cancelado";
-      default:
-        return status;
-    }
-  };
-
-  const filteredAppointments = appointments.filter((appointment) => {
-    if (
-      searchTerm &&
-      !`${appointment.client} ${appointment.service} ${appointment.professional}`
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase())
-    ) {
-      return false;
-    }
-
-    return true;
-  });
-
-  const totalPages = Math.max(1, Math.ceil(filteredAppointments.length / itemsPerPage));
+  const filteredAppointments = useMemo(
+    () => filterAppointments(appointments, searchTerm),
+    [appointments, searchTerm],
+  );
+  const totalPages = Math.max(1, Math.ceil(filteredAppointments.length / ITEMS_PER_PAGE));
   const safePage = Math.min(currentPage, totalPages);
-  const startIndex = (safePage - 1) * itemsPerPage;
-  const paginatedAppointments = filteredAppointments.slice(startIndex, startIndex + itemsPerPage);
+  const startIndex = (safePage - 1) * ITEMS_PER_PAGE;
+  const paginatedAppointments = filteredAppointments.slice(startIndex, startIndex + ITEMS_PER_PAGE);
   const confirmedCount = filteredAppointments.filter((appointment) => appointment.status === "confirmado").length;
   const pendingCount = filteredAppointments.filter((appointment) => appointment.status === "pendente").length;
 
-  const handleRefresh = async () => {
+  const handleRefresh = () => {
     setRefreshKey((currentKey) => currentKey + 1);
   };
 
   const resetEditDialog = () => {
     setIsEditDialogOpen(false);
     setEditingAppointment(null);
-    setEditDraft({
-      clientId: "",
-      professionalId: "",
-      serviceId: "",
-      time: "09:00",
-      status: "confirmado",
-    });
+    setEditDraft(createEditAppointmentDraft());
   };
 
   const resetDetailsDialog = () => {
@@ -306,28 +214,13 @@ export function AgendaLista() {
 
   const openEditDialog = (appointment: AgendaListItem) => {
     setEditingAppointment(appointment);
-    setEditDraft({
-      clientId: String(appointment.clientId),
-      professionalId: String(appointment.professionalId),
-      serviceId: String(appointment.serviceId),
-      time: appointment.time,
-      status: appointment.status,
-    });
+    setEditDraft(createEditAppointmentDraft(appointment));
     setIsEditDialogOpen(true);
   };
 
   const openDetailsDialog = (appointment: AgendaListItem) => {
     setDetailsAppointment(appointment);
     setIsDetailsDialogOpen(true);
-  };
-
-  const buildScheduledAt = (baseDate: string, time: string) => {
-    const [hours, minutes] = time.split(":").map(Number);
-    const nextDate = new Date(baseDate);
-
-    nextDate.setHours(hours, minutes, 0, 0);
-
-    return nextDate.toISOString();
   };
 
   const handleSaveAppointmentEdit = async () => {
@@ -570,31 +463,31 @@ export function AgendaLista() {
                               <MoreVertical className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem onSelect={() => openDetailsDialog(appointment)}>
-                                Ver detalhes
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onSelect={() => openEditDialog(appointment)}>
-                                Editar
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onSelect={() => void handleUpdateAppointmentStatus(appointment, "confirmado")}
-                              >
-                                Confirmar
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                variant="destructive"
-                                onSelect={() => void handleUpdateAppointmentStatus(appointment, "cancelado")}
-                              >
-                                Cancelar
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                variant="destructive"
-                                onSelect={() => void handleDeleteAppointment(appointment)}
-                              >
-                                Excluir
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onSelect={() => openDetailsDialog(appointment)}>
+                              Ver detalhes
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onSelect={() => openEditDialog(appointment)}>
+                              Editar
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onSelect={() => void handleUpdateAppointmentStatus(appointment, "confirmado")}
+                            >
+                              Confirmar
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              variant="destructive"
+                              onSelect={() => void handleUpdateAppointmentStatus(appointment, "cancelado")}
+                            >
+                              Cancelar
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              variant="destructive"
+                              onSelect={() => void handleDeleteAppointment(appointment)}
+                            >
+                              Excluir
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>
                     </TableRow>
