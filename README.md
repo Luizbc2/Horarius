@@ -85,6 +85,7 @@ Hoje a suite cobre:
 Documentacao de usabilidade:
 
 - `docs/usability-checklist.md`
+- `docs/rubric-traceability.md`
 
 ## Rotas principais
 
