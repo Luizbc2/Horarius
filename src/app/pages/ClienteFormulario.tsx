@@ -84,7 +84,7 @@ export function ClienteFormulario() {
           return;
         }
 
-        setSubmitError(getApiErrorMessage(error, "Nao foi possivel carregar o cliente."));
+        setSubmitError(getApiErrorMessage(error, "Não foi possível carregar o cliente."));
       } finally {
         if (isMounted) {
           setIsLoadingClient(false);
@@ -129,7 +129,7 @@ export function ClienteFormulario() {
     }
 
     if (!token) {
-      setSubmitError("Sua sessao expirou. Entre novamente para continuar.");
+      setSubmitError("Sua sessão expirou. Entre novamente para continuar.");
       return;
     }
 
@@ -152,7 +152,7 @@ export function ClienteFormulario() {
         });
         return;
       } catch (error) {
-        setSubmitError(getApiErrorMessage(error, "Nao foi possivel atualizar o cliente."));
+        setSubmitError(getApiErrorMessage(error, "Não foi possível atualizar o cliente."));
         setIsSubmitting(false);
         return;
       }
@@ -173,7 +173,7 @@ export function ClienteFormulario() {
         state: { notice: response.message },
       });
     } catch (error) {
-      setSubmitError(getApiErrorMessage(error, "Nao foi possivel cadastrar o cliente."));
+      setSubmitError(getApiErrorMessage(error, "Não foi possível cadastrar o cliente."));
     } finally {
       setIsSubmitting(false);
     }
@@ -185,12 +185,16 @@ export function ClienteFormulario() {
     <PageShell
       eyebrow="Clientes"
       title={isEditing ? "Editar cliente" : "Novo cliente"}
-      description="Formulario separado da listagem para cadastrar ou editar um cliente."
+      description={
+        isEditing
+          ? "Atualize os dados da ficha para manter contato, observações e histórico sempre corretos."
+          : "Preencha os dados do cliente para deixar a agenda e o atendimento mais organizados."
+      }
       actions={
         <Button variant="outline" asChild>
           <Link to="/clientes">
             <ArrowLeft className="h-4 w-4" />
-            Voltar para listagem
+            Voltar para clientes
           </Link>
         </Button>
       }
@@ -198,28 +202,28 @@ export function ClienteFormulario() {
       <form noValidate onSubmit={handleSubmit} className="grid gap-6">
         {isEditing && isLoadingClient ? (
           <Alert className="border-border/60 bg-white/70">
-            <AlertTitle>Carregando cliente</AlertTitle>
-            <AlertDescription>Buscando os dados para preencher o formulario.</AlertDescription>
+            <AlertTitle>Carregando ficha</AlertTitle>
+            <AlertDescription>Estamos buscando os dados deste cliente.</AlertDescription>
           </Alert>
         ) : null}
 
         {hasErrors ? (
           <Alert variant="destructive" className="border-destructive/20 bg-destructive/5">
-            <AlertTitle>Formulario invalido</AlertTitle>
-            <AlertDescription>Revise os campos marcados antes de salvar.</AlertDescription>
+            <AlertTitle>Confira os campos</AlertTitle>
+            <AlertDescription>Revise as informações destacadas antes de salvar.</AlertDescription>
           </Alert>
         ) : null}
 
         {submitError ? (
           <Alert variant="destructive" className="border-destructive/20 bg-destructive/5">
-            <AlertTitle>Nao foi possivel salvar</AlertTitle>
+            <AlertTitle>Não deu para salvar agora</AlertTitle>
             <AlertDescription>{submitError}</AlertDescription>
           </Alert>
         ) : null}
 
         <SectionCard
-          title="Dados do cliente"
-          description="Todos os campos deste formulario sao obrigatorios para fechar o cadastro."
+          title="Ficha do cliente"
+          description="Guarde aqui os dados de contato e observações importantes para o atendimento."
         >
           <div className="grid gap-4 md:grid-cols-2">
             <div className="grid gap-2">
@@ -260,7 +264,7 @@ export function ClienteFormulario() {
               {formErrors.phone ? (
                 <p className="text-sm text-destructive">{formErrors.phone}</p>
               ) : (
-                <p className="text-sm text-muted-foreground">Informe o numero com DDD.</p>
+                <p className="text-sm text-muted-foreground">Inclua o DDD para facilitar o contato.</p>
               )}
             </div>
 
@@ -278,12 +282,12 @@ export function ClienteFormulario() {
               {formErrors.cpf ? (
                 <p className="text-sm text-destructive">{formErrors.cpf}</p>
               ) : (
-                <p className="text-sm text-muted-foreground">Opcional, mas precisa ser valido se preenchido.</p>
+                <p className="text-sm text-muted-foreground">Opcional, mas precisa estar válido se for preenchido.</p>
               )}
             </div>
 
             <div className="grid gap-2 md:col-span-2">
-              <label htmlFor="client-notes">Observacoes</label>
+              <label htmlFor="client-notes">Observações</label>
               <Textarea
                 id="client-notes"
                 value={formData.notes}
@@ -292,7 +296,13 @@ export function ClienteFormulario() {
                 aria-invalid={Boolean(formErrors.notes)}
                 maxLength={FIELD_LIMITS.notes}
               />
-              {formErrors.notes ? <p className="text-sm text-destructive">{formErrors.notes}</p> : null}
+              {!formErrors.notes ? (
+                <p className="text-sm text-muted-foreground">
+                  Anote preferências, restrições ou qualquer detalhe útil para o próximo atendimento.
+                </p>
+              ) : (
+                <p className="text-sm text-destructive">{formErrors.notes}</p>
+              )}
             </div>
           </div>
         </SectionCard>
@@ -300,7 +310,7 @@ export function ClienteFormulario() {
         <div className="flex flex-wrap gap-3">
           <Button type="submit" disabled={isSubmitting}>
             <Save className="h-4 w-4" />
-            {isSubmitting ? "Salvando..." : isEditing ? "Salvar alteracoes" : "Cadastrar cliente"}
+            {isSubmitting ? "Salvando..." : isEditing ? "Salvar mudanças" : "Cadastrar cliente"}
           </Button>
           <Button type="button" variant="outline" asChild>
             <Link to="/clientes">Cancelar</Link>

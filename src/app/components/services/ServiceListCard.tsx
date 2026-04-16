@@ -31,11 +31,13 @@ export function ServiceListCard({ service, onDelete }: ServiceListCardProps) {
       </div>
 
       <h3 className="mt-5 text-2xl text-foreground">{service.name}</h3>
-      <p className="mt-2 text-sm text-muted-foreground">{service.description}</p>
+      <p className="mt-2 text-sm text-muted-foreground">
+        {service.description.trim() || "Sem descrição cadastrada para este serviço."}
+      </p>
 
       <div className="mt-5 space-y-3">
         <div className="data-pill justify-between">
-          <span className="text-muted-foreground">Preço</span>
+          <span className="text-muted-foreground">Valor</span>
           <span className="font-semibold text-foreground">{formatCurrency(service.price)}</span>
         </div>
       </div>
@@ -53,7 +55,7 @@ export function ServiceListCard({ service, onDelete }: ServiceListCardProps) {
           onClick={() => onDelete(service.id)}
         >
           <Trash2 className="h-4 w-4" />
-          Excluir
+          Remover
         </Button>
       </div>
     </article>

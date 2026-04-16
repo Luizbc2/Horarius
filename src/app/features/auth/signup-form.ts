@@ -83,15 +83,15 @@ export function createSignupPayload(formData: SignupFormData): SignupRequest {
 }
 
 export function mapSignupSuccessMessage(message: string) {
-  if (message === "Usuario cadastrado com sucesso.") {
-    return "Conta criada com sucesso. Agora voce ja pode entrar no painel.";
+  if (message === "Usuário cadastrado com sucesso.") {
+    return "Conta criada com sucesso. Agora você já pode entrar no painel.";
   }
 
   return message;
 }
 
 export function mapSignupApiError(error: ApiErrorInput): SignupFormErrors {
-  const message = getApiErrorMessage(error, "Nao foi possivel concluir o cadastro agora.");
+  const message = getApiErrorMessage(error, "Não foi possível concluir o cadastro agora.");
 
   if (isApiErrorWithStatus(error, 409) && message === "E-mail ja esta em uso.") {
     return {

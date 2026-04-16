@@ -27,22 +27,22 @@ import { signupWithApi } from "../services/auth";
 const signupFeatures = [
   {
     icon: UserRound,
-    title: "Dados basicos",
-    description: "Nome, e-mail, CPF e senha em um fluxo direto, sem excesso de etapas.",
+    title: "Cadastro sem enrolação",
+    description: "Você preenche o básico uma vez e já deixa o acesso pronto para usar o sistema.",
     iconClassName:
       "bg-[linear-gradient(135deg,rgba(89,184,171,0.96),rgba(31,109,104,0.92))] text-primary-foreground",
   },
   {
     icon: CalendarDays,
-    title: "Fluxo separado",
-    description: "Cadastro e entrada ficam separados para deixar a experiencia mais clara desde o comeco.",
+    title: "Primeiro acesso claro",
+    description: "Cada etapa tem sua própria tela para você criar a conta sem dúvida nem excesso de informação.",
     iconClassName:
       "bg-[linear-gradient(135deg,rgba(211,140,86,0.94),rgba(168,103,53,0.92))] text-white",
   },
   {
     icon: ArrowRight,
-    title: "Volta ao login",
-    description: "Depois do cadastro, o usuario retorna ao login para acessar o painel.",
+    title: "Entrada imediata",
+    description: "Assim que terminar, você já volta para o login com tudo pronto para entrar no painel.",
     iconClassName:
       "bg-[linear-gradient(135deg,rgba(53,92,125,0.94),rgba(31,47,80,0.92))] text-white",
   },
@@ -114,8 +114,8 @@ export function CadastroUsuario() {
       <div className="relative mx-auto grid w-full max-w-6xl gap-6 lg:grid-cols-[minmax(0,1.05fr)_30rem]">
         <AuthShowcasePanel
           eyebrow="Primeiro acesso"
-          title="Crie sua conta e deixe o painel pronto para rodar com voce."
-          description="O cadastro organiza os dados basicos de quem vai usar o sistema e prepara a entrada no painel logo em seguida."
+          title="Crie sua conta e comece a usar o painel em poucos minutos."
+          description="Esse é o primeiro passo para organizar agenda, clientes e equipe em um só lugar."
           features={signupFeatures}
         />
 
@@ -126,7 +126,7 @@ export function CadastroUsuario() {
             </p>
             <h2 className="mt-3 text-3xl text-foreground">Criar conta</h2>
             <p className="mt-3 text-sm leading-6 text-muted-foreground">
-              Preencha seus dados para liberar o acesso ao painel do Horarius.
+              Preencha seus dados para liberar seu acesso ao painel.
             </p>
           </div>
 
@@ -232,7 +232,7 @@ export function CadastroUsuario() {
 
             {formErrors.submit ? (
               <Alert variant="destructive" className="border-destructive/20 bg-destructive/5">
-                <AlertTitle>Nao foi possivel concluir o cadastro</AlertTitle>
+                <AlertTitle>Não deu para concluir seu cadastro</AlertTitle>
                 <AlertDescription>{formErrors.submit}</AlertDescription>
               </Alert>
             ) : null}
@@ -244,7 +244,7 @@ export function CadastroUsuario() {
               </Button>
 
               <Button asChild type="button" variant="ghost" className="w-full">
-                <Link to="/login">Ja tenho conta</Link>
+                <Link to="/login">Já tenho conta</Link>
               </Button>
             </div>
           </form>
@@ -253,5 +253,3 @@ export function CadastroUsuario() {
     </div>
   );
 }
-
-

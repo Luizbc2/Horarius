@@ -64,15 +64,15 @@ export function validatePasswordStrength(value: string) {
   }
 
   if (!/[A-Z]/.test(value)) {
-    return "Inclua ao menos uma letra maiuscula na senha.";
+    return "Inclua ao menos uma letra maiúscula na senha.";
   }
 
   if (!/[a-z]/.test(value)) {
-    return "Inclua ao menos uma letra minuscula na senha.";
+    return "Inclua ao menos uma letra minúscula na senha.";
   }
 
   if (!/\d/.test(value)) {
-    return "Inclua ao menos um numero na senha.";
+    return "Inclua ao menos um número na senha.";
   }
 
   return "";
@@ -91,7 +91,7 @@ export function validateProfileForm(formData: ProfileFormData) {
   }
 
   if (!formData.email.trim()) {
-    errors.email = "O e-mail do usuario precisa estar preenchido.";
+    errors.email = "O e-mail do usuário precisa estar preenchido.";
   }
 
   if (!formData.cpf.trim()) {

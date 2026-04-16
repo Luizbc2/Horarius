@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { CreditCard } from "lucide-react";
 
 import { SectionCard } from "../PageShell";
@@ -10,6 +11,7 @@ type ProfileIdentitySectionProps = {
   cpf: string;
   nameError?: string;
   cpfError?: string;
+  action?: ReactNode;
   onChange: (field: "name" | "cpf", value: string) => void;
 };
 
@@ -19,12 +21,14 @@ export function ProfileIdentitySection({
   cpf,
   nameError,
   cpfError,
+  action,
   onChange,
 }: ProfileIdentitySectionProps) {
   return (
     <SectionCard
-      title="Dados do usuario"
-      description="Aqui voce altera somente os dados da conta que esta logada agora."
+      title="Dados do usuário"
+      description="Atualize as informações básicas da conta que está em uso neste momento."
+      action={action}
     >
       <div className="grid gap-4 md:grid-cols-2">
         <div className="grid gap-2">
@@ -40,7 +44,7 @@ export function ProfileIdentitySection({
             <p className="min-h-[1.25rem] text-sm text-destructive">{nameError}</p>
           ) : (
             <p className="min-h-[1.25rem] text-sm text-muted-foreground">
-              Nome exibido no painel da sua conta.
+              Esse nome aparece no painel e ajuda a identificar sua conta.
             </p>
           )}
         </div>
@@ -49,7 +53,7 @@ export function ProfileIdentitySection({
           <label htmlFor="profile-email">E-mail</label>
           <Input id="profile-email" type="email" value={email} disabled readOnly />
           <p className="min-h-[1.25rem] text-sm text-muted-foreground">
-            Este campo nao pode ser alterado nesta tela.
+            O e-mail fica bloqueado nesta tela para preservar seu acesso.
           </p>
         </div>
 
@@ -73,7 +77,7 @@ export function ProfileIdentitySection({
             <p className="min-h-[1.25rem] text-sm text-destructive">{cpfError}</p>
           ) : (
             <p className="min-h-[1.25rem] text-sm text-muted-foreground">
-              Digite o CPF da conta sem mudar o e-mail cadastrado.
+              Use o CPF vinculado à sua conta para manter os dados consistentes.
             </p>
           )}
         </div>

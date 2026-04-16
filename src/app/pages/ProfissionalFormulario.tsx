@@ -94,7 +94,7 @@ export function ProfissionalFormulario() {
           return;
         }
 
-        setSubmitError(getApiErrorMessage(error, "Nao foi possivel carregar o profissional."));
+        setSubmitError(getApiErrorMessage(error, "Não foi possível carregar o profissional."));
       } finally {
         if (isMounted) {
           setIsLoadingProfessional(false);
@@ -139,7 +139,7 @@ export function ProfissionalFormulario() {
     }
 
     if (!token) {
-      setSubmitError("Sua sessao expirou. Entre novamente para continuar.");
+      setSubmitError("Sua sessão expirou. Entre novamente para continuar.");
       return;
     }
 
@@ -165,7 +165,7 @@ export function ProfissionalFormulario() {
         });
         return;
       } catch (error) {
-        setSubmitError(getApiErrorMessage(error, "Nao foi possivel atualizar o profissional."));
+        setSubmitError(getApiErrorMessage(error, "Não foi possível atualizar o profissional."));
         setIsSubmitting(false);
         return;
       }
@@ -186,7 +186,7 @@ export function ProfissionalFormulario() {
         state: { notice: response.message },
       });
     } catch (error) {
-      setSubmitError(getApiErrorMessage(error, "Nao foi possivel cadastrar o profissional."));
+      setSubmitError(getApiErrorMessage(error, "Não foi possível cadastrar o profissional."));
     } finally {
       setIsSubmitting(false);
     }
@@ -198,7 +198,7 @@ export function ProfissionalFormulario() {
     <PageShell
       eyebrow="Profissionais"
       title={isEditing ? "Editar profissional" : "Novo profissional"}
-      description="Cadastre os dados principais do profissional. Depois voce pode ajustar os horarios de trabalho com mais calma."
+      description="Cadastre os dados principais do profissional. Depois você pode ajustar os horários de trabalho com mais calma."
       actions={
         <Button variant="outline" asChild>
           <Link to="/profissionais">
@@ -212,27 +212,27 @@ export function ProfissionalFormulario() {
         {isEditing && isLoadingProfessional ? (
           <Alert className="border-border/60 bg-white/70">
             <AlertTitle>Carregando profissional</AlertTitle>
-            <AlertDescription>Buscando os dados para preencher o formulario.</AlertDescription>
+            <AlertDescription>Buscando os dados para preencher o formulário.</AlertDescription>
           </Alert>
         ) : null}
 
         {hasErrors ? (
           <Alert variant="destructive" className="border-destructive/20 bg-destructive/5">
-            <AlertTitle>Formulario invalido</AlertTitle>
+            <AlertTitle>Formulário inválido</AlertTitle>
             <AlertDescription>Revise os campos marcados antes de salvar.</AlertDescription>
           </Alert>
         ) : null}
 
         {submitError ? (
           <Alert variant="destructive" className="border-destructive/20 bg-destructive/5">
-            <AlertTitle>Nao foi possivel salvar</AlertTitle>
+            <AlertTitle>Não foi possível salvar</AlertTitle>
             <AlertDescription>{submitError}</AlertDescription>
           </Alert>
         ) : null}
 
         <SectionCard
           title="Dados do profissional"
-          description="Aqui ficam os dados principais da pessoa. Os horarios nao entram neste formulario para nao misturar cadastro com agenda."
+          description="Aqui ficam os dados principais da pessoa. Os horários não entram neste formulário para não misturar cadastro com agenda."
         >
           <div className="grid gap-4 md:grid-cols-2">
             <div className="grid gap-2">
@@ -295,7 +295,7 @@ export function ProfissionalFormulario() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="ativo">Ativo</SelectItem>
-                  <SelectItem value="ferias">Ferias</SelectItem>
+                  <SelectItem value="ferias">Férias</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -305,7 +305,7 @@ export function ProfissionalFormulario() {
         <div className="flex flex-wrap gap-3">
           <Button type="submit" disabled={isSubmitting}>
             <Save className="h-4 w-4" />
-            {isSubmitting ? "Salvando..." : isEditing ? "Salvar alteracoes" : "Cadastrar profissional"}
+            {isSubmitting ? "Salvando..." : isEditing ? "Salvar alterações" : "Cadastrar profissional"}
           </Button>
           <Button type="button" variant="outline" asChild>
             <Link to="/profissionais">Cancelar</Link>

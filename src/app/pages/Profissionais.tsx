@@ -115,7 +115,7 @@ export function Profissionais() {
         setProfessionals([]);
         setTotalItems(0);
         setTotalPages(1);
-        toast.error(getApiErrorMessage(error, "Nao foi possivel carregar os profissionais."));
+        toast.error(getApiErrorMessage(error, "Não foi possível carregar os profissionais."));
       }
     };
 
@@ -133,7 +133,7 @@ export function Profissionais() {
 
   const handleDelete = async (professionalId: number) => {
     if (!token) {
-      toast.error("Sua sessao expirou. Entre novamente para continuar.");
+      toast.error("Sua sessão expirou. Entre novamente para continuar.");
       return;
     }
 
@@ -160,7 +160,7 @@ export function Profissionais() {
         silent: true,
       });
     } catch (error) {
-      toast.error(getApiErrorMessage(error, "Nao foi possivel excluir o profissional."));
+      toast.error(getApiErrorMessage(error, "Não foi possível excluir o profissional."));
     }
   };
 
@@ -169,7 +169,7 @@ export function Profissionais() {
       <PageShell
         eyebrow="Equipe"
         title="Profissionais"
-        description="Cadastre sua equipe, ajuste os dados principais e depois organize a jornada de cada profissional."
+        description="Cadastre sua equipe, acompanhe quem está ativo e ajuste a agenda de cada pessoa com poucos cliques."
         actions={
           <Button asChild>
             <Link to="/profissionais/novo">
@@ -181,30 +181,30 @@ export function Profissionais() {
       >
         <div className="metric-grid">
           <MetricCard
-            label="Total"
+            label="Equipe cadastrada"
             value={String(totalItems)}
-            helper="Profissionais retornados pela API."
+            helper="Profissionais registrados para trabalhar com você."
             icon={<Scissors className="h-5 w-5" />}
           />
           <MetricCard
-            label="Ativos"
+            label="Em atividade"
             value={String(activeCount)}
-            helper="Profissionais ativos nesta pagina."
+            helper="Pessoas com status ativo nesta seleção."
             icon={<Sparkles className="h-5 w-5" />}
             accent="sand"
           />
           <MetricCard
-            label="Com horarios"
+            label="Agenda ajustada"
             value={String(configuredScheduleCount)}
-            helper="Profissionais desta pagina com rotina local definida."
+            helper="Profissionais com dias e horários prontos para receber atendimento."
             icon={<Clock3 className="h-5 w-5" />}
             accent="coral"
           />
         </div>
 
         <SectionCard
-          title="Equipe"
-          description="Os dados principais ficam aqui. Os horarios de trabalho podem ser ajustados depois, profissional por profissional."
+          title="Time do salão"
+          description="Busque por nome, especialidade ou status para encontrar a pessoa certa mais rápido."
           action={
             <div className="relative w-full max-w-sm">
               <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -220,8 +220,8 @@ export function Profissionais() {
           {isLoading ? (
             <EmptyStatePanel
               icon={<Scissors className="h-7 w-7" />}
-              title="Carregando profissionais"
-              description="Buscando a equipe no backend."
+              title="Carregando equipe"
+              description="Estamos trazendo os profissionais cadastrados."
             />
           ) : professionals.length === 0 ? (
             <EmptyStatePanel
@@ -229,8 +229,8 @@ export function Profissionais() {
               title={totalItems === 0 ? "Nenhum profissional cadastrado" : "Nenhum profissional encontrado"}
               description={
                 totalItems === 0
-                  ? "Cadastre o primeiro profissional para comecar a montar sua equipe."
-                  : "Nenhum registro bate com a busca atual."
+                  ? "Cadastre o primeiro profissional para começar a montar sua equipe."
+                  : "Ninguém combina com o filtro usado agora."
               }
               action={
                 <Button asChild>

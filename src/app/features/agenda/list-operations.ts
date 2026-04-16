@@ -20,7 +20,7 @@ export function validateAgendaEditDraft(draft: EditAppointmentDraft) {
   const serviceId = Number(draft.serviceId);
 
   if (!clientId || !professionalId || !serviceId) {
-    return "Selecione cliente, profissional e servico.";
+    return "Selecione cliente, profissional e serviço.";
   }
 
   return null;

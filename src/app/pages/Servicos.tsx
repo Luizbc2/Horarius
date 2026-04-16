@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router";
 import { Clock3, Plus, Search, Sparkles, Ticket } from "lucide-react";
 import { Toaster, toast } from "sonner";
@@ -104,7 +104,7 @@ export function Servicos() {
         setServices([]);
         setTotalItems(0);
         setTotalPages(1);
-        toast.error(getApiErrorMessage(error, "Nao foi possivel carregar os servicos."));
+        toast.error(getApiErrorMessage(error, "Não foi possível carregar os serviços."));
       }
     };
 
@@ -127,7 +127,7 @@ export function Servicos() {
 
   const handleDelete = async (serviceId: number) => {
     if (!token) {
-      toast.error("Sua sessao expirou. Entre novamente para continuar.");
+      toast.error("Sua sessão expirou. Entre novamente para continuar.");
       return;
     }
 
@@ -154,51 +154,51 @@ export function Servicos() {
         silent: true,
       });
     } catch (error) {
-      toast.error(getApiErrorMessage(error, "Nao foi possivel excluir o servico."));
+      toast.error(getApiErrorMessage(error, "Não foi possível excluir o serviço."));
     }
   };
 
   return (
     <>
       <PageShell
-        eyebrow="Gestao"
-        title="Servicos"
-        description="Catalogo paginado com criacao, edicao e exclusao em telas separadas."
+        eyebrow="Catálogo"
+        title="Serviços"
+        description="Organize o que o salão oferece, ajuste preços e tempos com clareza e mantenha o cardápio sempre atualizado."
         actions={
           <Button asChild>
             <Link to="/servicos/novo">
               <Plus className="h-4 w-4" />
-              Novo servico
+              Novo serviço
             </Link>
           </Button>
         }
       >
         <div className="metric-grid">
           <MetricCard
-            label="Ativos"
+            label="No catálogo"
             value={String(totalItems)}
-            helper="Servicos retornados pela API."
+            helper="Serviços disponíveis para entrar na agenda."
             icon={<Sparkles className="h-5 w-5" />}
           />
           <MetricCard
-            label="Ticket medio"
+            label="Ticket médio"
             value={formatCurrency(averageTicket)}
-            helper="Media dos precos visiveis nesta pagina."
+            helper="Média de preço dos serviços exibidos nesta tela."
             icon={<Ticket className="h-5 w-5" />}
             accent="sand"
           />
           <MetricCard
-            label="Duracao media"
+            label="Duração média"
             value={`${averageDuration} min`}
-            helper="Tempo medio dos servicos exibidos agora."
+            helper="Tempo médio necessário para os serviços desta seleção."
             icon={<Clock3 className="h-5 w-5" />}
             accent="coral"
           />
         </div>
 
         <SectionCard
-          title="Catalogo"
-          description="A listagem fica separada do formulario para atender o fluxo completo do CRUD."
+          title="Serviços cadastrados"
+          description="Use a busca para localizar um serviço específico, revisar detalhes ou ajustar valores."
           action={
             <div className="relative w-full max-w-sm">
               <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -214,23 +214,23 @@ export function Servicos() {
           {isLoading ? (
             <EmptyStatePanel
               icon={<Plus className="h-7 w-7" />}
-              title="Carregando servicos"
-              description="Buscando o catalogo no backend."
+              title="Carregando serviços"
+              description="Estamos montando seu catálogo."
             />
           ) : services.length === 0 ? (
             <EmptyStatePanel
               icon={<Plus className="h-7 w-7" />}
-              title={totalItems === 0 ? "Nenhum servico cadastrado" : "Nenhum servico encontrado"}
+              title={totalItems === 0 ? "Nenhum serviço cadastrado" : "Nenhum serviço encontrado"}
               description={
                 totalItems === 0
-                  ? "Cadastre o primeiro servico para montar o catalogo."
-                  : "Nenhum servico bate com a busca atual."
+                  ? "Cadastre o primeiro serviço para começar a montar seu catálogo de atendimentos."
+                  : "Nenhum serviço combina com a busca feita agora."
               }
               action={
                 <Button asChild>
                   <Link to="/servicos/novo">
                     <Plus className="h-4 w-4" />
-                    Novo servico
+                    Novo serviço
                   </Link>
                 </Button>
               }

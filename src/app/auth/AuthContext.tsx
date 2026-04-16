@@ -40,10 +40,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const handleProtectedRequestError = (error: ApiErrorInput): never => {
     if (isApiErrorWithStatus(error, 401)) {
       clearSession();
-      throw new Error("Sua sessao expirou. Entre novamente para continuar.");
+      throw new Error("Sua sessão expirou. Entre novamente para continuar.");
     }
 
-    throw new Error(getApiErrorMessage(error, "Nao foi possivel concluir a operacao."));
+    throw new Error(getApiErrorMessage(error, "Não foi possível concluir a operação."));
   };
 
   const login = async (email: string, password: string) => {
@@ -67,7 +67,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const updateUserProfile = async (input: UpdateUserProfileInput) => {
     if (!session) {
-      throw new Error("Nenhum usuario autenticado.");
+      throw new Error("Nenhum usuário autenticado.");
     }
 
     let response;

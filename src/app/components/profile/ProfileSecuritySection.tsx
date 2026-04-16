@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { LockKeyhole } from "lucide-react";
 
 import { SectionCard } from "../PageShell";
@@ -9,6 +10,7 @@ type ProfileSecuritySectionProps = {
   confirmPassword: string;
   passwordError?: string;
   confirmPasswordError?: string;
+  action?: ReactNode;
   onChange: (field: "password" | "confirmPassword", value: string) => void;
 };
 
@@ -17,12 +19,14 @@ export function ProfileSecuritySection({
   confirmPassword,
   passwordError,
   confirmPasswordError,
+  action,
   onChange,
 }: ProfileSecuritySectionProps) {
   return (
     <SectionCard
-      title="Seguranca"
-      description="Digite a nova senha e repita o mesmo valor no campo ao lado."
+      title="Segurança"
+      description="Se quiser trocar sua senha, preencha os dois campos com o mesmo valor."
+      action={action}
     >
       <div className="grid gap-4 md:grid-cols-2">
         <div className="grid gap-2">
@@ -35,7 +39,7 @@ export function ProfileSecuritySection({
               value={password}
               onChange={(event) => onChange("password", event.target.value)}
               className="pl-11"
-              placeholder="Use 8+ caracteres, maiuscula e numero"
+              placeholder="Use 8+ caracteres, maiúscula e número"
               autoComplete="new-password"
               aria-invalid={Boolean(passwordError)}
               maxLength={FIELD_LIMITS.password}
@@ -45,7 +49,7 @@ export function ProfileSecuritySection({
             <p className="min-h-[1.25rem] text-sm text-destructive">{passwordError}</p>
           ) : (
             <p className="min-h-[1.25rem] text-sm text-muted-foreground">
-              Use 8 ou mais caracteres, com letra maiuscula, minuscula e numero.
+              Use uma combinação forte para proteger melhor o acesso da conta.
             </p>
           )}
         </div>
@@ -70,7 +74,7 @@ export function ProfileSecuritySection({
             <p className="min-h-[1.25rem] text-sm text-destructive">{confirmPasswordError}</p>
           ) : (
             <p className="min-h-[1.25rem] text-sm text-muted-foreground">
-              Digite novamente a nova senha.
+              Repita a senha exatamente como no campo anterior.
             </p>
           )}
         </div>

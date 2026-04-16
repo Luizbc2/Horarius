@@ -58,7 +58,7 @@ export function ProfissionalHorarios() {
   useEffect(() => {
     if (!token) {
       setIsLoading(false);
-      setErrorMessage("Sua sessao expirou. Entre novamente para continuar.");
+      setErrorMessage("Sua sessão expirou. Entre novamente para continuar.");
       return;
     }
 
@@ -84,7 +84,7 @@ export function ProfissionalHorarios() {
         }
 
         setErrorMessage(
-          getApiErrorMessage(error, "Nao foi possivel carregar os dados do profissional."),
+          getApiErrorMessage(error, "Não foi possível carregar os dados do profissional."),
         );
       } finally {
         if (isMounted) {
@@ -144,7 +144,7 @@ export function ProfissionalHorarios() {
     }
 
     if (!token) {
-      setErrorMessage("Sua sessao expirou. Entre novamente para continuar.");
+      setErrorMessage("Sua sessão expirou. Entre novamente para continuar.");
       return;
     }
 
@@ -152,7 +152,7 @@ export function ProfissionalHorarios() {
 
     try {
       if (!professional) {
-        setErrorMessage("Profissional nao encontrado.");
+        setErrorMessage("Profissional não encontrado.");
         setIsSaving(false);
         return;
       }
@@ -177,7 +177,7 @@ export function ProfissionalHorarios() {
         state: { notice: response.message },
       });
     } catch (error) {
-      setErrorMessage(getApiErrorMessage(error, "Nao foi possivel salvar os horarios do profissional."));
+      setErrorMessage(getApiErrorMessage(error, "Não foi possível salvar os horários do profissional."));
     } finally {
       setIsSaving(false);
     }
@@ -186,8 +186,8 @@ export function ProfissionalHorarios() {
   return (
     <PageShell
       eyebrow="Profissionais"
-      title="Horarios de trabalho"
-      description="Defina os dias e faixas de atendimento do profissional para a semana. Se quiser, tambem da para registrar pausa no mesmo dia."
+      title="Horários de trabalho"
+      description="Defina os dias e faixas de atendimento do profissional para a semana. Se quiser, também dá para registrar pausa no mesmo dia."
       actions={
         <Button variant="outline" asChild>
           <Link to="/profissionais">
@@ -220,14 +220,14 @@ export function ProfissionalHorarios() {
         <div className="space-y-4 p-6">
           {errorMessage ? (
             <Alert variant="destructive" className="border-destructive/20 bg-destructive/5">
-              <AlertTitle>Revise os horarios</AlertTitle>
+              <AlertTitle>Revise os horários</AlertTitle>
               <AlertDescription>{errorMessage}</AlertDescription>
             </Alert>
           ) : null}
 
           {isLoading ? (
             <div className="rounded-[1.6rem] border border-[rgba(74,52,34,0.12)] bg-white/88 p-6 text-sm text-muted-foreground">
-              Carregando horarios do profissional...
+              Carregando horários do profissional...
             </div>
           ) : null}
 
@@ -261,7 +261,7 @@ export function ProfissionalHorarios() {
             </Button>
             <Button type="button" onClick={() => void handleSave()} disabled={isSaving || isLoading}>
               <Save className="h-4 w-4" />
-              {isSaving ? "Salvando..." : "Salvar horarios"}
+              {isSaving ? "Salvando..." : "Salvar horários"}
             </Button>
           </div>
         </div>

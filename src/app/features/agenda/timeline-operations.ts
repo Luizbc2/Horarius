@@ -54,7 +54,7 @@ export function validateTimelineCreateDraft(
   const professionalId = Number(draft.professionalId);
 
   if (!serviceId || !professionalId) {
-    return "Selecione servico e profissional.";
+    return "Selecione serviço e profissional.";
   }
 
   if (!Number(draft.clientId)) {
@@ -101,7 +101,7 @@ export function validateTimelineEditDraft(
   draft: AppointmentDraft,
 ): string | null {
   if (!draft.client.trim() || !draft.service.trim()) {
-    return "Preencha cliente e servico.";
+    return "Preencha cliente e serviço.";
   }
 
   if (

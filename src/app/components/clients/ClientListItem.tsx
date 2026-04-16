@@ -30,6 +30,7 @@ export function ClientListItem({ client, onDelete }: ClientListItemProps) {
           <h3 className="text-lg font-semibold text-foreground">{client.name}</h3>
           {client.createdAt ? (
             <span className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+              Cliente desde{" "}
               {new Intl.DateTimeFormat("pt-BR", {
                 day: "2-digit",
                 month: "2-digit",
@@ -39,12 +40,14 @@ export function ClientListItem({ client, onDelete }: ClientListItemProps) {
           ) : null}
         </div>
 
-        <p className="mt-2 text-sm text-muted-foreground">{client.notes}</p>
+        <p className="mt-2 text-sm text-muted-foreground">
+          {client.notes.trim() || "Sem observações por enquanto."}
+        </p>
 
         <div className="mt-4 flex flex-wrap gap-2">
           <span className="data-pill text-xs">
             <Mail className="h-3.5 w-3.5" />
-            {client.email}
+            {client.email || "E-mail não informado"}
           </span>
           <span className="data-pill text-xs">
             <Phone className="h-3.5 w-3.5" />
@@ -57,7 +60,7 @@ export function ClientListItem({ client, onDelete }: ClientListItemProps) {
         <Button asChild variant="outline" size="sm">
           <Link to={`/clientes/${client.id}/editar`} state={{ client }}>
             <PencilLine className="h-4 w-4" />
-            Editar
+            Abrir ficha
           </Link>
         </Button>
         <Button
@@ -67,7 +70,7 @@ export function ClientListItem({ client, onDelete }: ClientListItemProps) {
           onClick={() => onDelete(client.id)}
         >
           <Trash2 className="h-4 w-4" />
-          Excluir
+          Remover
         </Button>
       </div>
     </article>

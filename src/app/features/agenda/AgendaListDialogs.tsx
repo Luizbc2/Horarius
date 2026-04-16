@@ -62,9 +62,9 @@ export function AgendaListDialogs({
       <Dialog open={isEditDialogOpen} onOpenChange={(open) => (!open ? onCloseEditDialog() : undefined)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Editar agendamento</DialogTitle>
+            <DialogTitle>Atualizar atendimento</DialogTitle>
             <DialogDescription>
-              Ajuste cliente, profissional, servico, horario e status sem sair da lista.
+              Ajuste cliente, serviço, horário e profissional sem sair da lista.
             </DialogDescription>
           </DialogHeader>
 
@@ -94,7 +94,7 @@ export function AgendaListDialogs({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="agenda-edit-service">Servico</Label>
+              <Label htmlFor="agenda-edit-service">Serviço</Label>
               <Select
                 value={editDraft.serviceId}
                 onValueChange={(value) =>
@@ -105,7 +105,7 @@ export function AgendaListDialogs({
                 }
               >
                 <SelectTrigger id="agenda-edit-service">
-                  <SelectValue placeholder="Escolha o servico" />
+                  <SelectValue placeholder="Escolha o serviço" />
                 </SelectTrigger>
                 <SelectContent>
                   {services.map((service) => (
@@ -143,7 +143,7 @@ export function AgendaListDialogs({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="agenda-edit-time">Horario</Label>
+                <Label htmlFor="agenda-edit-time">Horário</Label>
                 <Input
                   id="agenda-edit-time"
                   type="time"
@@ -186,7 +186,7 @@ export function AgendaListDialogs({
               Cancelar
             </Button>
             <Button onClick={onSaveAppointmentEdit} disabled={!editingAppointment}>
-              Salvar alteracoes
+              Salvar mudanças
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -195,9 +195,9 @@ export function AgendaListDialogs({
       <Dialog open={isDetailsDialogOpen} onOpenChange={(open) => (!open ? onCloseDetailsDialog() : undefined)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Detalhes do agendamento</DialogTitle>
+            <DialogTitle>Resumo do atendimento</DialogTitle>
             <DialogDescription>
-              Veja os dados completos antes de editar ou confirmar.
+              Confira as informações antes de editar, confirmar ou cancelar.
             </DialogDescription>
           </DialogHeader>
 
@@ -213,7 +213,7 @@ export function AgendaListDialogs({
                   <p className="mt-1 text-base text-foreground">{detailsAppointment.professional}</p>
                 </div>
                 <div>
-                  <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Servico</p>
+                  <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Serviço</p>
                   <p className="mt-1 text-base text-foreground">{detailsAppointment.service}</p>
                 </div>
                 <div>
@@ -225,7 +225,7 @@ export function AgendaListDialogs({
                   <p className="mt-1 text-base text-foreground">{detailsAppointment.date}</p>
                 </div>
                 <div>
-                  <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Horario</p>
+                  <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Horário</p>
                   <p className="mt-1 text-base text-foreground">{detailsAppointment.time}</p>
                 </div>
               </div>

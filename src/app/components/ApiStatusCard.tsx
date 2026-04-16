@@ -9,7 +9,7 @@ const HEALTH_CHECK_INTERVAL_MS = 30000;
 
 export function ApiStatusCard() {
   const [status, setStatus] = useState<ApiStatusState>("checking");
-  const [message, setMessage] = useState("Verificando conexao com a API...");
+  const [message, setMessage] = useState("Verificando conexão com o servidor...");
 
   useEffect(() => {
     let active = true;
@@ -23,14 +23,14 @@ export function ApiStatusCard() {
         }
 
         setStatus("online");
-        setMessage(response.message || response.status || "API respondeu com sucesso.");
+        setMessage(response.message || response.status || "Servidor respondendo normalmente.");
       } catch {
         if (!active) {
           return;
         }
 
         setStatus("offline");
-        setMessage("Nao foi possivel conectar ao backend local.");
+        setMessage("Não foi possível falar com o servidor local neste momento.");
       }
     }
 
@@ -53,7 +53,7 @@ export function ApiStatusCard() {
         : "border-white/10 bg-white/6 text-sidebar-foreground/80";
 
   const label =
-    status === "online" ? "API online" : status === "offline" ? "API offline" : "API verificando";
+    status === "online" ? "Servidor online" : status === "offline" ? "Servidor indisponível" : "Verificando servidor";
 
   const indicatorClassName =
     status === "online"

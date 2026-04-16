@@ -103,7 +103,7 @@ export function Clientes() {
         setClients([]);
         setTotalItems(0);
         setTotalPages(1);
-        toast.error(getApiErrorMessage(error, "Nao foi possivel carregar os clientes."));
+        toast.error(getApiErrorMessage(error, "Não foi possível carregar os clientes."));
       }
     };
 
@@ -121,7 +121,7 @@ export function Clientes() {
 
   const handleDelete = async (clientId: number) => {
     if (!token) {
-      toast.error("Sua sessao expirou. Entre novamente para continuar.");
+      toast.error("Sua sessão expirou. Entre novamente para continuar.");
       return;
     }
 
@@ -148,16 +148,16 @@ export function Clientes() {
         silent: true,
       });
     } catch (error) {
-      toast.error(getApiErrorMessage(error, "Nao foi possivel excluir o cliente."));
+      toast.error(getApiErrorMessage(error, "Não foi possível excluir o cliente."));
     }
   };
 
   return (
     <>
       <PageShell
-        eyebrow="Gestao"
+        eyebrow="Relacionamento"
         title="Clientes"
-        description="Lista paginada dos clientes cadastrados. Para criar ou editar, use as telas separadas do formulario."
+        description="Acompanhe sua base de clientes, encontre contatos rapidamente e mantenha cada ficha sempre atualizada."
         actions={
           <Button asChild>
             <Link to="/clientes/novo">
@@ -169,30 +169,30 @@ export function Clientes() {
       >
         <div className="metric-grid">
           <MetricCard
-            label="Total"
+            label="Base ativa"
             value={String(totalItems)}
-            helper="Clientes retornados pela API."
+            helper="Quantidade de clientes cadastrados no sistema."
             icon={<MessageCircle className="h-5 w-5" />}
           />
           <MetricCard
             label="Com e-mail"
             value={String(clientsWithEmailCount)}
-            helper="Clientes visiveis nesta pagina com e-mail preenchido."
+            helper="Contatos que podem receber confirmações e avisos por e-mail."
             icon={<Mail className="h-5 w-5" />}
             accent="sand"
           />
           <MetricCard
-            label="Pagina atual"
+            label="Nesta página"
             value={String(currentPage)}
-            helper={`${clients.length} cliente${clients.length === 1 ? "" : "s"} exibido${clients.length === 1 ? "" : "s"} agora.`}
+            helper={`${clients.length} cliente${clients.length === 1 ? "" : "s"} aparecendo${clients.length === 1 ? "" : "m"} na tela agora.`}
             icon={<Phone className="h-5 w-5" />}
             accent="coral"
           />
         </div>
 
         <SectionCard
-          title="Listagem"
-          description="Use a busca para localizar um cliente e abra o formulario proprio para criar ou editar."
+          title="Lista de clientes"
+          description="Busque por nome, telefone ou e-mail para abrir a ficha certa sem perder tempo."
           action={
             <div className="relative w-full max-w-sm">
               <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -209,7 +209,7 @@ export function Clientes() {
             <EmptyStatePanel
               icon={<MessageCircle className="h-7 w-7" />}
               title="Carregando clientes"
-              description="Buscando os registros no backend."
+              description="Estamos trazendo sua carteira de clientes."
             />
           ) : clients.length === 0 ? (
             <EmptyStatePanel
@@ -217,8 +217,8 @@ export function Clientes() {
               title={totalItems === 0 ? "Nenhum cliente cadastrado" : "Nenhum cliente encontrado"}
               description={
                 totalItems === 0
-                  ? "Cadastre o primeiro cliente para comecar o CRUD dessa area."
-                  : "Nenhum registro bate com a busca atual."
+                  ? "Cadastre o primeiro cliente para começar a organizar contatos, observações e histórico."
+                  : "Nenhum cliente combina com os filtros que você aplicou."
               }
               action={
                 <Button asChild>

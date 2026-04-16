@@ -104,7 +104,7 @@ export function AgendaTimeline() {
         }
 
         if (!isMissingAuthTokenError(error)) {
-          toast.error(getApiErrorMessage(error, "Nao foi possivel carregar os profissionais."));
+          toast.error(getApiErrorMessage(error, "Não foi possível carregar os profissionais."));
         }
       }
     };
@@ -170,7 +170,7 @@ export function AgendaTimeline() {
           return;
         }
 
-        toast.error(getApiErrorMessage(error, "Nao foi possivel carregar clientes e servicos."));
+        toast.error(getApiErrorMessage(error, "Não foi possível carregar clientes e serviços."));
       }
     };
 
@@ -216,7 +216,7 @@ export function AgendaTimeline() {
         setAppointments([]);
 
         if (!isMissingAuthTokenError(error)) {
-          toast.error(getApiErrorMessage(error, "Nao foi possivel carregar os agendamentos."));
+          toast.error(getApiErrorMessage(error, "Não foi possível carregar os agendamentos."));
         }
       } finally {
         if (isMounted) {
@@ -330,7 +330,7 @@ export function AgendaTimeline() {
 
   const handleCreateAppointment = () => {
     if (!token) {
-      toast.error("Sua sessao expirou. Entre novamente para continuar.");
+      toast.error("Sua sessão expirou. Entre novamente para continuar.");
       return;
     }
 
@@ -371,7 +371,7 @@ export function AgendaTimeline() {
         resetCreateDialog();
       })
       .catch((error) => {
-        toast.error(getApiErrorMessage(error, "Nao foi possivel criar o agendamento."));
+        toast.error(getApiErrorMessage(error, "Não foi possível criar o agendamento."));
       });
   };
 
@@ -382,7 +382,7 @@ export function AgendaTimeline() {
 
   const handleDeleteAppointment = (appointmentId: number) => {
     if (!token) {
-      toast.error("Sua sessao expirou. Entre novamente para continuar.");
+      toast.error("Sua sessão expirou. Entre novamente para continuar.");
       return;
     }
 
@@ -397,7 +397,7 @@ export function AgendaTimeline() {
         toast.success(response.message);
       })
       .catch((error) => {
-        toast.error(getApiErrorMessage(error, "Nao foi possivel excluir o agendamento."));
+        toast.error(getApiErrorMessage(error, "Não foi possível excluir o agendamento."));
       });
   };
 
@@ -407,7 +407,7 @@ export function AgendaTimeline() {
     }
 
     if (!token) {
-      toast.error("Sua sessao expirou. Entre novamente para continuar.");
+      toast.error("Sua sessão expirou. Entre novamente para continuar.");
       setDraggedAppointmentId(null);
       setDragOverSlot(null);
       return;
@@ -443,7 +443,7 @@ export function AgendaTimeline() {
         ),
       ]).catch((error) => {
         setAppointments(previousAppointments);
-        toast.error(getApiErrorMessage(error, "Nao foi possivel trocar os agendamentos."));
+        toast.error(getApiErrorMessage(error, "Não foi possível trocar os agendamentos."));
       });
 
       setDraggedAppointmentId(null);
@@ -454,7 +454,7 @@ export function AgendaTimeline() {
     const hasConflict = hasTimelineOverlap(appointments, draggedAppointmentId, slot);
 
     if (hasConflict) {
-      toast.error("Esse horario ja esta ocupado para esse profissional.");
+      toast.error("Esse horário já está ocupado para esse profissional.");
       setDraggedAppointmentId(null);
       setDragOverSlot(null);
       return;
@@ -471,7 +471,7 @@ export function AgendaTimeline() {
       .update(draggedAppointment.id, buildTimelineUpdatePayload(draggedAppointment, slot, selectedDate))
       .catch((error) => {
         setAppointments(previousAppointments);
-        toast.error(getApiErrorMessage(error, "Nao foi possivel mover o agendamento."));
+        toast.error(getApiErrorMessage(error, "Não foi possível mover o agendamento."));
       });
 
     setDraggedAppointmentId(null);
@@ -484,7 +484,7 @@ export function AgendaTimeline() {
     }
 
     if (!token) {
-      toast.error("Sua sessao expirou. Entre novamente para continuar.");
+      toast.error("Sua sessão expirou. Entre novamente para continuar.");
       return;
     }
 
@@ -498,7 +498,7 @@ export function AgendaTimeline() {
     const currentAppointment = findTimelineAppointment(appointments, editingAppointmentId);
 
     if (!currentAppointment) {
-      toast.error("Agendamento nao encontrado.");
+      toast.error("Agendamento não encontrado.");
       return;
     }
 
@@ -537,7 +537,7 @@ export function AgendaTimeline() {
       })
       .catch((error) => {
         setAppointments(previousAppointments);
-        toast.error(getApiErrorMessage(error, "Nao foi possivel atualizar o agendamento."));
+        toast.error(getApiErrorMessage(error, "Não foi possível atualizar o agendamento."));
       });
   };
 
@@ -545,7 +545,7 @@ export function AgendaTimeline() {
     <PageShell
       eyebrow="Agenda"
       title="Timeline do dia"
-      description="Visualize os horarios lado a lado por profissional e acompanhe os encaixes do dia com mais clareza."
+      description="Visualize os horários lado a lado por profissional e acompanhe os encaixes do dia com mais clareza."
       actions={
         <>
           <Button
@@ -584,12 +584,12 @@ export function AgendaTimeline() {
         <MetricCard
           label="Confirmados"
           value={String(confirmedCount)}
-          helper="Clientes ja confirmados."
+          helper="Clientes já confirmados."
           icon={<Users className="h-5 w-5" />}
           accent="sand"
         />
         <MetricCard
-          label="Ocupacao"
+          label="Ocupação"
           value={`${occupancy}%`}
           helper={`${pendingCount} pendente${pendingCount === 1 ? "" : "s"} no momento.`}
           icon={<Clock3 className="h-5 w-5" />}
@@ -663,7 +663,7 @@ export function AgendaTimeline() {
 
       <SectionCard
         title="Grade da agenda"
-        description="Cada coluna representa um profissional e os cartoes entram na altura exata do horario agendado."
+        description="Cada coluna representa um profissional e os cartões entram na altura exata do horário agendado."
       >
         <AgendaTimelineBoard
           appointmentsByProfessional={appointmentsByProfessional}

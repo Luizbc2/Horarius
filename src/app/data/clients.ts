@@ -70,7 +70,7 @@ export function validateClientForm(formData: ClientFormData) {
   const emailError = validateEmailField(formData.email);
   const phoneError = validatePhoneField(formData.phone);
   const notesError = validateTextField(formData.notes, {
-    label: "As observacoes",
+    label: "As observações",
     maxLength: FIELD_LIMITS.notes,
     minLength: 3,
   });

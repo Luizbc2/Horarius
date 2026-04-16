@@ -22,6 +22,7 @@ export function Perfil() {
   const [formErrors, setFormErrors] = useState<ProfileFormErrors>({});
   const [successMessage, setSuccessMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitIntent, setSubmitIntent] = useState<"profile" | "password">("profile");
 
   useEffect(() => {
     setFormData((currentData) => ({
@@ -49,6 +50,7 @@ export function Perfil() {
     event.preventDefault();
 
     const errors = validateProfileForm(formData);
+    const isPasswordUpdate = Boolean(formData.password || formData.confirmPassword);
 
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
@@ -72,42 +74,42 @@ export function Perfil() {
         password: "",
         confirmPassword: "",
       }));
-      setSuccessMessage("Seus dados foram atualizados com sucesso.");
+      setSuccessMessage(
+        submitIntent === "password" && isPasswordUpdate
+          ? "Sua nova senha foi salva com sucesso."
+          : "Seus dados foram atualizados com sucesso.",
+      );
     } catch (error) {
       setFormErrors({
-        submit: error instanceof Error ? error.message : "Nao foi possivel salvar agora.",
+        submit: error instanceof Error ? error.message : "Não foi possível salvar agora.",
       });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const passwordStatus = formData.password ? "Preenchida" : "Pendente";
+  const passwordStatus = formData.password ? "Preenchida" : "Em branco";
+  const hasPasswordDraft = Boolean(formData.password || formData.confirmPassword);
 
   return (
     <PageShell
       eyebrow="Conta"
       title="Minha conta"
-      description="Atualize os dados da sua conta. O e-mail fica bloqueado e a senha precisa ser confirmada para salvar."
-      actions={
-        <Button type="submit" form="profile-form" disabled={isSubmitting}>
-          {isSubmitting ? "Salvando..." : "Salvar alteracoes"}
-        </Button>
-      }
+      description="Revise seus dados, confirme uma nova senha quando quiser e mantenha seu acesso sempre em ordem."
     >
       <ProfileMetrics passwordStatus={passwordStatus} />
 
       <form id="profile-form" noValidate onSubmit={handleSubmit} className="grid gap-6">
         {successMessage ? (
           <Alert className="border-primary/15 bg-primary/5">
-            <AlertTitle>Perfil atualizado</AlertTitle>
+            <AlertTitle>Tudo certo</AlertTitle>
             <AlertDescription>{successMessage}</AlertDescription>
           </Alert>
         ) : null}
 
         {formErrors.submit ? (
           <Alert variant="destructive" className="border-destructive/20 bg-destructive/5">
-            <AlertTitle>Edicao invalida</AlertTitle>
+            <AlertTitle>Não foi possível concluir a atualização</AlertTitle>
             <AlertDescription>{formErrors.submit}</AlertDescription>
           </Alert>
         ) : null}
@@ -118,6 +120,17 @@ export function Perfil() {
           cpf={formData.cpf}
           nameError={formErrors.name}
           cpfError={formErrors.cpf}
+          action={
+            <Button
+              type="submit"
+              form="profile-form"
+              variant="outline"
+              disabled={isSubmitting}
+              onClick={() => setSubmitIntent("profile")}
+            >
+              {isSubmitting && submitIntent === "profile" ? "Salvando..." : "Salvar dados"}
+            </Button>
+          }
           onChange={(field, value) => handleChange(field, value)}
         />
 
@@ -126,11 +139,30 @@ export function Perfil() {
           confirmPassword={formData.confirmPassword}
           passwordError={formErrors.password}
           confirmPasswordError={formErrors.confirmPassword}
+          action={
+            <Button
+              type="submit"
+              form="profile-form"
+              disabled={isSubmitting || !hasPasswordDraft}
+              onClick={() => setSubmitIntent("password")}
+            >
+              {isSubmitting && submitIntent === "password"
+                ? "Salvando senha..."
+                : "Confirmar nova senha"}
+            </Button>
+          }
           onChange={(field, value) => handleChange(field, value)}
         />
+
+        <div className="flex flex-col gap-3 rounded-[1.5rem] border border-border/60 bg-card/70 p-4 md:flex-row md:items-center md:justify-between">
+          <p className="text-sm text-muted-foreground">
+            Se você mexeu em nome ou CPF, use o botão de dados. Se preencheu a senha, confirme pela seção de segurança.
+          </p>
+          <Button type="submit" form="profile-form" disabled={isSubmitting} onClick={() => setSubmitIntent("profile")}>
+            {isSubmitting ? "Salvando..." : "Salvar tudo"}
+          </Button>
+        </div>
       </form>
     </PageShell>
   );
 }
-
-

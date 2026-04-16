@@ -83,7 +83,7 @@ export function AgendaAppointmentDialogs({
           <DialogHeader>
             <DialogTitle>Novo agendamento</DialogTitle>
             <DialogDescription>
-              Selecione cliente, servico, profissional e horario para lancar um novo atendimento.
+              Selecione cliente, serviço, profissional e horário para lançar um novo atendimento.
             </DialogDescription>
           </DialogHeader>
 
@@ -116,7 +116,7 @@ export function AgendaAppointmentDialogs({
               <div>
                 <p className="text-sm font-semibold text-foreground">Dados opcionais do cliente</p>
                 <p className="text-xs text-muted-foreground">
-                  Se nao escolher um cliente existente, preencha nome, e-mail e telefone do novo cadastro.
+                  Se não escolher um cliente existente, preencha nome, e-mail e telefone do novo cadastro.
                 </p>
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
@@ -187,7 +187,7 @@ export function AgendaAppointmentDialogs({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="timeline-new-service">Servico</Label>
+              <Label htmlFor="timeline-new-service">Serviço</Label>
               <Select
                 value={newAppointmentDraft.serviceId}
                 onValueChange={(value) =>
@@ -198,7 +198,7 @@ export function AgendaAppointmentDialogs({
                 }
               >
                 <SelectTrigger id="timeline-new-service">
-                  <SelectValue placeholder="Escolha o servico" />
+                  <SelectValue placeholder="Escolha o serviço" />
                 </SelectTrigger>
                 <SelectContent>
                   {services.map((service) => (
@@ -212,7 +212,7 @@ export function AgendaAppointmentDialogs({
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="timeline-new-time">Horario</Label>
+                <Label htmlFor="timeline-new-time">Horário</Label>
                 <Select
                   value={newAppointmentDraft.time}
                   onValueChange={(value) =>
@@ -223,7 +223,7 @@ export function AgendaAppointmentDialogs({
                   }
                 >
                   <SelectTrigger id="timeline-new-time">
-                    <SelectValue placeholder="Escolha o horario" />
+                    <SelectValue placeholder="Escolha o horário" />
                   </SelectTrigger>
                   <SelectContent>
                     {timeSlots.map((time) => (
@@ -297,7 +297,7 @@ export function AgendaAppointmentDialogs({
           <DialogHeader>
             <DialogTitle>Editar agendamento</DialogTitle>
             <DialogDescription>
-              Ajuste cliente, servico, horario, profissional e status sem sair da timeline.
+              Ajuste cliente, serviço, horário, profissional e status sem sair da timeline.
             </DialogDescription>
           </DialogHeader>
 
@@ -313,18 +313,18 @@ export function AgendaAppointmentDialogs({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="timeline-service">Servico</Label>
+              <Label htmlFor="timeline-service">Serviço</Label>
               <Input
                 id="timeline-service"
                 value={appointmentDraft.service}
-                placeholder="Servico agendado"
+                placeholder="Serviço agendado"
                 readOnly
               />
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="timeline-time">Horario</Label>
+                <Label htmlFor="timeline-time">Horário</Label>
                 <Select
                   value={appointmentDraft.time}
                   onValueChange={(value) =>
@@ -335,7 +335,7 @@ export function AgendaAppointmentDialogs({
                   }
                 >
                   <SelectTrigger id="timeline-time">
-                    <SelectValue placeholder="Escolha o horario" />
+                    <SelectValue placeholder="Escolha o horário" />
                   </SelectTrigger>
                   <SelectContent>
                     {timeSlots.map((time) => (
@@ -399,7 +399,7 @@ export function AgendaAppointmentDialogs({
             <Button variant="outline" onClick={onResetEditDialog}>
               Cancelar
             </Button>
-            <Button onClick={onSaveAppointmentEdit}>Salvar alteracoes</Button>
+            <Button onClick={onSaveAppointmentEdit}>Salvar alterações</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

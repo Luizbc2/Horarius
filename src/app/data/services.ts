@@ -47,7 +47,7 @@ export function normalizeServiceField(field: keyof ServiceFormData, value: strin
 export function validateServiceForm(formData: ServiceFormData) {
   const errors: ServiceFormErrors = {};
   const nameError = validateTextField(formData.name, {
-    label: "O nome do servico",
+    label: "O nome do serviço",
     maxLength: FIELD_LIMITS.serviceName,
     minLength: 2,
   });
@@ -56,10 +56,10 @@ export function validateServiceForm(formData: ServiceFormData) {
     maxLength: FIELD_LIMITS.serviceCategory,
     minLength: 2,
   });
-  const durationError = validatePositiveIntegerField(formData.durationMinutes, "A duracao", 1440);
-  const priceError = validateCurrencyField(formData.price, "O preco", 99999.99);
+  const durationError = validatePositiveIntegerField(formData.durationMinutes, "A duração", 1440);
+  const priceError = validateCurrencyField(formData.price, "O preço", 99999.99);
   const descriptionError = validateTextField(formData.description, {
-    label: "A descricao",
+    label: "A descrição",
     maxLength: FIELD_LIMITS.serviceDescription,
     minLength: 5,
   });

@@ -57,17 +57,17 @@ export function AgendaListResults({
             <TableRow>
               <TableHead>Data e hora</TableHead>
               <TableHead>Cliente</TableHead>
-              <TableHead>Servico</TableHead>
+              <TableHead>Serviço</TableHead>
               <TableHead>Profissional</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead className="w-[96px] text-right">Acoes</TableHead>
+              <TableHead className="w-[96px] text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
               <TableRow>
                 <TableCell colSpan={6} className="py-12 text-center text-muted-foreground">
-                  Carregando agendamentos...
+                  Carregando seus agendamentos...
                 </TableCell>
               </TableRow>
             ) : appointments.length > 0 ? (
@@ -103,16 +103,16 @@ export function AgendaListResults({
                           Ver detalhes
                         </DropdownMenuItem>
                         <DropdownMenuItem onSelect={() => onEditAppointment(appointment)}>
-                          Editar
+                          Editar horário
                         </DropdownMenuItem>
                         <DropdownMenuItem onSelect={() => onUpdateAppointmentStatus(appointment, "confirmado")}>
-                          Confirmar
+                          Marcar como confirmado
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           variant="destructive"
                           onSelect={() => onUpdateAppointmentStatus(appointment, "cancelado")}
                         >
-                          Cancelar
+                          Cancelar atendimento
                         </DropdownMenuItem>
                         <DropdownMenuItem variant="destructive" onSelect={() => onDeleteAppointment(appointment)}>
                           Excluir
@@ -125,7 +125,7 @@ export function AgendaListResults({
             ) : (
               <TableRow>
                 <TableCell colSpan={6} className="py-12 text-center text-muted-foreground">
-                  Nenhum agendamento encontrado com os filtros atuais.
+                  Nenhum atendimento encontrado com os filtros atuais.
                 </TableCell>
               </TableRow>
             )}
@@ -136,14 +136,14 @@ export function AgendaListResults({
       {filteredCount > 0 ? (
         <div className="flex flex-col gap-3 border-t border-[rgba(74,52,34,0.08)] px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm text-muted-foreground">
-            Mostrando {appointments.length} de {filteredCount} agendamentos filtrados.
+            Exibindo {appointments.length} de {filteredCount} agendamentos encontrados.
           </p>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="icon" onClick={onPreviousPage} disabled={safePage === 1}>
               <ChevronLeft className="h-4 w-4" />
             </Button>
             <span className="data-pill text-sm">
-              Pagina {safePage} de {totalPages}
+              Página {safePage} de {totalPages}
             </span>
             <Button variant="outline" size="icon" onClick={onNextPage} disabled={safePage === totalPages}>
               <ChevronRight className="h-4 w-4" />

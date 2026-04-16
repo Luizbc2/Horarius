@@ -127,7 +127,7 @@ export function validatePositiveIntegerField(value: string, label: string, maxVa
   const numericValue = Number(value);
 
   if (!Number.isInteger(numericValue) || numericValue <= 0) {
-    return `${label} precisa ser um numero inteiro maior que zero.`;
+    return `${label} precisa ser um número inteiro maior que zero.`;
   }
 
   if (maxValue !== undefined && numericValue > maxValue) {

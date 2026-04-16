@@ -7,7 +7,12 @@ import { AuthShowcasePanel } from "../components/auth/AuthShowcasePanel";
 import { Alert, AlertDescription, AlertTitle } from "../components/ui/alert";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
-import { FIELD_LIMITS, normalizeEmailInput, normalizePasswordInput, validateEmailField } from "../lib/field-rules";
+import {
+  FIELD_LIMITS,
+  normalizeEmailInput,
+  normalizePasswordInput,
+  validateEmailField,
+} from "../lib/field-rules";
 
 type FormErrors = {
   email?: string;
@@ -18,22 +23,22 @@ type FormErrors = {
 const loginFeatures = [
   {
     icon: CalendarDays,
-    title: "Agenda central",
-    description: "Veja os compromissos do dia e ajuste a operacao sem trocar de tela.",
+    title: "Dia organizado",
+    description: "Acompanhe a agenda, os horários livres e os atendimentos confirmados sem sair da mesma tela.",
     iconClassName:
       "bg-[linear-gradient(135deg,rgba(89,184,171,0.96),rgba(31,109,104,0.92))] text-primary-foreground",
   },
   {
     icon: ShieldCheck,
-    title: "Nao desloga do seu navegador",
-    description: "O acesso continua salvo no navegador para voce voltar ao painel depois.",
+    title: "Acesso tranquilo",
+    description: "Seu acesso fica salvo no navegador para você voltar rápido sempre que precisar.",
     iconClassName:
       "bg-[linear-gradient(135deg,rgba(211,140,86,0.94),rgba(168,103,53,0.92))] text-white",
   },
   {
     icon: LockKeyhole,
-    title: "So realizar o registro uma vez",
-    description: "Apos o cadastro, voce pode acessar o painel sem precisar se registrar novamente.",
+    title: "Tudo no mesmo painel",
+    description: "Clientes, equipe, serviços e agenda ficam reunidos em um fluxo simples de acompanhar.",
     iconClassName:
       "bg-[linear-gradient(135deg,rgba(53,92,125,0.94),rgba(31,47,80,0.92))] text-white",
   },
@@ -83,6 +88,7 @@ export function Login() {
 
     const nextErrors: FormErrors = {};
     const normalizedEmail = email.trim().toLowerCase();
+
     if (!normalizedEmail) {
       nextErrors.email = "Informe seu e-mail.";
     } else {
@@ -96,7 +102,7 @@ export function Login() {
     if (!password.trim()) {
       nextErrors.password = "Informe sua senha.";
     } else if (password.length > FIELD_LIMITS.password) {
-      nextErrors.password = `A senha deve ter no maximo ${FIELD_LIMITS.password} caracteres.`;
+      nextErrors.password = `A senha deve ter no máximo ${FIELD_LIMITS.password} caracteres.`;
     }
 
     if (Object.keys(nextErrors).length > 0) {
@@ -112,7 +118,7 @@ export function Login() {
       navigate(redirectPath, { replace: true });
     } catch (error) {
       setErrors({
-        submit: error instanceof Error ? error.message : "Nao foi possivel entrar agora.",
+        submit: error instanceof Error ? error.message : "Não foi possível entrar agora.",
       });
     } finally {
       setIsSubmitting(false);
@@ -126,27 +132,27 @@ export function Login() {
 
       <div className="relative mx-auto grid w-full max-w-6xl gap-6 lg:grid-cols-[minmax(0,1.05fr)_28rem]">
         <AuthShowcasePanel
-          eyebrow="Painel do studio"
-          title="Seu dia comeca aqui, antes da primeira cadeira ocupar."
-          description="Entre para acompanhar agenda, equipe, servicos e tudo que move a rotina do studio em um so lugar."
+          eyebrow="Painel do salão"
+          title="Abra o painel e veja o dia inteiro em um só lugar."
+          description="Entre para acompanhar agenda, clientes, equipe e serviços com a mesma clareza de quem já está com a casa aberta."
           features={loginFeatures}
         />
 
         <section className="surface-panel flex flex-col justify-center rounded-[2rem] p-6 lg:p-7">
           <div className="animate-fade-up animate-fade-up-delay-1">
             <p className="text-[0.72rem] font-semibold uppercase tracking-[0.3em] text-muted-foreground">
-              Login
+              Acesso
             </p>
             <h2 className="mt-3 text-3xl text-foreground">Entrar no Horarius</h2>
             <p className="mt-3 text-sm leading-6 text-muted-foreground">
-              Use seu e-mail e sua senha para continuar de onde parou.
+              Use seu e-mail e sua senha para voltar ao painel.
             </p>
           </div>
 
           <form noValidate onSubmit={handleSubmit} className="mt-8 grid gap-4">
             {successNotice ? (
               <Alert className="border-primary/15 bg-primary/5">
-                <AlertTitle>Cadastro concluido</AlertTitle>
+                <AlertTitle>Conta criada</AlertTitle>
                 <AlertDescription>{successNotice}</AlertDescription>
               </Alert>
             ) : null}
@@ -202,7 +208,7 @@ export function Login() {
             </Button>
 
             <Button asChild type="button" variant="ghost" className="w-full">
-              <Link to="/cadastro">Primeiro acesso? Criar conta</Link>
+              <Link to="/cadastro">Ainda não tem acesso? Criar conta</Link>
             </Button>
           </form>
         </section>
@@ -210,5 +216,3 @@ export function Login() {
     </div>
   );
 }
-
-
