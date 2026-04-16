@@ -7,11 +7,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Clock3,
-  MoreVertical,
-  Pencil,
   Plus,
   RefreshCw,
-  Trash2,
   Users,
 } from "lucide-react";
 
@@ -19,43 +16,23 @@ import { useAuth } from "../auth/AuthContext";
 import { Button } from "../components/ui/button";
 import { EmptyStatePanel, MetricCard, PageShell, SectionCard } from "../components/PageShell";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "../components/ui/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "../components/ui/dropdown-menu";
-import { Input } from "../components/ui/input";
-import { Label } from "../components/ui/label";
-import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "../components/ui/select";
-import { cn } from "../components/ui/utils";
+import { AgendaAppointmentDialogs } from "../features/agenda/AgendaAppointmentDialogs";
+import { AgendaTimelineBoard } from "../features/agenda/AgendaTimelineBoard";
 import {
-  APPOINTMENT_DURATION_IN_MINUTES,
-  DAY_START_HOUR,
-  SLOT_HEIGHT,
-  SLOT_INTERVAL_MINUTES,
   buildScheduledAt,
   createAppointmentDraft,
   createNewAppointmentDraft,
   formatDateForApi,
   generateTimeSlots,
-  getInitials,
   mapTimelineAppointment,
+  SLOT_HEIGHT,
   timeToMinutes,
-  timelineStatusStyles,
   type AppointmentDraft,
   type NewAppointmentDraft,
   type TimelineAppointment,
@@ -792,207 +769,36 @@ export function AgendaTimeline() {
         title="Grade da agenda"
         description="Cada coluna representa um profissional e os cartoes entram na altura exata do horario agendado."
       >
-        {professionals.length === 0 ? (
-          <EmptyStatePanel
-            icon={<Users className="h-7 w-7" />}
-            title="Nenhum profissional disponivel"
-            description="Cadastre pelo menos um profissional para montar a timeline da agenda com colunas reais."
-          />
-        ) : isLoadingAppointments ? (
-          <EmptyStatePanel
-            icon={<RefreshCw className="h-7 w-7" />}
-            title="Carregando agenda"
-            description="Estamos buscando os agendamentos do dia para montar a timeline."
-          />
-        ) : visibleProfessionals.length === 0 ? (
-          <EmptyStatePanel
-            icon={<Clock3 className="h-7 w-7" />}
-            title="Nenhum profissional nesse filtro"
-            description="Ajuste o filtro de barbeiros para voltar a exibir as colunas da agenda."
-          />
-        ) : (
-          <div className="overflow-hidden rounded-[1.5rem] border border-white/70 bg-white/52 shadow-[0_24px_55px_-34px_rgba(73,47,22,0.28)]">
-            <div className="overflow-x-auto">
-              <div
-                className="min-w-[980px]"
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: `100px repeat(${visibleProfessionals.length}, minmax(320px, 1fr))`,
-                }}
-              >
-                <div className="border-b border-r border-[rgba(74,52,34,0.08)] bg-white/70 px-4 py-4 text-sm font-medium text-foreground">
-                  Hora
-                </div>
-
-                {visibleProfessionals.map((professional) => (
-                  <div
-                    key={professional.id}
-                    className="border-b border-r border-[rgba(74,52,34,0.08)] bg-white/70 px-4 py-4 last:border-r-0"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[rgba(74,52,34,0.08)] text-sm font-semibold text-foreground">
-                        {getInitials(professional.name)}
-                      </div>
-                      <div>
-                        <p className="text-2xl font-semibold text-foreground">{professional.name}</p>
-                        <p className="text-sm text-muted-foreground">{professional.specialty}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-
-                <div className="border-r border-[rgba(74,52,34,0.08)] bg-white/45">
-                  <div className="relative" style={{ height: `${timelineHeight}px` }}>
-                    {timeSlots.map((time, index) => {
-                      const shouldLabel = Number(time.split(":")[1]) % 30 === 0;
-
-                      return (
-                        <div
-                          key={time}
-                          className="absolute left-0 right-0 border-b border-[rgba(74,52,34,0.08)] px-4 text-sm text-muted-foreground"
-                          style={{
-                            top: `${index * SLOT_HEIGHT}px`,
-                            height: `${SLOT_HEIGHT}px`,
-                          }}
-                        >
-                          {shouldLabel ? time : ""}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {visibleProfessionals.map((professional) => {
-                  const columnAppointments = appointmentsByProfessional.get(String(professional.id)) ?? [];
-
-                  return (
-                    <div
-                      key={`column-${professional.id}`}
-                      className="relative border-r border-[rgba(74,52,34,0.08)] bg-white/35 last:border-r-0"
-                      style={{ height: `${timelineHeight}px` }}
-                    >
-                      {timeSlots.map((time, index) => (
-                        <div
-                          key={`${professional.id}-${time}-slot`}
-                          className={cn(
-                            "absolute left-0 right-0 border-b border-[rgba(74,52,34,0.08)] transition-colors",
-                            dragOverSlot === `${professional.id}-${time}` ? "bg-primary/10" : "",
-                          )}
-                          style={{
-                            top: `${index * SLOT_HEIGHT}px`,
-                            height: `${SLOT_HEIGHT}px`,
-                          }}
-                          onDragOver={(event) => {
-                            event.preventDefault();
-                            setDragOverSlot(`${professional.id}-${time}`);
-                          }}
-                          onDragLeave={() => {
-                            setDragOverSlot((current) =>
-                              current === `${professional.id}-${time}` ? null : current,
-                            );
-                          }}
-                          onDrop={(event) => {
-                            event.preventDefault();
-                            handleDropAppointment(String(professional.id), time);
-                          }}
-                        />
-                      ))}
-
-                      {columnAppointments.map((appointment) => {
-                        const top =
-                          ((timeToMinutes(appointment.time) - DAY_START_HOUR * 60) / SLOT_INTERVAL_MINUTES) *
-                          SLOT_HEIGHT;
-                        const height =
-                          (APPOINTMENT_DURATION_IN_MINUTES / SLOT_INTERVAL_MINUTES) * SLOT_HEIGHT - 6;
-
-                        return (
-                          <div
-                            key={appointment.id}
-                            className={cn(
-                              "absolute left-2 right-2 cursor-grab overflow-hidden rounded-[1rem] border px-3 py-2 shadow-[0_16px_35px_-28px_rgba(73,47,22,0.45)] active:cursor-grabbing",
-                              timelineStatusStyles[appointment.status].card,
-                              draggedAppointmentId === appointment.id ? "opacity-60" : "",
-                            )}
-                            style={{
-                              top: `${top + 3}px`,
-                              height: `${Math.max(height, SLOT_HEIGHT - 6)}px`,
-                            }}
-                            draggable
-                            onDragStart={() => setDraggedAppointmentId(appointment.id)}
-                            onDragOver={(event) => {
-                              event.preventDefault();
-                              event.stopPropagation();
-                              setDragOverSlot(`${appointment.professionalId}-${appointment.time}`);
-                            }}
-                            onDrop={(event) => {
-                              event.preventDefault();
-                              event.stopPropagation();
-                              handleDropAppointment(appointment.professionalId, appointment.time);
-                            }}
-                            onDragEnd={() => {
-                              setDraggedAppointmentId(null);
-                              setDragOverSlot(null);
-                            }}
-                          >
-                            <div className="flex h-full flex-col">
-                              <div className="flex items-start justify-between gap-3">
-                                <div className="min-w-0">
-                                  <p className="text-lg font-semibold text-foreground">
-                                    {appointment.time}
-                                  </p>
-                                  <p className="truncate text-base text-foreground">
-                                    {appointment.client}
-                                  </p>
-                                  <p className="mt-1 truncate text-sm text-muted-foreground">{appointment.service}</p>
-                                </div>
-                                <DropdownMenu>
-                                  <DropdownMenuTrigger asChild>
-                                    <button
-                                      type="button"
-                                      className="rounded-full p-1 text-muted-foreground transition hover:bg-black/5 hover:text-foreground"
-                                      aria-label="Acoes do agendamento"
-                                      draggable={false}
-                                      onPointerDown={(event) => event.stopPropagation()}
-                                      onClick={(event) => event.stopPropagation()}
-                                    >
-                                      <MoreVertical className="h-4 w-4" />
-                                    </button>
-                                  </DropdownMenuTrigger>
-                                  <DropdownMenuContent align="end">
-                                    <DropdownMenuItem onSelect={() => openEditDialog(appointment)}>
-                                      <Pencil className="h-4 w-4" />
-                                      Editar
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem
-                                      variant="destructive"
-                                      onSelect={() => handleDeleteAppointment(appointment.id)}
-                                    >
-                                      <Trash2 className="h-4 w-4" />
-                                      Excluir
-                                    </DropdownMenuItem>
-                                  </DropdownMenuContent>
-                                </DropdownMenu>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        )}
+        <AgendaTimelineBoard
+          appointmentsByProfessional={appointmentsByProfessional}
+          draggedAppointmentId={draggedAppointmentId}
+          dragOverSlot={dragOverSlot}
+          isLoadingAppointments={isLoadingAppointments}
+          professionals={professionals}
+          timeSlots={timeSlots}
+          timelineHeight={timelineHeight}
+          visibleProfessionals={visibleProfessionals}
+          setDraggedAppointmentId={setDraggedAppointmentId}
+          setDragOverSlot={setDragOverSlot}
+          onDeleteAppointment={handleDeleteAppointment}
+          onDropAppointment={handleDropAppointment}
+          onEditAppointment={openEditDialog}
+        />
       </SectionCard>
-      <Dialog
-        open={isCreateDialogOpen}
-        onOpenChange={(open) => {
-          if (!open) {
-            resetCreateDialog();
-            return;
-          }
-
+      <AgendaAppointmentDialogs
+        appointmentDraft={appointmentDraft}
+        clients={clients}
+        editingAppointmentId={editingAppointmentId}
+        isCreateDialogOpen={isCreateDialogOpen}
+        newAppointmentDraft={newAppointmentDraft}
+        professionals={professionals}
+        services={services}
+        setAppointmentDraft={setAppointmentDraft}
+        setNewAppointmentDraft={setNewAppointmentDraft}
+        timeSlots={timeSlots}
+        onCloseCreateDialog={resetCreateDialog}
+        onCreateAppointment={handleCreateAppointment}
+        onOpenCreateDialog={() => {
           setSearchParams((currentParams) => {
             const nextParams = new URLSearchParams(currentParams);
 
@@ -1002,334 +808,9 @@ export function AgendaTimeline() {
           });
           setIsCreateDialogOpen(true);
         }}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Novo agendamento</DialogTitle>
-            <DialogDescription>
-              Selecione cliente, servico, profissional e horario para lancar um novo atendimento.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="timeline-new-client">Cliente</Label>
-              <Select
-                value={newAppointmentDraft.clientId}
-                onValueChange={(value) =>
-                  setNewAppointmentDraft((currentDraft) => ({
-                    ...currentDraft,
-                    clientId: value,
-                  }))
-                }
-              >
-                <SelectTrigger id="timeline-new-client">
-                  <SelectValue placeholder="Escolha o cliente" />
-                </SelectTrigger>
-                <SelectContent>
-                  {clients.map((client) => (
-                    <SelectItem key={client.id} value={String(client.id)}>
-                      {client.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-3 rounded-[1rem] border border-dashed border-border/80 bg-muted/30 px-4 py-3">
-              <div>
-                <p className="text-sm font-semibold text-foreground">Dados opcionais do cliente</p>
-                <p className="text-xs text-muted-foreground">
-                  Preencha se quiser registrar contato e documento junto ao agendamento.
-                </p>
-              </div>
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div className="space-y-2 sm:col-span-2">
-                  <Label htmlFor="timeline-new-client-name">Nome</Label>
-                  <Input
-                    id="timeline-new-client-name"
-                    value={newAppointmentDraft.clientName}
-                    onChange={(event) =>
-                      setNewAppointmentDraft((currentDraft) => ({
-                        ...currentDraft,
-                        clientName: event.target.value,
-                      }))
-                    }
-                    placeholder="Nome do cliente"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="timeline-new-client-email">Email (opcional)</Label>
-                  <Input
-                    id="timeline-new-client-email"
-                    type="email"
-                    value={newAppointmentDraft.clientEmail}
-                    onChange={(event) =>
-                      setNewAppointmentDraft((currentDraft) => ({
-                        ...currentDraft,
-                        clientEmail: event.target.value,
-                      }))
-                    }
-                    placeholder="cliente@email.com"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="timeline-new-client-phone">Telefone (opcional)</Label>
-                  <Input
-                    id="timeline-new-client-phone"
-                    value={newAppointmentDraft.clientPhone}
-                    onChange={(event) =>
-                      setNewAppointmentDraft((currentDraft) => ({
-                        ...currentDraft,
-                        clientPhone: event.target.value,
-                      }))
-                    }
-                    placeholder="(00) 00000-0000"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="timeline-new-client-cpf">CPF (opcional)</Label>
-                  <Input
-                    id="timeline-new-client-cpf"
-                    value={newAppointmentDraft.clientCpf}
-                    onChange={(event) =>
-                      setNewAppointmentDraft((currentDraft) => ({
-                        ...currentDraft,
-                        clientCpf: event.target.value,
-                      }))
-                    }
-                    placeholder="000.000.000-00"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="timeline-new-service">Servico</Label>
-              <Select
-                value={newAppointmentDraft.serviceId}
-                onValueChange={(value) =>
-                  setNewAppointmentDraft((currentDraft) => ({
-                    ...currentDraft,
-                    serviceId: value,
-                  }))
-                }
-              >
-                <SelectTrigger id="timeline-new-service">
-                  <SelectValue placeholder="Escolha o servico" />
-                </SelectTrigger>
-                <SelectContent>
-                  {services.map((service) => (
-                    <SelectItem key={service.id} value={String(service.id)}>
-                      {service.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="timeline-new-time">Horario</Label>
-                <Select
-                  value={newAppointmentDraft.time}
-                  onValueChange={(value) =>
-                    setNewAppointmentDraft((currentDraft) => ({
-                      ...currentDraft,
-                      time: value,
-                    }))
-                  }
-                >
-                  <SelectTrigger id="timeline-new-time">
-                    <SelectValue placeholder="Escolha o horario" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {timeSlots.map((time) => (
-                      <SelectItem key={time} value={time}>
-                        {time}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="timeline-new-professional">Profissional</Label>
-                <Select
-                  value={newAppointmentDraft.professionalId}
-                  onValueChange={(value) =>
-                    setNewAppointmentDraft((currentDraft) => ({
-                      ...currentDraft,
-                      professionalId: value,
-                    }))
-                  }
-                >
-                  <SelectTrigger id="timeline-new-professional">
-                    <SelectValue placeholder="Escolha o profissional" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {professionals.map((professional) => (
-                      <SelectItem key={professional.id} value={String(professional.id)}>
-                        {professional.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="timeline-new-status">Status</Label>
-              <Select
-                value={newAppointmentDraft.status}
-                onValueChange={(value: AppointmentStatus) =>
-                  setNewAppointmentDraft((currentDraft) => ({
-                    ...currentDraft,
-                    status: value,
-                  }))
-                }
-              >
-                <SelectTrigger id="timeline-new-status">
-                  <SelectValue placeholder="Escolha o status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="confirmado">Confirmado</SelectItem>
-                  <SelectItem value="pendente">Pendente</SelectItem>
-                  <SelectItem value="cancelado">Cancelado</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <DialogFooter>
-            <Button variant="outline" onClick={resetCreateDialog}>
-              Cancelar
-            </Button>
-            <Button onClick={handleCreateAppointment}>Criar agendamento</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-      <Dialog open={editingAppointmentId !== null} onOpenChange={(open) => (!open ? resetEditDialog() : undefined)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Editar agendamento</DialogTitle>
-            <DialogDescription>
-              Ajuste cliente, servico, horario, profissional e status sem sair da timeline.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="timeline-client">Cliente</Label>
-              <Input
-                id="timeline-client"
-                value={appointmentDraft.client}
-                onChange={(event) =>
-                  setAppointmentDraft((currentDraft) => ({
-                    ...currentDraft,
-                    client: event.target.value,
-                  }))
-                }
-                placeholder="Nome do cliente"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="timeline-service">Servico</Label>
-              <Input
-                id="timeline-service"
-                value={appointmentDraft.service}
-                onChange={(event) =>
-                  setAppointmentDraft((currentDraft) => ({
-                    ...currentDraft,
-                    service: event.target.value,
-                  }))
-                }
-                placeholder="Servico agendado"
-              />
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="timeline-time">Horario</Label>
-                <Select
-                  value={appointmentDraft.time}
-                  onValueChange={(value) =>
-                    setAppointmentDraft((currentDraft) => ({
-                      ...currentDraft,
-                      time: value,
-                    }))
-                  }
-                >
-                  <SelectTrigger id="timeline-time">
-                    <SelectValue placeholder="Escolha o horario" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {timeSlots.map((time) => (
-                      <SelectItem key={time} value={time}>
-                        {time}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="timeline-professional">Profissional</Label>
-                <Select
-                  value={appointmentDraft.professionalId}
-                  onValueChange={(value) =>
-                    setAppointmentDraft((currentDraft) => ({
-                      ...currentDraft,
-                      professionalId: value,
-                    }))
-                  }
-                >
-                  <SelectTrigger id="timeline-professional">
-                    <SelectValue placeholder="Escolha o profissional" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {professionals.map((professional) => (
-                      <SelectItem key={professional.id} value={String(professional.id)}>
-                        {professional.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="timeline-status">Status</Label>
-              <Select
-                value={appointmentDraft.status}
-                onValueChange={(value: AppointmentStatus) =>
-                  setAppointmentDraft((currentDraft) => ({
-                    ...currentDraft,
-                    status: value,
-                  }))
-                }
-              >
-                <SelectTrigger id="timeline-status">
-                  <SelectValue placeholder="Escolha o status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="confirmado">Confirmado</SelectItem>
-                  <SelectItem value="pendente">Pendente</SelectItem>
-                  <SelectItem value="cancelado">Cancelado</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <DialogFooter>
-            <Button variant="outline" onClick={resetEditDialog}>
-              Cancelar
-            </Button>
-            <Button onClick={handleSaveAppointmentEdit}>Salvar alteracoes</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        onResetEditDialog={resetEditDialog}
+        onSaveAppointmentEdit={handleSaveAppointmentEdit}
+      />
       <Toaster position="bottom-left" closeButton richColors />
     </PageShell>
   );
