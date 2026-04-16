@@ -3,9 +3,6 @@ import { Link } from "react-router";
 import { toast } from "sonner";
 import {
   CalendarRange,
-  ChevronLeft,
-  ChevronRight,
-  MoreVertical,
   RefreshCw,
   Search,
   ShieldCheck,
@@ -15,14 +12,8 @@ import {
 import { useAuth } from "../auth/AuthContext";
 import { Button } from "../components/ui/button";
 import { MetricCard, PageShell, SectionCard } from "../components/PageShell";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "../components/ui/dialog";
+import { AgendaListDialogs } from "../features/agenda/AgendaListDialogs";
+import { AgendaListResults } from "../features/agenda/AgendaListResults";
 import {
   Select,
   SelectContent,
@@ -30,34 +21,26 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "../components/ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "../components/ui/dropdown-menu";
 import { Input } from "../components/ui/input";
-import { Label } from "../components/ui/label";
 import {
   ITEMS_PER_PAGE,
-  buildScheduledAt,
   createEditAppointmentDraft,
   filterAppointments,
   formatAppointmentForList,
-  getStatusColor,
-  getStatusLabel,
   getTodayDateValue,
   type AgendaListItem,
   type EditAppointmentDraft,
 } from "../features/agenda/list-helpers";
+import {
+  buildAgendaEditPayload,
+  buildAgendaStatusPayload,
+  createAgendaEditState,
+  mapAgendaAppointmentResponse,
+  removeAgendaAppointment,
+  replaceAgendaAppointment,
+  replaceAgendaAppointmentStatus,
+  validateAgendaEditDraft,
+} from "../features/agenda/list-operations";
 import { getApiErrorMessage, isMissingAuthTokenError } from "../lib/api-error";
 import { createProfessionalsService, type ProfessionalApiItem } from "../services/professionals";
 import {
@@ -213,8 +196,9 @@ export function AgendaLista() {
   };
 
   const openEditDialog = (appointment: AgendaListItem) => {
-    setEditingAppointment(appointment);
-    setEditDraft(createEditAppointmentDraft(appointment));
+    const nextState = createAgendaEditState(appointment);
+    setEditingAppointment(nextState.appointment);
+    setEditDraft(nextState.draft);
     setIsEditDialogOpen(true);
   };
 
@@ -233,31 +217,25 @@ export function AgendaLista() {
       return;
     }
 
-    const clientId = Number(editDraft.clientId);
-    const professionalId = Number(editDraft.professionalId);
-    const serviceId = Number(editDraft.serviceId);
+    const validationMessage = validateAgendaEditDraft(editDraft);
 
-    if (!clientId || !professionalId || !serviceId) {
-      toast.error("Selecione cliente, profissional e servico.");
+    if (validationMessage) {
+      toast.error(validationMessage);
       return;
     }
 
     try {
       const appointmentsService = createAppointmentsService(token);
-      const response = await appointmentsService.update(editingAppointment.id, {
-        clientId,
-        professionalId,
-        serviceId,
-        scheduledAt: buildScheduledAt(editingAppointment.scheduledAt, editDraft.time),
-        status: editDraft.status,
-        notes: editingAppointment.notes,
-      });
+      const response = await appointmentsService.update(
+        editingAppointment.id,
+        buildAgendaEditPayload(editingAppointment, editDraft),
+      );
 
       setAppointments((currentAppointments) =>
-        currentAppointments.map((currentAppointment) =>
-          currentAppointment.id === editingAppointment.id
-            ? formatAppointmentForList(response.appointment)
-            : currentAppointment,
+        replaceAgendaAppointment(
+          currentAppointments,
+          editingAppointment.id,
+          mapAgendaAppointmentResponse(response.appointment),
         ),
       );
 
@@ -280,24 +258,10 @@ export function AgendaLista() {
     const appointmentsService = createAppointmentsService(token);
 
     try {
-      const response = await appointmentsService.update(appointment.id, {
-        clientId: appointment.clientId,
-        professionalId: appointment.professionalId,
-        serviceId: appointment.serviceId,
-        scheduledAt: appointment.scheduledAt,
-        status,
-        notes: appointment.notes,
-      });
+      const response = await appointmentsService.update(appointment.id, buildAgendaStatusPayload(appointment, status));
 
       setAppointments((currentAppointments) =>
-        currentAppointments.map((currentAppointment) =>
-          currentAppointment.id === appointment.id
-            ? {
-                ...currentAppointment,
-                status: response.appointment.status,
-              }
-            : currentAppointment,
-        ),
+        replaceAgendaAppointmentStatus(currentAppointments, appointment.id, response.appointment.status),
       );
 
       toast.success(response.message);
@@ -317,7 +281,7 @@ export function AgendaLista() {
       const response = await appointmentsService.remove(appointment.id);
 
       setAppointments((currentAppointments) =>
-        currentAppointments.filter((currentAppointment) => currentAppointment.id !== appointment.id),
+        removeAgendaAppointment(currentAppointments, appointment.id),
       );
 
       toast.success(response.message);
@@ -415,303 +379,34 @@ export function AgendaLista() {
           </Button>
         </div>
 
-        <div className="mt-6 overflow-hidden rounded-[1.5rem] border border-white/70 bg-white/52 shadow-[0_24px_55px_-34px_rgba(73,47,22,0.28)]">
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Data e hora</TableHead>
-                  <TableHead>Cliente</TableHead>
-                  <TableHead>Servico</TableHead>
-                  <TableHead>Profissional</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="w-[96px] text-right">Acoes</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {isLoading ? (
-                  <TableRow>
-                    <TableCell colSpan={6} className="py-12 text-center text-muted-foreground">
-                      Carregando agendamentos...
-                    </TableCell>
-                  </TableRow>
-                ) : paginatedAppointments.length > 0 ? (
-                  paginatedAppointments.map((appointment) => (
-                    <TableRow key={appointment.id}>
-                      <TableCell>
-                        <div>
-                          <p className="font-medium text-foreground">{appointment.date}</p>
-                          <p className="mt-1 text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                            {appointment.time}
-                          </p>
-                        </div>
-                      </TableCell>
-                      <TableCell className="font-medium text-foreground">{appointment.client}</TableCell>
-                      <TableCell>{appointment.service}</TableCell>
-                      <TableCell>{appointment.professional}</TableCell>
-                      <TableCell>
-                        <span
-                          className={`${getStatusColor(appointment.status)} inline-flex rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em]`}
-                        >
-                          {getStatusLabel(appointment.status)}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                              <MoreVertical className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onSelect={() => openDetailsDialog(appointment)}>
-                              Ver detalhes
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onSelect={() => openEditDialog(appointment)}>
-                              Editar
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onSelect={() => void handleUpdateAppointmentStatus(appointment, "confirmado")}
-                            >
-                              Confirmar
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              variant="destructive"
-                              onSelect={() => void handleUpdateAppointmentStatus(appointment, "cancelado")}
-                            >
-                              Cancelar
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              variant="destructive"
-                              onSelect={() => void handleDeleteAppointment(appointment)}
-                            >
-                              Excluir
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={6} className="py-12 text-center text-muted-foreground">
-                      Nenhum agendamento encontrado com os filtros atuais.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
-
-          {filteredAppointments.length > 0 ? (
-            <div className="flex flex-col gap-3 border-t border-[rgba(74,52,34,0.08)] px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-sm text-muted-foreground">
-                Mostrando {paginatedAppointments.length} de {filteredAppointments.length} agendamentos filtrados.
-              </p>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => setCurrentPage(Math.max(1, safePage - 1))}
-                  disabled={safePage === 1}
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
-                <span className="data-pill text-sm">
-                  Pagina {safePage} de {totalPages}
-                </span>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => setCurrentPage(Math.min(totalPages, safePage + 1))}
-                  disabled={safePage === totalPages}
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          ) : null}
-        </div>
+        <AgendaListResults
+          appointments={paginatedAppointments}
+          filteredCount={filteredAppointments.length}
+          isLoading={isLoading}
+          safePage={safePage}
+          totalPages={totalPages}
+          onDeleteAppointment={(appointment) => void handleDeleteAppointment(appointment)}
+          onEditAppointment={openEditDialog}
+          onNextPage={() => setCurrentPage(Math.min(totalPages, safePage + 1))}
+          onOpenDetails={openDetailsDialog}
+          onPreviousPage={() => setCurrentPage(Math.max(1, safePage - 1))}
+          onUpdateAppointmentStatus={(appointment, status) => void handleUpdateAppointmentStatus(appointment, status)}
+        />
       </SectionCard>
-      <Dialog open={isEditDialogOpen} onOpenChange={(open) => (!open ? resetEditDialog() : undefined)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Editar agendamento</DialogTitle>
-            <DialogDescription>
-              Ajuste cliente, profissional, servico, horario e status sem sair da lista.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="agenda-edit-client">Cliente</Label>
-              <Select
-                value={editDraft.clientId}
-                onValueChange={(value) =>
-                  setEditDraft((currentDraft) => ({
-                    ...currentDraft,
-                    clientId: value,
-                  }))
-                }
-              >
-                <SelectTrigger id="agenda-edit-client">
-                  <SelectValue placeholder="Escolha o cliente" />
-                </SelectTrigger>
-                <SelectContent>
-                  {clients.map((client) => (
-                    <SelectItem key={client.id} value={String(client.id)}>
-                      {client.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="agenda-edit-service">Servico</Label>
-              <Select
-                value={editDraft.serviceId}
-                onValueChange={(value) =>
-                  setEditDraft((currentDraft) => ({
-                    ...currentDraft,
-                    serviceId: value,
-                  }))
-                }
-              >
-                <SelectTrigger id="agenda-edit-service">
-                  <SelectValue placeholder="Escolha o servico" />
-                </SelectTrigger>
-                <SelectContent>
-                  {services.map((service) => (
-                    <SelectItem key={service.id} value={String(service.id)}>
-                      {service.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="agenda-edit-professional">Profissional</Label>
-                <Select
-                  value={editDraft.professionalId}
-                  onValueChange={(value) =>
-                    setEditDraft((currentDraft) => ({
-                      ...currentDraft,
-                      professionalId: value,
-                    }))
-                  }
-                >
-                  <SelectTrigger id="agenda-edit-professional">
-                    <SelectValue placeholder="Escolha o profissional" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {professionals.map((professional) => (
-                      <SelectItem key={professional.id} value={String(professional.id)}>
-                        {professional.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="agenda-edit-time">Horario</Label>
-                <Input
-                  id="agenda-edit-time"
-                  type="time"
-                  value={editDraft.time}
-                  onChange={(event) =>
-                    setEditDraft((currentDraft) => ({
-                      ...currentDraft,
-                      time: event.target.value,
-                    }))
-                  }
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="agenda-edit-status">Status</Label>
-              <Select
-                value={editDraft.status}
-                onValueChange={(value: AppointmentStatus) =>
-                  setEditDraft((currentDraft) => ({
-                    ...currentDraft,
-                    status: value,
-                  }))
-                }
-              >
-                <SelectTrigger id="agenda-edit-status">
-                  <SelectValue placeholder="Escolha o status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="confirmado">Confirmado</SelectItem>
-                  <SelectItem value="pendente">Pendente</SelectItem>
-                  <SelectItem value="cancelado">Cancelado</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <DialogFooter>
-            <Button variant="outline" onClick={resetEditDialog}>
-              Cancelar
-            </Button>
-            <Button onClick={handleSaveAppointmentEdit}>Salvar alteracoes</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-      <Dialog open={isDetailsDialogOpen} onOpenChange={(open) => (!open ? resetDetailsDialog() : undefined)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Detalhes do agendamento</DialogTitle>
-            <DialogDescription>
-              Veja os dados completos antes de editar ou confirmar.
-            </DialogDescription>
-          </DialogHeader>
-
-          {detailsAppointment ? (
-            <div className="space-y-4">
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Cliente</p>
-                  <p className="mt-1 text-base text-foreground">{detailsAppointment.client}</p>
-                </div>
-                <div>
-                  <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Profissional</p>
-                  <p className="mt-1 text-base text-foreground">{detailsAppointment.professional}</p>
-                </div>
-                <div>
-                  <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Servico</p>
-                  <p className="mt-1 text-base text-foreground">{detailsAppointment.service}</p>
-                </div>
-                <div>
-                  <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Status</p>
-                  <p className="mt-1 text-base text-foreground">
-                    {getStatusLabel(detailsAppointment.status)}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Data</p>
-                  <p className="mt-1 text-base text-foreground">{detailsAppointment.date}</p>
-                </div>
-                <div>
-                  <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Horario</p>
-                  <p className="mt-1 text-base text-foreground">{detailsAppointment.time}</p>
-                </div>
-              </div>
-            </div>
-          ) : null}
-
-          <DialogFooter>
-            <Button variant="outline" onClick={resetDetailsDialog}>
-              Fechar
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <AgendaListDialogs
+        clients={clients}
+        detailsAppointment={detailsAppointment}
+        editDraft={editDraft}
+        editingAppointment={editingAppointment}
+        isDetailsDialogOpen={isDetailsDialogOpen}
+        isEditDialogOpen={isEditDialogOpen}
+        professionals={professionals}
+        services={services}
+        setEditDraft={setEditDraft}
+        onCloseDetailsDialog={resetDetailsDialog}
+        onCloseEditDialog={resetEditDialog}
+        onSaveAppointmentEdit={handleSaveAppointmentEdit}
+      />
     </PageShell>
   );
 }

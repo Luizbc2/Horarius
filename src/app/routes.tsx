@@ -1,21 +1,37 @@
+import { Suspense, lazy } from "react";
 import { createBrowserRouter, Navigate, useLocation, type RouteObject } from "react-router";
 
 import { useAuth } from "./auth/AuthContext";
-import { Layout } from "./components/Layout";
-import { AgendaTimeline } from "./pages/AgendaTimeline";
-import { AgendaLista } from "./pages/AgendaLista";
-import { Clientes } from "./pages/Clientes";
-import { ClienteFormulario } from "./pages/ClienteFormulario";
-import { Profissionais } from "./pages/Profissionais";
-import { ProfissionalFormulario } from "./pages/ProfissionalFormulario";
-import { ProfissionalHorarios } from "./pages/ProfissionalHorarios";
-import { Servicos } from "./pages/Servicos";
-import { ServicoFormulario } from "./pages/ServicoFormulario";
-import { PlanosClientes } from "./pages/PlanosClientes";
-import { Assinatura } from "./pages/Assinatura";
-import { Perfil } from "./pages/Perfil";
-import { CadastroUsuario } from "./pages/CadastroUsuario";
-import { Login } from "./pages/Login";
+
+const Layout = lazy(() => import("./components/Layout").then((module) => ({ default: module.Layout })));
+const AgendaTimeline = lazy(() => import("./pages/AgendaTimeline").then((module) => ({ default: module.AgendaTimeline })));
+const AgendaLista = lazy(() => import("./pages/AgendaLista").then((module) => ({ default: module.AgendaLista })));
+const Clientes = lazy(() => import("./pages/Clientes").then((module) => ({ default: module.Clientes })));
+const ClienteFormulario = lazy(() =>
+  import("./pages/ClienteFormulario").then((module) => ({ default: module.ClienteFormulario })),
+);
+const Profissionais = lazy(() =>
+  import("./pages/Profissionais").then((module) => ({ default: module.Profissionais })),
+);
+const ProfissionalFormulario = lazy(() =>
+  import("./pages/ProfissionalFormulario").then((module) => ({ default: module.ProfissionalFormulario })),
+);
+const ProfissionalHorarios = lazy(() =>
+  import("./pages/ProfissionalHorarios").then((module) => ({ default: module.ProfissionalHorarios })),
+);
+const Servicos = lazy(() => import("./pages/Servicos").then((module) => ({ default: module.Servicos })));
+const ServicoFormulario = lazy(() =>
+  import("./pages/ServicoFormulario").then((module) => ({ default: module.ServicoFormulario })),
+);
+const PlanosClientes = lazy(() =>
+  import("./pages/PlanosClientes").then((module) => ({ default: module.PlanosClientes })),
+);
+const Assinatura = lazy(() => import("./pages/Assinatura").then((module) => ({ default: module.Assinatura })));
+const Perfil = lazy(() => import("./pages/Perfil").then((module) => ({ default: module.Perfil })));
+const CadastroUsuario = lazy(() =>
+  import("./pages/CadastroUsuario").then((module) => ({ default: module.CadastroUsuario })),
+);
+const Login = lazy(() => import("./pages/Login").then((module) => ({ default: module.Login })));
 
 export function ProtectedLayout() {
   const location = useLocation();
@@ -25,7 +41,11 @@ export function ProtectedLayout() {
     return <Navigate to="/login" replace state={{ from: location.pathname }} />;
   }
 
-  return <Layout />;
+  return (
+    <Suspense fallback={null}>
+      <Layout />
+    </Suspense>
+  );
 }
 
 export function PublicLoginRoute() {
@@ -35,7 +55,11 @@ export function PublicLoginRoute() {
     return <Navigate to="/agenda/timeline" replace />;
   }
 
-  return <Login />;
+  return (
+    <Suspense fallback={null}>
+      <Login />
+    </Suspense>
+  );
 }
 
 export function PublicSignupRoute() {
@@ -45,7 +69,11 @@ export function PublicSignupRoute() {
     return <Navigate to="/agenda/timeline" replace />;
   }
 
-  return <CadastroUsuario />;
+  return (
+    <Suspense fallback={null}>
+      <CadastroUsuario />
+    </Suspense>
+  );
 }
 
 export const appRoutes: RouteObject[] = [
