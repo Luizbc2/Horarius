@@ -128,7 +128,9 @@ class Database {
   }
 
   public async synchronize(): Promise<void> {
-    await this.getConnection().sync();
+    await this.getConnection().sync({
+      alter: true
+    });
     await this.seedAuthUser();
 
     console.log("Database tables synchronized.");
