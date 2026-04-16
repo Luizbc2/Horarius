@@ -66,6 +66,11 @@ type ServiceFailure = {
   statusCode: number;
 };
 
+type ServiceSuccess = {
+  success: true;
+  data: RequestValue;
+};
+
 export function createTestApp(input: TestAppInput) {
   const app = express();
   const repositories = resolveRepositories(input);
@@ -308,7 +313,7 @@ function resolveRepositories(input: TestAppInput): Required<TestRepositories> {
   };
 }
 
-function sendServiceResult<T extends { success: true; data: unknown } | ServiceFailure>(
+function sendServiceResult<T extends ServiceSuccess | ServiceFailure>(
   response: Response,
   result: T,
   successStatusCode: number,
