@@ -1,4 +1,4 @@
-import { createBrowserRouter, Navigate, useLocation } from "react-router";
+import { createBrowserRouter, Navigate, useLocation, type RouteObject } from "react-router";
 
 import { useAuth } from "./auth/AuthContext";
 import { Layout } from "./components/Layout";
@@ -17,7 +17,7 @@ import { Perfil } from "./pages/Perfil";
 import { CadastroUsuario } from "./pages/CadastroUsuario";
 import { Login } from "./pages/Login";
 
-function ProtectedLayout() {
+export function ProtectedLayout() {
   const location = useLocation();
   const { isAuthenticated } = useAuth();
 
@@ -28,7 +28,7 @@ function ProtectedLayout() {
   return <Layout />;
 }
 
-function PublicLoginRoute() {
+export function PublicLoginRoute() {
   const { isAuthenticated } = useAuth();
 
   if (isAuthenticated) {
@@ -38,7 +38,7 @@ function PublicLoginRoute() {
   return <Login />;
 }
 
-function PublicSignupRoute() {
+export function PublicSignupRoute() {
   const { isAuthenticated } = useAuth();
 
   if (isAuthenticated) {
@@ -48,7 +48,7 @@ function PublicSignupRoute() {
   return <CadastroUsuario />;
 }
 
-export const router = createBrowserRouter([
+export const appRoutes: RouteObject[] = [
   {
     path: "/login",
     Component: PublicLoginRoute,
@@ -79,4 +79,6 @@ export const router = createBrowserRouter([
       { path: "perfil", Component: Perfil },
     ],
   },
-]);
+];
+
+export const router = createBrowserRouter(appRoutes);
