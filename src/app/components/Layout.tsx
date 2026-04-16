@@ -18,7 +18,6 @@ import {
 } from "lucide-react";
 
 import { useAuth } from "../auth/AuthContext";
-import { ApiStatusCard } from "./ApiStatusCard";
 import { Button } from "./ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import { cn } from "./ui/utils";
@@ -88,11 +87,11 @@ function SidebarContent({
           key={item.label}
           type="button"
           disabled
-          className="flex w-full items-center justify-between rounded-[1rem] border border-transparent px-3 py-3 text-left text-sm text-sidebar-foreground/60 transition-all duration-300 disabled:cursor-not-allowed"
+          className="flex w-full items-center justify-between rounded-[1rem] border border-transparent px-4 py-3.5 text-left text-[0.95rem] text-sidebar-foreground/60 transition-all duration-300 disabled:cursor-not-allowed"
         >
           <span className="flex items-center gap-3">
-            <span className="flex h-9 w-9 items-center justify-center rounded-[0.95rem] bg-white/6 text-sidebar-primary">
-              <Icon className="h-4 w-4" />
+            <span className="flex h-10 w-10 items-center justify-center rounded-[0.95rem] bg-white/6 text-sidebar-primary">
+              <Icon className="h-[1.05rem] w-[1.05rem]" />
             </span>
             <span>{item.label}</span>
           </span>
@@ -113,7 +112,7 @@ function SidebarContent({
         to={item.path}
         onClick={closeSidebar}
         className={cn(
-          "group flex items-center justify-between rounded-[1rem] border px-3 py-3 text-sm transition-all duration-300",
+          "group flex items-center justify-between rounded-[1rem] border px-4 py-3.5 text-[0.95rem] transition-all duration-300",
           active
             ? "border-white/10 bg-[linear-gradient(135deg,rgba(89,184,171,0.22),rgba(89,184,171,0.08))] text-white shadow-[0_22px_45px_-30px_rgba(89,184,171,0.9)]"
             : "border-transparent text-sidebar-foreground/82 hover:border-white/8 hover:bg-white/6 hover:text-white",
@@ -122,13 +121,13 @@ function SidebarContent({
         <span className="flex items-center gap-3">
           <span
             className={cn(
-              "flex h-9 w-9 items-center justify-center rounded-[0.95rem] transition-colors duration-300",
+              "flex h-10 w-10 items-center justify-center rounded-[0.95rem] transition-colors duration-300",
               active
                 ? "bg-white/12 text-white"
                 : "bg-white/6 text-sidebar-primary group-hover:bg-white/10 group-hover:text-white",
             )}
           >
-            <Icon className="h-4 w-4" />
+            <Icon className="h-[1.05rem] w-[1.05rem]" />
           </span>
           <span>{item.label}</span>
         </span>
@@ -142,7 +141,7 @@ function SidebarContent({
   };
 
   return (
-    <div className="relative flex h-full flex-col overflow-hidden px-5 py-6 text-sidebar-foreground">
+    <div className="relative flex h-full flex-col overflow-hidden px-6 py-6 text-sidebar-foreground">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-56 bg-[radial-gradient(circle_at_top,rgba(89,184,171,0.28),transparent_60%)]" />
       <div className="pointer-events-none absolute bottom-0 right-0 h-44 w-44 rounded-full bg-[radial-gradient(circle,rgba(211,140,86,0.16),transparent_72%)] blur-3xl" />
 
@@ -174,19 +173,19 @@ function SidebarContent({
         </div>
       </div>
 
-      <nav className="relative mt-6 flex-1 space-y-6 overflow-y-auto pr-1">
+      <nav className="relative mt-6 flex-1 space-y-7 overflow-y-auto pr-2">
         <div className="space-y-2">
-          <p className="px-2 text-[0.7rem] uppercase tracking-[0.32em] text-sidebar-foreground/45">
+          <p className="px-2 text-[0.72rem] uppercase tracking-[0.32em] text-sidebar-foreground/45">
             Agenda
           </p>
-          <div className="rounded-[1.4rem] border border-white/8 bg-white/4 p-2">
+          <div className="rounded-[1.4rem] border border-white/8 bg-white/4 p-2.5">
             <button
               onClick={() => setAgendaExpanded(!agendaExpanded)}
-              className="flex w-full items-center justify-between rounded-[1rem] px-3 py-3 text-sm text-sidebar-foreground transition-colors hover:bg-white/6"
+              className="flex w-full items-center justify-between rounded-[1rem] px-4 py-3.5 text-[0.95rem] text-sidebar-foreground transition-colors hover:bg-white/6"
             >
               <div className="flex items-center gap-3">
-                <span className="flex h-9 w-9 items-center justify-center rounded-[0.95rem] bg-white/6 text-sidebar-primary">
-                  <CalendarDays className="h-4 w-4" />
+                <span className="flex h-10 w-10 items-center justify-center rounded-[0.95rem] bg-white/6 text-sidebar-primary">
+                  <CalendarDays className="h-[1.05rem] w-[1.05rem]" />
                 </span>
                 <span>Agenda</span>
               </div>
@@ -198,7 +197,7 @@ function SidebarContent({
               />
             </button>
             {agendaOpen ? (
-              <div className="mt-1 space-y-1.5 px-1 pb-1">
+              <div className="mt-1.5 space-y-2 px-1 pb-1">
                 {agendaItems.map((item) => {
                   const Icon = item.icon;
 
@@ -208,14 +207,14 @@ function SidebarContent({
                       to={item.path ?? "/agenda/timeline"}
                       onClick={closeSidebar}
                       className={cn(
-                        "flex items-center gap-3 rounded-[1rem] border px-3 py-3 text-sm transition-all duration-300",
+                        "flex items-center gap-3 rounded-[1rem] border px-4 py-3.5 text-[0.95rem] transition-all duration-300",
                         isActive(item.path ?? "")
                           ? "border-white/10 bg-[linear-gradient(135deg,rgba(89,184,171,0.22),rgba(89,184,171,0.08))] text-white shadow-[0_20px_40px_-30px_rgba(89,184,171,0.9)]"
                           : "border-transparent text-sidebar-foreground/78 hover:border-white/8 hover:bg-white/6 hover:text-white",
                       )}
                     >
-                      <span className="flex h-9 w-9 items-center justify-center rounded-[0.95rem] bg-white/6 text-sidebar-primary">
-                        <Icon className="h-4 w-4" />
+                      <span className="flex h-10 w-10 items-center justify-center rounded-[0.95rem] bg-white/6 text-sidebar-primary">
+                        <Icon className="h-[1.05rem] w-[1.05rem]" />
                       </span>
                       <span>{item.label}</span>
                     </Link>
@@ -228,10 +227,10 @@ function SidebarContent({
 
         {navigationGroups.map((group) => (
           <div key={group.title} className="space-y-2">
-            <p className="px-2 text-[0.7rem] uppercase tracking-[0.32em] text-sidebar-foreground/45">
+            <p className="px-2 text-[0.72rem] uppercase tracking-[0.32em] text-sidebar-foreground/45">
               {group.title}
             </p>
-            <div className="space-y-1.5">{group.items.map(renderNavigationItem)}</div>
+            <div className="space-y-2">{group.items.map(renderNavigationItem)}</div>
           </div>
         ))}
       </nav>
@@ -253,7 +252,6 @@ function SidebarContent({
           <LogOut className="h-4 w-4" />
           <span>Sair</span>
         </button>
-        <ApiStatusCard />
       </div>
     </div>
   );
@@ -287,7 +285,7 @@ export function Layout() {
     <div className="relative flex min-h-screen bg-transparent lg:p-4">
       <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-72 bg-[radial-gradient(circle_at_top,rgba(89,184,171,0.14),transparent_65%)]" />
 
-      <aside className="hidden lg:block lg:w-[18.5rem] xl:w-[19.5rem]">
+      <aside className="hidden lg:block lg:w-[22rem] xl:w-[23.5rem]">
         <div className="sticky top-4 h-[calc(100vh-2rem)] rounded-[2rem] border border-sidebar-border bg-[linear-gradient(180deg,rgba(12,15,17,0.98),rgba(18,24,28,0.94))] shadow-[0_40px_120px_-56px_rgba(0,0,0,0.95)]">
           <SidebarContent
             agendaExpanded={agendaExpanded}
@@ -309,7 +307,7 @@ export function Layout() {
             className="fixed inset-0 z-40 bg-black/45 backdrop-blur-sm lg:hidden"
             onClick={() => setSidebarOpen(false)}
           />
-          <aside className="fixed inset-y-3 left-3 z-50 w-[min(21rem,calc(100vw-1.5rem))] rounded-[2rem] border border-sidebar-border bg-[linear-gradient(180deg,rgba(12,15,17,0.98),rgba(18,24,28,0.94))] shadow-[0_40px_120px_-56px_rgba(0,0,0,0.95)] lg:hidden">
+          <aside className="fixed inset-y-3 left-3 z-50 w-[min(24rem,calc(100vw-1.5rem))] rounded-[2rem] border border-sidebar-border bg-[linear-gradient(180deg,rgba(12,15,17,0.98),rgba(18,24,28,0.94))] shadow-[0_40px_120px_-56px_rgba(0,0,0,0.95)] lg:hidden">
             <SidebarContent
               agendaExpanded={agendaExpanded}
               setAgendaExpanded={setAgendaExpanded}
