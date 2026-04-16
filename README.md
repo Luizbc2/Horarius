@@ -64,10 +64,20 @@ npm run build
 
 - npm run dev: inicia o servidor local de desenvolvimento.
 - npm run build: gera o build para producao.
+- npm test: executa os testes automatizados do frontend.
+
+## Evidencias da rubrica
+
+- autenticacao e contexto global: `src/app/auth`
+- CRUDs, formularios e agenda: `src/app/pages`
+- componentes compartilhados e UI reutilizavel: `src/app/components`
+- feature da timeline componentizada: `src/app/features/agenda`
+- rastreabilidade detalhada: `docs/rubric-traceability.md`
 
 ## Estrutura resumida
 
 - src/app/pages: paginas principais da aplicacao.
 - src/app/components: componentes compartilhados e de interface.
+- src/app/features: regras e componentes especializados por dominio.
 - src/styles: estilos globais e tema.
   
