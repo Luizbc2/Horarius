@@ -62,6 +62,7 @@ export function validateServiceForm(formData: ServiceFormData) {
     label: "A descrição",
     maxLength: FIELD_LIMITS.serviceDescription,
     minLength: 5,
+    required: false,
   });
 
   if (nameError) {

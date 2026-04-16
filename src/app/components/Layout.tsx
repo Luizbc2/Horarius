@@ -2,13 +2,11 @@ import { Link, Outlet, useLocation, useNavigate } from "react-router";
 import { useState, type Dispatch, type SetStateAction } from "react";
 import {
   CalendarDays,
-  ChevronDown,
   Clock3,
   List,
   LogOut,
   Menu,
   Package,
-  Plus,
   Scissors,
   Sparkles,
   User,
@@ -37,6 +35,10 @@ const agendaItems: NavigationItem[] = [
 
 const navigationGroups: Array<{ title: string; items: NavigationItem[] }> = [
   {
+    title: "Agenda",
+    items: agendaItems,
+  },
+  {
     title: "Operação",
     items: [
       { label: "Clientes", path: "/clientes", icon: Users },
@@ -52,70 +54,87 @@ const navigationGroups: Array<{ title: string; items: NavigationItem[] }> = [
 ];
 
 type SidebarContentProps = {
-  agendaExpanded: boolean;
-  setAgendaExpanded: Dispatch<SetStateAction<boolean>>;
-  agendaOpen: boolean;
+  isCollapsed: boolean;
   currentPath: string;
   workspaceDate: string;
   userName: string;
   userEmail: string;
   closeSidebar: () => void;
   handleLogout: () => void;
+  toggleSidebarCollapse?: () => void;
 };
 
 function SidebarContent({
-  agendaExpanded,
-  setAgendaExpanded,
-  agendaOpen,
+  isCollapsed,
   currentPath,
   workspaceDate,
   userName,
   userEmail,
   closeSidebar,
   handleLogout,
+  toggleSidebarCollapse,
 }: SidebarContentProps) {
   const isActive = (path: string) => {
     return currentPath === path || currentPath.startsWith(`${path}/`);
+  };
+
+  const renderTooltip = (label: string, content: React.ReactNode) => {
+    if (!isCollapsed) {
+      return content;
+    }
+
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>{content}</TooltipTrigger>
+        <TooltipContent side="right">{label}</TooltipContent>
+      </Tooltip>
+    );
   };
 
   const renderNavigationItem = (item: NavigationItem) => {
     const Icon = item.icon;
 
     if (!item.path || item.disabled) {
-      return (
+      const disabledItem = (
         <button
           key={item.label}
           type="button"
           disabled
-          className="flex w-full items-center justify-between rounded-[1rem] border border-transparent px-4 py-3.5 text-left text-[0.95rem] text-sidebar-foreground/60 transition-all duration-300 disabled:cursor-not-allowed"
+          className={cn(
+            "flex w-full items-center rounded-[1rem] border border-transparent text-left text-[0.95rem] text-foreground/45 transition-all duration-300 disabled:cursor-not-allowed",
+            isCollapsed ? "justify-center px-2 py-2.5" : "justify-between px-3 py-3",
+          )}
         >
           <span className="flex items-center gap-3">
-            <span className="flex h-10 w-10 items-center justify-center rounded-[0.95rem] bg-white/6 text-sidebar-primary">
+            <span className="flex h-10 w-10 items-center justify-center rounded-[0.95rem] bg-[rgba(89,184,171,0.12)] text-primary">
               <Icon className="h-[1.05rem] w-[1.05rem]" />
             </span>
-            <span>{item.label}</span>
+            {!isCollapsed ? <span>{item.label}</span> : null}
           </span>
-          {item.badge ? (
-            <span className="rounded-full border border-white/10 bg-white/6 px-2.5 py-1 text-[0.65rem] uppercase tracking-[0.24em] text-sidebar-foreground/65">
+          {!isCollapsed && item.badge ? (
+            <span className="rounded-full border border-primary/12 bg-[rgba(89,184,171,0.1)] px-2.5 py-1 text-[0.65rem] uppercase tracking-[0.24em] text-primary/75">
               {item.badge}
             </span>
           ) : null}
         </button>
       );
+
+      return renderTooltip(item.label, disabledItem);
     }
 
     const active = isActive(item.path);
 
-    return (
+    const linkItem = (
       <Link
         key={item.label}
         to={item.path}
         onClick={closeSidebar}
         className={cn(
-          "group flex items-center justify-between rounded-[1rem] border px-4 py-3.5 text-[0.95rem] transition-all duration-300",
+          "group flex items-center rounded-[1rem] border text-[0.95rem] transition-all duration-300",
+          isCollapsed ? "justify-center px-2 py-2.5" : "justify-between px-3 py-3",
           active
-            ? "border-white/10 bg-[linear-gradient(135deg,rgba(89,184,171,0.22),rgba(89,184,171,0.08))] text-white shadow-[0_22px_45px_-30px_rgba(89,184,171,0.9)]"
-            : "border-transparent text-sidebar-foreground/82 hover:border-white/8 hover:bg-white/6 hover:text-white",
+            ? "border-primary/18 bg-[linear-gradient(135deg,rgba(89,184,171,0.18),rgba(255,255,255,0.92))] text-foreground shadow-[0_18px_42px_-30px_rgba(31,109,104,0.35)]"
+            : "border-transparent text-foreground/72 hover:border-white/90 hover:bg-white/76 hover:text-foreground",
         )}
       >
         <span className="flex items-center gap-3">
@@ -123,135 +142,125 @@ function SidebarContent({
             className={cn(
               "flex h-10 w-10 items-center justify-center rounded-[0.95rem] transition-colors duration-300",
               active
-                ? "bg-white/12 text-white"
-                : "bg-white/6 text-sidebar-primary group-hover:bg-white/10 group-hover:text-white",
+                ? "bg-primary text-primary-foreground"
+                : "bg-[rgba(89,184,171,0.12)] text-primary group-hover:bg-[rgba(89,184,171,0.18)] group-hover:text-primary",
             )}
           >
             <Icon className="h-[1.05rem] w-[1.05rem]" />
           </span>
-          <span>{item.label}</span>
+          {!isCollapsed ? <span>{item.label}</span> : null}
         </span>
-        {item.badge ? (
-          <span className="rounded-full border border-white/10 bg-white/6 px-2.5 py-1 text-[0.65rem] uppercase tracking-[0.24em] text-sidebar-foreground/65">
+        {!isCollapsed && item.badge ? (
+          <span className="rounded-full border border-primary/12 bg-[rgba(89,184,171,0.1)] px-2.5 py-1 text-[0.65rem] uppercase tracking-[0.24em] text-primary/75">
             {item.badge}
           </span>
         ) : null}
       </Link>
     );
+
+    return renderTooltip(item.label, linkItem);
   };
 
   return (
-    <div className="relative flex h-full flex-col overflow-hidden px-6 py-6 text-sidebar-foreground">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-56 bg-[radial-gradient(circle_at_top,rgba(89,184,171,0.28),transparent_60%)]" />
-      <div className="pointer-events-none absolute bottom-0 right-0 h-44 w-44 rounded-full bg-[radial-gradient(circle,rgba(211,140,86,0.16),transparent_72%)] blur-3xl" />
+    <div
+      className={cn(
+        "relative flex h-full flex-col overflow-hidden py-6",
+        isCollapsed ? "px-2.5" : "px-4",
+      )}
+    >
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-56 bg-[radial-gradient(circle_at_top,rgba(89,184,171,0.12),transparent_60%)]" />
+      <div className="pointer-events-none absolute bottom-0 right-0 h-44 w-44 rounded-full bg-[radial-gradient(circle,rgba(211,140,86,0.08),transparent_72%)] blur-3xl" />
 
-      <div className="relative rounded-[1.6rem] border border-white/8 bg-white/5 p-5 shadow-[0_24px_70px_-34px_rgba(0,0,0,0.85)] backdrop-blur-xl">
-        <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-[1.2rem] bg-[linear-gradient(135deg,rgba(89,184,171,0.95),rgba(53,98,92,0.9))] text-sidebar-primary-foreground shadow-[0_20px_38px_-20px_rgba(89,184,171,0.85)]">
-            <CalendarDays className="h-5 w-5" />
+      <div className="relative rounded-[1.2rem] border border-white/80 bg-white/72 p-3 shadow-[0_24px_56px_-36px_rgba(73,47,22,0.24)] backdrop-blur-xl">
+        <div className={cn("flex items-center", isCollapsed ? "justify-center flex-col gap-2" : "gap-3")}>
+          <div className="flex h-10 w-10 items-center justify-center rounded-[0.95rem] bg-[linear-gradient(135deg,rgba(89,184,171,0.94),rgba(31,109,104,0.9))] text-primary-foreground shadow-[0_18px_36px_-22px_rgba(31,109,104,0.5)]">
+            <CalendarDays className="h-[1.05rem] w-[1.05rem]" />
           </div>
-          <div>
-            <p className="text-[0.72rem] uppercase tracking-[0.3em] text-sidebar-foreground/55">
-              Studio planner
-            </p>
-            <h1 className="font-[var(--font-display)] text-3xl leading-none">Horarius</h1>
-          </div>
+          {!isCollapsed ? (
+            <div className="min-w-0 flex-1">
+              <p className="text-[0.72rem] uppercase tracking-[0.3em] text-muted-foreground">
+                Studio planner
+              </p>
+              <h1 className="font-[var(--font-display)] text-2xl leading-none text-foreground">Horarius</h1>
+            </div>
+          ) : null}
+          {toggleSidebarCollapse ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onClick={toggleSidebarCollapse}
+              className={cn(
+                "border border-white/90 bg-white text-foreground hover:bg-white hover:text-foreground",
+                isCollapsed ? "h-9 w-9" : "ml-auto h-9 w-9 shrink-0",
+              )}
+              aria-label={isCollapsed ? "Expandir menu lateral" : "Recolher menu lateral"}
+            >
+              <Menu className="h-[1.05rem] w-[1.05rem]" />
+            </Button>
+          ) : null}
         </div>
-        <div className="mt-5 grid grid-cols-2 gap-3">
-          <div className="rounded-[1.1rem] border border-white/8 bg-black/14 px-3 py-3">
-            <p className="text-[0.65rem] uppercase tracking-[0.24em] text-sidebar-foreground/48">
+        {!isCollapsed ? (
+          <div className="mt-4 grid grid-cols-2 gap-2.5">
+          <div className="rounded-[1.1rem] border border-white/80 bg-white/76 px-3 py-3">
+            <p className="text-[0.65rem] uppercase tracking-[0.24em] text-muted-foreground">
               Workspace
             </p>
-            <p className="mt-2 text-sm text-white">{userName}</p>
+            <p className="mt-2 text-sm text-foreground">{userName}</p>
           </div>
-          <div className="rounded-[1.1rem] border border-white/8 bg-black/14 px-3 py-3">
-            <p className="text-[0.65rem] uppercase tracking-[0.24em] text-sidebar-foreground/48">
+          <div className="rounded-[1.1rem] border border-white/80 bg-white/76 px-3 py-3">
+            <p className="text-[0.65rem] uppercase tracking-[0.24em] text-muted-foreground">
               Hoje
             </p>
-            <p className="mt-2 text-sm capitalize text-white">{workspaceDate}</p>
+            <p className="mt-2 text-sm capitalize text-foreground">{workspaceDate}</p>
           </div>
-        </div>
+          </div>
+        ) : null}
       </div>
 
-      <nav className="relative mt-6 flex-1 space-y-7 overflow-y-auto pr-2">
-        <div className="space-y-2">
-          <p className="px-2 text-[0.72rem] uppercase tracking-[0.32em] text-sidebar-foreground/45">
-            Agenda
-          </p>
-          <div className="rounded-[1.4rem] border border-white/8 bg-white/4 p-2.5">
-            <button
-              onClick={() => setAgendaExpanded(!agendaExpanded)}
-              className="flex w-full items-center justify-between rounded-[1rem] px-4 py-3.5 text-[0.95rem] text-sidebar-foreground transition-colors hover:bg-white/6"
-            >
-              <div className="flex items-center gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-[0.95rem] bg-white/6 text-sidebar-primary">
-                  <CalendarDays className="h-[1.05rem] w-[1.05rem]" />
-                </span>
-                <span>Agenda</span>
-              </div>
-              <ChevronDown
-                className={cn(
-                  "h-4 w-4 transition-transform duration-300",
-                  agendaOpen ? "rotate-180" : "",
-                )}
-              />
-            </button>
-            {agendaOpen ? (
-              <div className="mt-1.5 space-y-2 px-1 pb-1">
-                {agendaItems.map((item) => {
-                  const Icon = item.icon;
-
-                  return (
-                    <Link
-                      key={item.path}
-                      to={item.path ?? "/agenda/timeline"}
-                      onClick={closeSidebar}
-                      className={cn(
-                        "flex items-center gap-3 rounded-[1rem] border px-4 py-3.5 text-[0.95rem] transition-all duration-300",
-                        isActive(item.path ?? "")
-                          ? "border-white/10 bg-[linear-gradient(135deg,rgba(89,184,171,0.22),rgba(89,184,171,0.08))] text-white shadow-[0_20px_40px_-30px_rgba(89,184,171,0.9)]"
-                          : "border-transparent text-sidebar-foreground/78 hover:border-white/8 hover:bg-white/6 hover:text-white",
-                      )}
-                    >
-                      <span className="flex h-10 w-10 items-center justify-center rounded-[0.95rem] bg-white/6 text-sidebar-primary">
-                        <Icon className="h-[1.05rem] w-[1.05rem]" />
-                      </span>
-                      <span>{item.label}</span>
-                    </Link>
-                  );
-                })}
-              </div>
-            ) : null}
-          </div>
-        </div>
-
+      <nav className="relative mt-5 flex-1 space-y-5 overflow-y-auto pr-1">
         {navigationGroups.map((group) => (
           <div key={group.title} className="space-y-2">
-            <p className="px-2 text-[0.72rem] uppercase tracking-[0.32em] text-sidebar-foreground/45">
-              {group.title}
-            </p>
+            {!isCollapsed ? (
+              <p className="px-2 text-[0.72rem] uppercase tracking-[0.32em] text-muted-foreground">
+                {group.title}
+              </p>
+            ) : null}
             <div className="space-y-2">{group.items.map(renderNavigationItem)}</div>
           </div>
         ))}
       </nav>
 
-      <div className="relative mt-6 rounded-[1.5rem] border border-white/8 bg-white/6 p-4 shadow-[0_22px_60px_-34px_rgba(0,0,0,0.88)] backdrop-blur-xl">
-        <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-[1rem] bg-[linear-gradient(135deg,rgba(89,184,171,0.96),rgba(53,98,92,0.9))] text-sidebar-primary-foreground shadow-[0_18px_36px_-22px_rgba(89,184,171,0.9)]">
-            <User className="h-5 w-5" />
+      <div className="relative mt-5 rounded-[1.2rem] border border-white/80 bg-white/72 p-3 shadow-[0_22px_56px_-38px_rgba(73,47,22,0.26)] backdrop-blur-xl">
+        <div className={cn("flex items-center", isCollapsed ? "justify-center" : "gap-3")}>
+          <div className="flex h-10 w-10 items-center justify-center rounded-[0.95rem] border border-primary/12 bg-[rgba(89,184,171,0.12)] text-[0.82rem] font-semibold uppercase tracking-[0.14em] text-primary">
+            {userName
+              .split(" ")
+              .filter(Boolean)
+              .slice(0, 2)
+              .map((part) => part.charAt(0))
+              .join("") || "HR"}
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="truncate text-sm text-white">{userName}</p>
-            <p className="truncate text-xs text-sidebar-foreground/55">{userEmail}</p>
-          </div>
+          {!isCollapsed ? (
+            <div className="flex-1 min-w-0">
+              <p className="truncate text-sm text-foreground">{userName}</p>
+              <p className="truncate text-xs text-muted-foreground">{userEmail}</p>
+            </div>
+          ) : null}
         </div>
-        <button
-          onClick={handleLogout}
-          className="mt-4 flex w-full items-center justify-center gap-2 rounded-[1rem] border border-white/8 bg-black/18 px-4 py-3 text-sm text-sidebar-foreground transition-colors hover:bg-white/8 hover:text-white"
-        >
-          <LogOut className="h-4 w-4" />
-          <span>Sair</span>
-        </button>
+        {renderTooltip(
+          "Sair",
+          <button
+            onClick={handleLogout}
+            className={cn(
+              "mt-4 flex rounded-[1rem] border border-white/90 bg-white text-sm text-foreground transition-colors hover:bg-white hover:text-foreground",
+              isCollapsed ? "w-full items-center justify-center px-3 py-2.5" : "w-full items-center justify-center gap-2 px-4 py-3",
+            )}
+          >
+            <LogOut className="h-[1.05rem] w-[1.05rem]" />
+            {!isCollapsed ? <span>Sair</span> : null}
+          </button>,
+        )}
       </div>
     </div>
   );
@@ -262,9 +271,8 @@ export function Layout() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const currentPath = location.pathname === "/" ? "/agenda/timeline" : location.pathname;
-  const [agendaExpanded, setAgendaExpanded] = useState(currentPath.startsWith("/agenda/"));
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const agendaOpen = agendaExpanded || currentPath.startsWith("/agenda/");
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const workspaceDate = new Intl.DateTimeFormat("pt-BR", {
     day: "2-digit",
     month: "long",
@@ -282,21 +290,25 @@ export function Layout() {
   };
 
   return (
-    <div className="relative flex min-h-screen bg-transparent lg:p-4">
+    <div className="relative flex min-h-screen bg-transparent">
       <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-72 bg-[radial-gradient(circle_at_top,rgba(89,184,171,0.14),transparent_65%)]" />
 
-      <aside className="hidden lg:block lg:w-[22rem] xl:w-[23.5rem]">
-        <div className="sticky top-4 h-[calc(100vh-2rem)] rounded-[2rem] border border-sidebar-border bg-[linear-gradient(180deg,rgba(12,15,17,0.98),rgba(18,24,28,0.94))] shadow-[0_40px_120px_-56px_rgba(0,0,0,0.95)]">
+      <aside
+        className={cn(
+          "hidden border-r border-white/70 bg-[linear-gradient(180deg,rgba(248,245,239,0.96),rgba(244,239,232,0.92))] transition-[width] duration-300 lg:block",
+          sidebarCollapsed ? "lg:w-[6rem]" : "lg:w-[19rem] xl:w-[20rem]",
+        )}
+      >
+        <div className="h-screen">
           <SidebarContent
-            agendaExpanded={agendaExpanded}
-            setAgendaExpanded={setAgendaExpanded}
-            agendaOpen={agendaOpen}
+            isCollapsed={sidebarCollapsed}
             currentPath={currentPath}
             workspaceDate={workspaceDate}
             userName={userName}
             userEmail={userEmail}
             closeSidebar={closeSidebar}
             handleLogout={handleLogout}
+            toggleSidebarCollapse={() => setSidebarCollapsed((value) => !value)}
           />
         </div>
       </aside>
@@ -307,11 +319,9 @@ export function Layout() {
             className="fixed inset-0 z-40 bg-black/45 backdrop-blur-sm lg:hidden"
             onClick={() => setSidebarOpen(false)}
           />
-          <aside className="fixed inset-y-3 left-3 z-50 w-[min(24rem,calc(100vw-1.5rem))] rounded-[2rem] border border-sidebar-border bg-[linear-gradient(180deg,rgba(12,15,17,0.98),rgba(18,24,28,0.94))] shadow-[0_40px_120px_-56px_rgba(0,0,0,0.95)] lg:hidden">
+          <aside className="fixed inset-y-0 left-0 z-50 w-[min(18rem,calc(100vw-2.5rem))] border-r border-white/80 bg-[linear-gradient(180deg,rgba(248,245,239,0.98),rgba(244,239,232,0.96))] shadow-[0_28px_80px_-44px_rgba(73,47,22,0.3)] lg:hidden">
             <SidebarContent
-              agendaExpanded={agendaExpanded}
-              setAgendaExpanded={setAgendaExpanded}
-              agendaOpen={agendaOpen}
+              isCollapsed={false}
               currentPath={currentPath}
               workspaceDate={workspaceDate}
               userName={userName}
@@ -349,22 +359,6 @@ export function Layout() {
         <main className="flex-1 overflow-x-hidden pb-24">
           <Outlet />
         </main>
-
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <button
-              type="button"
-              onClick={() => navigate("/agenda/timeline?novo=1")}
-              className="fixed right-5 bottom-5 z-30 flex h-15 w-15 items-center justify-center rounded-[1.35rem] border border-white/65 bg-[linear-gradient(135deg,var(--color-primary),color-mix(in_srgb,var(--color-primary)_78%,black))] text-primary-foreground shadow-[0_28px_60px_-26px_rgba(31,109,104,0.92)] transition-transform duration-300 hover:-translate-y-1 lg:right-8 lg:bottom-8"
-              aria-label="Novo agendamento"
-            >
-              <Plus className="h-6 w-6" />
-            </button>
-          </TooltipTrigger>
-          <TooltipContent side="left" sideOffset={10}>
-            Novo agendamento
-          </TooltipContent>
-        </Tooltip>
       </div>
     </div>
   );
