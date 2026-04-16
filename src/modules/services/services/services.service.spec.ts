@@ -1,6 +1,3 @@
-import test from "node:test";
-import assert from "node:assert/strict";
-
 import { CreateServiceService } from "./create-service.service";
 import { ListServicesService } from "./list-services.service";
 import { UpdateServiceService } from "./update-service.service";
@@ -18,16 +15,16 @@ test("CreateServiceService creates a service with trimmed fields", async () => {
     description: "  Corte tradicional  ",
   });
 
-  assert.equal(result.success, true);
+  expect(result.success).toBe(true);
 
   if (!result.success) {
     return;
   }
 
-  assert.equal(result.data.service.name, "Corte");
-  assert.equal(result.data.service.category, "Cabelo");
-  assert.equal(result.data.service.description, "Corte tradicional");
-  assert.equal(result.data.message, "Servico cadastrado com sucesso.");
+  expect(result.data.service.name).toBe("Corte");
+  expect(result.data.service.category).toBe("Cabelo");
+  expect(result.data.service.description).toBe("Corte tradicional");
+  expect(result.data.message).toBe("Servico cadastrado com sucesso.");
 });
 
 test("CreateServiceService rejects duration less than or equal to zero", async () => {
@@ -42,7 +39,7 @@ test("CreateServiceService rejects duration less than or equal to zero", async (
     description: "Corte tradicional",
   });
 
-  assert.deepEqual(result, {
+  expect(result).toEqual({
     success: false,
     message: "Nome, categoria, duracao, preco e descricao sao obrigatorios.",
     statusCode: 400,
@@ -61,7 +58,7 @@ test("UpdateServiceService returns 404 when service does not exist", async () =>
     description: "Barba completa",
   });
 
-  assert.deepEqual(result, {
+  expect(result).toEqual({
     success: false,
     message: "Servico nao encontrado.",
     statusCode: 404,
@@ -84,8 +81,8 @@ test("ListServicesService paginates and filters services", async () => {
     search: "barba",
   });
 
-  assert.equal(result.success, true);
-  assert.equal(result.data.totalItems, 1);
-  assert.equal(result.data.totalPages, 1);
-  assert.equal(result.data.data[0]?.name, "Barba");
+  expect(result.success).toBe(true);
+  expect(result.data.totalItems).toBe(1);
+  expect(result.data.totalPages).toBe(1);
+  expect(result.data.data[0]?.name).toBe("Barba");
 });

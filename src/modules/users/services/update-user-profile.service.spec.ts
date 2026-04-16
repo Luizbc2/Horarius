@@ -1,6 +1,3 @@
-import test from "node:test";
-import assert from "node:assert/strict";
-
 import { UpdateUserProfileService } from "./update-user-profile.service";
 import { comparePassword, hashPassword } from "../../auth/utils/password.util";
 import { InMemoryUserRepository } from "../../../test/mocks/in-memory-user.repository";
@@ -28,7 +25,7 @@ test("UpdateUserProfileService only allows editing the authenticated user", asyn
     password: "Senha123",
   });
 
-  assert.deepEqual(result, {
+  expect(result).toEqual({
     success: false,
     message: "Voce so pode editar o proprio perfil.",
     statusCode: 403,
@@ -58,7 +55,7 @@ test("UpdateUserProfileService blocks email changes", async () => {
     password: "Senha123",
   });
 
-  assert.deepEqual(result, {
+  expect(result).toEqual({
     success: false,
     message: "O e-mail nao pode ser alterado.",
     statusCode: 400,
@@ -88,15 +85,15 @@ test("UpdateUserProfileService updates the profile with hashed password", async 
     password: "NovaSenha123",
   });
 
-  assert.equal(result.success, true);
-  assert.notEqual(repository.lastUpdatedInput?.password, "NovaSenha123");
-  assert.equal(await comparePassword("NovaSenha123", repository.lastUpdatedInput?.password ?? ""), true);
+  expect(result.success).toBe(true);
+  expect(repository.lastUpdatedInput?.password).not.toBe("NovaSenha123");
+  await expect(comparePassword("NovaSenha123", repository.lastUpdatedInput?.password ?? "")).resolves.toBe(true);
 
   if (!result.success) {
     return;
   }
 
-  assert.equal(result.data.message, "Perfil atualizado com sucesso.");
-  assert.equal(result.data.user.name, "Luiz Otavio");
-  assert.equal(result.data.user.cpf, "11144477735");
+  expect(result.data.message).toBe("Perfil atualizado com sucesso.");
+  expect(result.data.user.name).toBe("Luiz Otavio");
+  expect(result.data.user.cpf).toBe("11144477735");
 });

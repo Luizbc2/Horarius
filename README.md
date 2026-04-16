@@ -11,7 +11,8 @@ Backend academico do projeto Horarius desenvolvido com Node.js, TypeScript, Expr
 - PostgreSQL
 - JWT
 - `scrypt` para hash de senha
-- `node:test` para testes automatizados
+- Jest
+- Supertest
 
 ## O que ja cobre
 
@@ -75,6 +76,15 @@ Hoje a suite cobre:
 - profissionais
 - horarios de profissionais
 - agendamentos
+- testes funcionais
+- testes de integracao HTTP
+- teste de sistema com fluxo completo
+- teste basico de seguranca
+- teste basico de performance
+
+Documentacao de usabilidade:
+
+- `docs/usability-checklist.md`
 
 ## Rotas principais
 

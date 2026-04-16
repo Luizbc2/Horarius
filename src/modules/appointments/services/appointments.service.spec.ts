@@ -1,6 +1,3 @@
-import test from "node:test";
-import assert from "node:assert/strict";
-
 import { CreateAppointmentService } from "./create-appointment.service";
 import { DeleteAppointmentService } from "./delete-appointment.service";
 import { ListAppointmentsService } from "./list-appointments.service";
@@ -21,15 +18,15 @@ test("CreateAppointmentService creates an appointment with normalized status and
     notes: "  encaixe da manha  ",
   });
 
-  assert.equal(result.success, true);
+  expect(result.success).toBe(true);
 
   if (!result.success) {
     return;
   }
 
-  assert.equal(result.data.appointment.status, "confirmado");
-  assert.equal(result.data.appointment.notes, "encaixe da manha");
-  assert.equal(result.data.message, "Agendamento cadastrado com sucesso.");
+  expect(result.data.appointment.status).toBe("confirmado");
+  expect(result.data.appointment.notes).toBe("encaixe da manha");
+  expect(result.data.message).toBe("Agendamento cadastrado com sucesso.");
 });
 
 test("CreateAppointmentService rejects invalid scheduledAt", async () => {
@@ -45,7 +42,7 @@ test("CreateAppointmentService rejects invalid scheduledAt", async () => {
     notes: "",
   });
 
-  assert.deepEqual(result, {
+  expect(result).toEqual({
     success: false,
     message: "Horario do agendamento invalido.",
     statusCode: 400,
@@ -103,9 +100,9 @@ test("ListAppointmentsService filters by date, professional and status", async (
     status: "confirmado",
   });
 
-  assert.equal(result.success, true);
-  assert.equal(result.data.totalItems, 1);
-  assert.equal(result.data.data[0]?.clientName, "Ana");
+  expect(result.success).toBe(true);
+  expect(result.data.totalItems).toBe(1);
+  expect(result.data.data[0]?.clientName).toBe("Ana");
 });
 
 test("UpdateAppointmentService returns 404 when appointment does not exist", async () => {
@@ -121,7 +118,7 @@ test("UpdateAppointmentService returns 404 when appointment does not exist", asy
     notes: "",
   });
 
-  assert.deepEqual(result, {
+  expect(result).toEqual({
     success: false,
     message: "Agendamento nao encontrado.",
     statusCode: 404,
@@ -150,14 +147,14 @@ test("DeleteAppointmentService removes an existing appointment", async () => {
   const result = await service.execute(1);
   const appointment = await repository.findById(1);
 
-  assert.equal(result.success, true);
-  assert.equal(appointment, null);
+  expect(result.success).toBe(true);
+  expect(appointment).toBeNull();
 
   if (!result.success) {
     return;
   }
 
-  assert.equal(result.data.message, "Agendamento excluido com sucesso.");
+  expect(result.data.message).toBe("Agendamento excluido com sucesso.");
 });
 
 test("DeleteAppointmentService returns 404 for missing appointment", async () => {
@@ -166,7 +163,7 @@ test("DeleteAppointmentService returns 404 for missing appointment", async () =>
 
   const result = await service.execute(123);
 
-  assert.deepEqual(result, {
+  expect(result).toEqual({
     success: false,
     message: "Agendamento nao encontrado.",
     statusCode: 404,

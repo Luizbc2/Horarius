@@ -1,5 +1,3 @@
-import test from "node:test";
-import assert from "node:assert/strict";
 import jwt from "jsonwebtoken";
 
 import { env } from "../../../config/env";
@@ -26,7 +24,7 @@ test("LoginService returns JWT and public user data for valid credentials", asyn
     password: "Senha123",
   });
 
-  assert.equal(result.success, true);
+  expect(result.success).toBe(true);
 
   if (!result.success) {
     return;
@@ -34,11 +32,11 @@ test("LoginService returns JWT and public user data for valid credentials", asyn
 
   const tokenPayload = jwt.verify(result.data.token, env.jwt.secret) as { sub: string; email: string };
 
-  assert.equal(result.data.message, "Login realizado com sucesso.");
-  assert.equal(result.data.user.id, 7);
-  assert.equal(result.data.user.email, "luiz@horarius.com");
-  assert.equal(tokenPayload.sub, "7");
-  assert.equal(tokenPayload.email, "luiz@horarius.com");
+  expect(result.data.message).toBe("Login realizado com sucesso.");
+  expect(result.data.user.id).toBe(7);
+  expect(result.data.user.email).toBe("luiz@horarius.com");
+  expect(tokenPayload.sub).toBe("7");
+  expect(tokenPayload.email).toBe("luiz@horarius.com");
 });
 
 test("LoginService rejects invalid email format", async () => {
@@ -50,7 +48,7 @@ test("LoginService rejects invalid email format", async () => {
     password: "Senha123",
   });
 
-  assert.deepEqual(result, {
+  expect(result).toEqual({
     success: false,
     message: "Formato de e-mail invalido.",
     statusCode: 400,
@@ -66,7 +64,7 @@ test("LoginService rejects unknown user", async () => {
     password: "Senha123",
   });
 
-  assert.deepEqual(result, {
+  expect(result).toEqual({
     success: false,
     message: "E-mail ou senha invalidos.",
     statusCode: 401,

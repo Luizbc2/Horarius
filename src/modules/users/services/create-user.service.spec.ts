@@ -1,6 +1,3 @@
-import test from "node:test";
-import assert from "node:assert/strict";
-
 import { CreateUserService } from "./create-user.service";
 import { comparePassword } from "../../auth/utils/password.util";
 import { InMemoryUserRepository } from "../../../test/mocks/in-memory-user.repository";
@@ -16,17 +13,17 @@ test("CreateUserService creates a user with hashed password", async () => {
     password: "Senha123",
   });
 
-  assert.equal(result.success, true);
-  assert.notEqual(repository.lastCreatedInput?.password, "Senha123");
-  assert.equal(await comparePassword("Senha123", repository.lastCreatedInput?.password ?? ""), true);
+  expect(result.success).toBe(true);
+  expect(repository.lastCreatedInput?.password).not.toBe("Senha123");
+  await expect(comparePassword("Senha123", repository.lastCreatedInput?.password ?? "")).resolves.toBe(true);
 
   if (!result.success) {
     return;
   }
 
-  assert.equal(result.data.user.name, "Luiz Otavio");
-  assert.equal(result.data.user.email, "luiz@horarius.com");
-  assert.equal(result.data.user.cpf, "52998224725");
+  expect(result.data.user.name).toBe("Luiz Otavio");
+  expect(result.data.user.email).toBe("luiz@horarius.com");
+  expect(result.data.user.cpf).toBe("52998224725");
 });
 
 test("CreateUserService rejects duplicated email", async () => {
@@ -50,7 +47,7 @@ test("CreateUserService rejects duplicated email", async () => {
     password: "Senha123",
   });
 
-  assert.deepEqual(result, {
+  expect(result).toEqual({
     success: false,
     message: "E-mail ja esta em uso.",
     statusCode: 409,
@@ -68,7 +65,7 @@ test("CreateUserService rejects weak password", async () => {
     password: "fraca",
   });
 
-  assert.deepEqual(result, {
+  expect(result).toEqual({
     success: false,
     message: "A senha deve ter pelo menos 8 caracteres.",
     statusCode: 400,

@@ -1,6 +1,3 @@
-import test from "node:test";
-import assert from "node:assert/strict";
-
 import { CreateClientService } from "./create-client.service";
 import { ListClientsService } from "./list-clients.service";
 import { UpdateClientService } from "./update-client.service";
@@ -18,15 +15,15 @@ test("CreateClientService creates a client with normalized email", async () => {
     notes: "cliente vip",
   });
 
-  assert.equal(result.success, true);
+  expect(result.success).toBe(true);
 
   if (!result.success) {
     return;
   }
 
-  assert.equal(result.data.client.name, "Maria Clara");
-  assert.equal(result.data.client.email, "maria@email.com");
-  assert.equal(result.data.message, "Cliente cadastrado com sucesso.");
+  expect(result.data.client.name).toBe("Maria Clara");
+  expect(result.data.client.email).toBe("maria@email.com");
+  expect(result.data.message).toBe("Cliente cadastrado com sucesso.");
 });
 
 test("CreateClientService rejects invalid email", async () => {
@@ -41,7 +38,7 @@ test("CreateClientService rejects invalid email", async () => {
     notes: "",
   });
 
-  assert.deepEqual(result, {
+  expect(result).toEqual({
     success: false,
     message: "Formato de e-mail inválido.",
     statusCode: 400,
@@ -60,7 +57,7 @@ test("UpdateClientService returns 404 when client does not exist", async () => {
     notes: "",
   });
 
-  assert.deepEqual(result, {
+  expect(result).toEqual({
     success: false,
     message: "Cliente nao encontrado.",
     statusCode: 404,
@@ -83,8 +80,8 @@ test("ListClientsService paginates and filters clients", async () => {
     search: "carla",
   });
 
-  assert.equal(result.success, true);
-  assert.equal(result.data.totalItems, 1);
-  assert.equal(result.data.totalPages, 1);
-  assert.equal(result.data.data[0]?.name, "Carla");
+  expect(result.success).toBe(true);
+  expect(result.data.totalItems).toBe(1);
+  expect(result.data.totalPages).toBe(1);
+  expect(result.data.data[0]?.name).toBe("Carla");
 });

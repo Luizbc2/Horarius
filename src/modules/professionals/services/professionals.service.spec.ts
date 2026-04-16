@@ -1,6 +1,3 @@
-import test from "node:test";
-import assert from "node:assert/strict";
-
 import { CreateProfessionalService } from "./create-professional.service";
 import { ListProfessionalWorkDaysService } from "./list-professional-work-days.service";
 import { ListProfessionalsService } from "./list-professionals.service";
@@ -20,15 +17,15 @@ test("CreateProfessionalService creates a professional with normalized email and
     status: " ATIVO ",
   });
 
-  assert.equal(result.success, true);
+  expect(result.success).toBe(true);
 
   if (!result.success) {
     return;
   }
 
-  assert.equal(result.data.professional.name, "Joao Silva");
-  assert.equal(result.data.professional.email, "joao@email.com");
-  assert.equal(result.data.professional.status, "ativo");
+  expect(result.data.professional.name).toBe("Joao Silva");
+  expect(result.data.professional.email).toBe("joao@email.com");
+  expect(result.data.professional.status).toBe("ativo");
 });
 
 test("UpdateProfessionalService rejects invalid email", async () => {
@@ -54,7 +51,7 @@ test("UpdateProfessionalService rejects invalid email", async () => {
     status: "ativo",
   });
 
-  assert.deepEqual(result, {
+  expect(result).toEqual({
     success: false,
     message: "Formato de email invalido.",
     statusCode: 400,
@@ -77,9 +74,9 @@ test("ListProfessionalsService paginates and filters professionals", async () =>
     search: "barba",
   });
 
-  assert.equal(result.success, true);
-  assert.equal(result.data.totalItems, 1);
-  assert.equal(result.data.data[0]?.name, "Bruno");
+  expect(result.success).toBe(true);
+  expect(result.data.totalItems).toBe(1);
+  expect(result.data.data[0]?.name).toBe("Bruno");
 });
 
 test("ListProfessionalWorkDaysService returns 404 for unknown professional", async () => {
@@ -88,7 +85,7 @@ test("ListProfessionalWorkDaysService returns 404 for unknown professional", asy
 
   const result = await service.execute(999);
 
-  assert.deepEqual(result, {
+  expect(result).toEqual({
     success: false,
     message: "Profissional nao encontrado.",
     statusCode: 404,
@@ -123,15 +120,15 @@ test("UpdateProfessionalWorkDaysService updates and normalizes work days", async
     ],
   });
 
-  assert.equal(result.success, true);
+  expect(result.success).toBe(true);
 
   if (!result.success) {
     return;
   }
 
-  assert.equal(result.data.workDays[0]?.dayOfWeek, "segunda");
-  assert.equal(result.data.workDays[0]?.breakStart, "12:00");
-  assert.equal(result.data.message, "Horarios do profissional atualizados com sucesso.");
+  expect(result.data.workDays[0]?.dayOfWeek).toBe("segunda");
+  expect(result.data.workDays[0]?.breakStart).toBe("12:00");
+  expect(result.data.message).toBe("Horarios do profissional atualizados com sucesso.");
 });
 
 test("UpdateProfessionalWorkDaysService blocks duplicated week days", async () => {
@@ -166,7 +163,7 @@ test("UpdateProfessionalWorkDaysService blocks duplicated week days", async () =
     ],
   });
 
-  assert.deepEqual(result, {
+  expect(result).toEqual({
     success: false,
     message: "Nao e permitido repetir o mesmo dia da semana.",
     statusCode: 400,
