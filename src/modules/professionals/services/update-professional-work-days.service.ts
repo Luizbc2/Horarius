@@ -32,6 +32,7 @@ const VALID_WEEK_DAYS = new Set([
   "sexta",
   "sabado",
 ]);
+const TIME_PATTERN = /^([01]\d|2[0-3]):([0-5]\d)$/;
 
 export class UpdateProfessionalWorkDaysService {
   constructor(private readonly professionalRepository: ProfessionalRepository) {}
@@ -129,8 +130,49 @@ export class UpdateProfessionalWorkDaysService {
       if (!workDay.startTime || !workDay.endTime) {
         return "Horario inicial e final sao obrigatorios em todos os dias informados.";
       }
+
+      if (!this.isValidTime(workDay.startTime) || !this.isValidTime(workDay.endTime)) {
+        return "Os horarios do profissional devem seguir o formato HH:MM.";
+      }
+
+      if (this.toMinutes(workDay.startTime) >= this.toMinutes(workDay.endTime)) {
+        return "O horario inicial deve ser anterior ao horario final.";
+      }
+
+      const hasBreakStart = Boolean(workDay.breakStart);
+      const hasBreakEnd = Boolean(workDay.breakEnd);
+
+      if (hasBreakStart !== hasBreakEnd) {
+        return "O intervalo do profissional deve informar inicio e fim juntos.";
+      }
+
+      if (workDay.breakStart && workDay.breakEnd) {
+        if (!this.isValidTime(workDay.breakStart) || !this.isValidTime(workDay.breakEnd)) {
+          return "Os horarios do profissional devem seguir o formato HH:MM.";
+        }
+
+        if (this.toMinutes(workDay.breakStart) >= this.toMinutes(workDay.breakEnd)) {
+          return "O inicio do intervalo deve ser anterior ao fim do intervalo.";
+        }
+
+        if (
+          this.toMinutes(workDay.breakStart) <= this.toMinutes(workDay.startTime) ||
+          this.toMinutes(workDay.breakEnd) >= this.toMinutes(workDay.endTime)
+        ) {
+          return "O intervalo deve estar dentro da jornada do profissional.";
+        }
+      }
     }
 
     return null;
+  }
+
+  private isValidTime(value: string): boolean {
+    return TIME_PATTERN.test(value);
+  }
+
+  private toMinutes(value: string): number {
+    const [hours, minutes] = value.split(":").map(Number);
+    return hours * 60 + minutes;
   }
 }

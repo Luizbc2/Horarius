@@ -169,3 +169,105 @@ test("UpdateProfessionalWorkDaysService blocks duplicated week days", async () =
     statusCode: 400,
   });
 });
+
+test("UpdateProfessionalWorkDaysService blocks end time before start time", async () => {
+  const repository = new InMemoryProfessionalRepository({
+    professionals: [
+      {
+        id: 1,
+        name: "Joao",
+        email: "joao@email.com",
+        phone: "11",
+        specialty: "Corte",
+        status: "ativo",
+      },
+    ],
+  });
+  const service = new UpdateProfessionalWorkDaysService(repository);
+
+  const result = await service.execute(1, {
+    workDays: [
+      {
+        dayOfWeek: "segunda",
+        enabled: true,
+        startTime: "18:00",
+        endTime: "09:00",
+      },
+    ],
+  });
+
+  expect(result).toEqual({
+    success: false,
+    message: "O horario inicial deve ser anterior ao horario final.",
+    statusCode: 400,
+  });
+});
+
+test("UpdateProfessionalWorkDaysService requires complete break range", async () => {
+  const repository = new InMemoryProfessionalRepository({
+    professionals: [
+      {
+        id: 1,
+        name: "Joao",
+        email: "joao@email.com",
+        phone: "11",
+        specialty: "Corte",
+        status: "ativo",
+      },
+    ],
+  });
+  const service = new UpdateProfessionalWorkDaysService(repository);
+
+  const result = await service.execute(1, {
+    workDays: [
+      {
+        dayOfWeek: "segunda",
+        enabled: true,
+        startTime: "09:00",
+        endTime: "18:00",
+        breakStart: "12:00",
+      },
+    ],
+  });
+
+  expect(result).toEqual({
+    success: false,
+    message: "O intervalo do profissional deve informar inicio e fim juntos.",
+    statusCode: 400,
+  });
+});
+
+test("UpdateProfessionalWorkDaysService keeps break inside working hours", async () => {
+  const repository = new InMemoryProfessionalRepository({
+    professionals: [
+      {
+        id: 1,
+        name: "Joao",
+        email: "joao@email.com",
+        phone: "11",
+        specialty: "Corte",
+        status: "ativo",
+      },
+    ],
+  });
+  const service = new UpdateProfessionalWorkDaysService(repository);
+
+  const result = await service.execute(1, {
+    workDays: [
+      {
+        dayOfWeek: "segunda",
+        enabled: true,
+        startTime: "09:00",
+        endTime: "18:00",
+        breakStart: "08:30",
+        breakEnd: "09:30",
+      },
+    ],
+  });
+
+  expect(result).toEqual({
+    success: false,
+    message: "O intervalo deve estar dentro da jornada do profissional.",
+    statusCode: 400,
+  });
+});
