@@ -1,4 +1,4 @@
-import { Sequelize } from "sequelize";
+import { Sequelize, type Options } from "sequelize";
 
 import { env } from "./env";
 import { AppointmentModel } from "../modules/appointments/models/appointment.model";
@@ -14,19 +14,34 @@ class Database {
   private modelsInitialized = false;
 
   public isConfigured(): boolean {
-    const { host, name, user, password } = env.database;
+    const { url, host, name, user, password } = env.database;
 
-    return Boolean(host && name && user && password);
+    return Boolean(url || (host && name && user && password));
   }
 
   public getConnection(): Sequelize {
     if (!this.sequelize) {
-      this.sequelize = new Sequelize(env.database.name, env.database.user, env.database.password, {
-        host: env.database.host,
-        port: env.database.port,
+      const sharedOptions: Options = {
         dialect: "postgres",
-        logging: false
-      });
+        logging: false,
+      };
+
+      if (env.database.ssl) {
+        sharedOptions.dialectOptions = {
+          ssl: {
+            require: true,
+            rejectUnauthorized: false,
+          },
+        };
+      }
+
+      this.sequelize = env.database.url
+        ? new Sequelize(env.database.url, sharedOptions)
+        : new Sequelize(env.database.name, env.database.user, env.database.password, {
+            ...sharedOptions,
+            host: env.database.host,
+            port: env.database.port,
+          });
     }
 
     return this.sequelize;

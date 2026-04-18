@@ -59,6 +59,29 @@ npm run build
 npm start
 ```
 
+## Deploy no Vercel
+
+- use este projeto como um projeto separado dentro do monorepo, com `Root Directory` em `Backend-Horarius`
+- o endpoint base publicado continuara em `/api`, por exemplo `https://seu-backend.vercel.app/api/health`
+- para Postgres gerenciado, prefira `DATABASE_URL`
+- ative `DB_SSL=true` quando o provedor exigir SSL
+- em producao, deixe `DB_AUTO_SYNC=false` para evitar `sync({ alter: true })` em toda inicializacao
+
+Variaveis minimas de producao:
+
+```env
+FRONTEND_URL=https://seu-frontend.vercel.app
+DATABASE_URL=postgres://...
+DB_SSL=true
+DB_AUTO_SYNC=false
+JWT_SECRET=troque-este-segredo
+JWT_EXPIRES_IN=1d
+AUTH_USER_NAME=Usuario Horarius
+AUTH_USER_EMAIL=admin@horarius.com
+AUTH_USER_CPF=52998224725
+AUTH_USER_PASSWORD=123456
+```
+
 ## Testes
 
 Rodar a suite automatizada:
@@ -145,4 +168,5 @@ Resposta:
 
 - o usuario seed de autenticacao e criado a partir das variaveis `AUTH_USER_*`
 - o token JWT usa `JWT_SECRET` e `JWT_EXPIRES_IN`
-- o Sequelize sincroniza as tabelas no startup
+- o Sequelize sincroniza as tabelas no startup apenas quando `DB_AUTO_SYNC=true`
+- o backend aceita `DATABASE_URL` para facilitar deploy em bancos Postgres gerenciados

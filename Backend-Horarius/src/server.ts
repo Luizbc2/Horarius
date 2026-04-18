@@ -1,22 +1,12 @@
-import { App } from "./app";
-import { database } from "./config/database";
+import { app } from "./app";
 import { env } from "./config/env";
-
-const app = new App();
+import { prepareBackend } from "./bootstrap";
 
 const startServer = async (): Promise<void> => {
   try {
-    const databaseConnected = await database.connect();
+    await prepareBackend();
 
-    if (databaseConnected) {
-      await database.synchronize();
-    }
-
-    app.server.listen(env.port, () => {
-      if (!databaseConnected) {
-        console.log("Server started without database connection.");
-      }
-
+    app.listen(env.port, () => {
       console.log(`Server running on port ${env.port}.`);
     });
   } catch (error) {

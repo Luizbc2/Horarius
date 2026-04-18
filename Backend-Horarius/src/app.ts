@@ -98,3 +98,8 @@ export class App {
     this.server.use("/api", router);
   }
 }
+
+const application = new App();
+
+export const app = application.server;
+export default app;
