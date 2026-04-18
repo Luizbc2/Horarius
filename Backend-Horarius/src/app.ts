@@ -1,7 +1,6 @@
 import cors from "cors";
 import express, { Express } from "express";
 
-import { prepareBackend } from "./bootstrap";
 import { env } from "./config/env";
 import { HealthController } from "./controllers/health.controller";
 import { router } from "./routes";
@@ -73,8 +72,6 @@ const isPrivateNetworkOrigin = (origin: string): boolean => {
   }
 };
 
-const isHealthRequest = (path: string): boolean => path === "/" || path === "/health" || path === "/api/health";
-
 export class App {
   public readonly server: Express;
   private readonly healthController: HealthController;
@@ -112,20 +109,6 @@ export class App {
         },
       })
     );
-    this.server.use(async (request, _response, next) => {
-      if (isHealthRequest(request.path)) {
-        next();
-        return;
-      }
-
-      try {
-        await prepareBackend();
-      } catch (error) {
-        console.error("Backend preparation failed.", error);
-      }
-
-      next();
-    });
     this.server.use(express.json());
   }
 
