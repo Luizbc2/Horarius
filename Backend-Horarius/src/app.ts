@@ -73,6 +73,8 @@ const isPrivateNetworkOrigin = (origin: string): boolean => {
   }
 };
 
+const isHealthRequest = (path: string): boolean => path === "/" || path === "/health" || path === "/api/health";
+
 export class App {
   public readonly server: Express;
   private readonly healthController: HealthController;
@@ -110,7 +112,12 @@ export class App {
         },
       })
     );
-    this.server.use(async (_request, _response, next) => {
+    this.server.use(async (request, _response, next) => {
+      if (isHealthRequest(request.path)) {
+        next();
+        return;
+      }
+
       try {
         await prepareBackend();
         next();
