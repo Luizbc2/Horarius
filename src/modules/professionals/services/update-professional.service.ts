@@ -30,17 +30,21 @@ type UpdateProfessionalServiceResult =
 export class UpdateProfessionalService {
   constructor(private readonly professionalRepository: ProfessionalRepository) {}
 
-  public async execute(id: number, input: UpdateProfessionalRequestDto): Promise<UpdateProfessionalServiceResult> {
+  public async execute(
+    userId: number,
+    id: number,
+    input: UpdateProfessionalRequestDto,
+  ): Promise<UpdateProfessionalServiceResult> {
     const name = normalizeSingleLineText(input.name, INPUT_LIMITS.name);
     const email = input.email.trim().toLowerCase();
     const phone = normalizePhone(input.phone);
     const specialty = normalizeSingleLineText(input.specialty, INPUT_LIMITS.specialty);
     const status = input.status.trim().toLowerCase();
 
-    if (!id || !name || !email || !phone || !specialty || !status) {
+    if (!userId || !id || !name || !email || !phone || !specialty || !status) {
       return {
         success: false,
-        message: "Id, nome, e-mail, telefone, especialidade e status são obrigatórios.",
+        message: "Usuário autenticado, id, nome, e-mail, telefone, especialidade e status são obrigatórios.",
         statusCode: 400,
       };
     }
@@ -94,7 +98,7 @@ export class UpdateProfessionalService {
     }
 
     try {
-      const updatedProfessional = await this.professionalRepository.update(id, {
+      const updatedProfessional = await this.professionalRepository.update(userId, id, {
         name,
         email,
         phone,
@@ -130,4 +134,3 @@ export class UpdateProfessionalService {
     }
   }
 }
-

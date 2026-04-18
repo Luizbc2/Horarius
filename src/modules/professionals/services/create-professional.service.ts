@@ -30,7 +30,10 @@ type CreateProfessionalServiceResult =
 export class CreateProfessionalService {
   constructor(private readonly professionalRepository: ProfessionalRepository) {}
 
-  public async execute(input: CreateProfessionalRequestDto): Promise<CreateProfessionalServiceResult> {
+  public async execute(
+    userId: number,
+    input: CreateProfessionalRequestDto,
+  ): Promise<CreateProfessionalServiceResult> {
     const name = normalizeSingleLineText(input.name, INPUT_LIMITS.name);
     const email = input.email.trim().toLowerCase();
     const phone = normalizePhone(input.phone);
@@ -94,7 +97,7 @@ export class CreateProfessionalService {
     }
 
     try {
-      const createdProfessional = await this.professionalRepository.create({
+      const createdProfessional = await this.professionalRepository.create(userId, {
         name,
         email,
         phone,
@@ -122,4 +125,3 @@ export class CreateProfessionalService {
     }
   }
 }
-

@@ -20,12 +20,15 @@ const DEFAULT_LIMIT = 6;
 export class ListProfessionalsService {
   constructor(private readonly professionalRepository: ProfessionalRepository) {}
 
-  public async execute(query: ListProfessionalsQueryDto): Promise<ListProfessionalsServiceResult> {
+  public async execute(
+    userId: number,
+    query: ListProfessionalsQueryDto,
+  ): Promise<ListProfessionalsServiceResult> {
     const page = this.normalizePositiveNumber(query.page, DEFAULT_PAGE);
     const limit = this.normalizePositiveNumber(query.limit, DEFAULT_LIMIT);
     const search = query.search?.trim() ?? "";
 
-    const { professionals, totalItems } = await this.professionalRepository.list({
+    const { professionals, totalItems } = await this.professionalRepository.list(userId, {
       page,
       limit,
       search,

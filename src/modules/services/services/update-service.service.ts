@@ -30,17 +30,21 @@ type UpdateServiceServiceResult =
 export class UpdateServiceService {
   constructor(private readonly serviceRepository: ServiceRepository) {}
 
-  public async execute(id: number, input: UpdateServiceRequestDto): Promise<UpdateServiceServiceResult> {
+  public async execute(
+    userId: number,
+    id: number,
+    input: UpdateServiceRequestDto,
+  ): Promise<UpdateServiceServiceResult> {
     const name = normalizeSingleLineText(input.name, INPUT_LIMITS.name);
     const category = normalizeSingleLineText(input.category, INPUT_LIMITS.category);
     const description = normalizeMultiLineText(input.description, INPUT_LIMITS.description);
     const durationMinutes = Number(input.durationMinutes);
     const price = Number(input.price);
 
-    if (!id || !name || !category || !durationMinutes || Number.isNaN(price)) {
+    if (!userId || !id || !name || !category || !durationMinutes || Number.isNaN(price)) {
       return {
         success: false,
-        message: "Id, nome, categoria, duração e preço são obrigatórios.",
+        message: "Usuário autenticado, id, nome, categoria, duração e preço são obrigatórios.",
         statusCode: 400,
       };
     }
@@ -86,7 +90,7 @@ export class UpdateServiceService {
     }
 
     try {
-      const updatedService = await this.serviceRepository.update(id, {
+      const updatedService = await this.serviceRepository.update(userId, id, {
         name,
         category,
         durationMinutes,
@@ -122,4 +126,3 @@ export class UpdateServiceService {
     }
   }
 }
-

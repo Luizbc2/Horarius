@@ -19,16 +19,16 @@ type GetProfessionalServiceResult =
 export class GetProfessionalService {
   constructor(private readonly professionalRepository: ProfessionalRepository) {}
 
-  public async execute(id: number): Promise<GetProfessionalServiceResult> {
-    if (!id) {
+  public async execute(userId: number, id: number): Promise<GetProfessionalServiceResult> {
+    if (!userId || !id) {
       return {
         success: false,
-        message: "Id do profissional é obrigatório.",
+        message: "Usuário autenticado e id do profissional são obrigatórios.",
         statusCode: 400,
       };
     }
 
-    const professional = await this.professionalRepository.findById(id);
+    const professional = await this.professionalRepository.findById(userId, id);
 
     if (!professional) {
       return {
@@ -46,4 +46,3 @@ export class GetProfessionalService {
     };
   }
 }
-

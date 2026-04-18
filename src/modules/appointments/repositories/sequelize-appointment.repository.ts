@@ -30,8 +30,12 @@ type AppointmentWithRelations = AppointmentModel & {
 };
 
 export class SequelizeAppointmentRepository implements AppointmentRepository {
-  public async findById(id: number): Promise<AppointmentDto | null> {
-    const appointment = await AppointmentModel.findByPk(id, {
+  public async findById(userId: number, id: number): Promise<AppointmentDto | null> {
+    const appointment = await AppointmentModel.findOne({
+      where: {
+        id,
+        userId,
+      },
       include: this.getInclude(),
     });
 
@@ -42,12 +46,12 @@ export class SequelizeAppointmentRepository implements AppointmentRepository {
     return this.toAppointmentDto(appointment as AppointmentWithRelations);
   }
 
-  public async list(query: ListAppointmentsInput): Promise<ListAppointmentsRepositoryResult> {
+  public async list(userId: number, query: ListAppointmentsInput): Promise<ListAppointmentsRepositoryResult> {
     const page = Math.max(1, query.page);
     const limit = Math.max(1, query.limit);
 
     const { rows, count } = await AppointmentModel.findAndCountAll({
-      where: this.buildWhereClause(query),
+      where: this.buildWhereClause(userId, query),
       include: this.getInclude(),
       limit,
       offset: (page - 1) * limit,
@@ -62,8 +66,9 @@ export class SequelizeAppointmentRepository implements AppointmentRepository {
     };
   }
 
-  public async create(input: CreateAppointmentRequestDto): Promise<AppointmentDto> {
+  public async create(userId: number, input: CreateAppointmentRequestDto): Promise<AppointmentDto> {
     const appointment = await AppointmentModel.create({
+      userId,
       clientId: input.clientId,
       professionalId: input.professionalId,
       serviceId: input.serviceId,
@@ -72,7 +77,7 @@ export class SequelizeAppointmentRepository implements AppointmentRepository {
       notes: input.notes,
     });
 
-    const createdAppointment = await this.findById(appointment.id);
+    const createdAppointment = await this.findById(userId, appointment.id);
 
     if (!createdAppointment) {
       throw new Error("Falha ao carregar o agendamento criado.");
@@ -81,8 +86,17 @@ export class SequelizeAppointmentRepository implements AppointmentRepository {
     return createdAppointment;
   }
 
-  public async update(id: number, input: UpdateAppointmentRequestDto): Promise<AppointmentDto | null> {
-    const appointment = await AppointmentModel.findByPk(id);
+  public async update(
+    userId: number,
+    id: number,
+    input: UpdateAppointmentRequestDto,
+  ): Promise<AppointmentDto | null> {
+    const appointment = await AppointmentModel.findOne({
+      where: {
+        id,
+        userId,
+      },
+    });
 
     if (!appointment) {
       return null;
@@ -97,21 +111,27 @@ export class SequelizeAppointmentRepository implements AppointmentRepository {
 
     await appointment.save();
 
-    return this.findById(id);
+    return this.findById(userId, id);
   }
 
-  public async delete(id: number): Promise<boolean> {
+  public async delete(userId: number, id: number): Promise<boolean> {
     const deletedCount = await AppointmentModel.destroy({
       where: {
         id,
+        userId,
       },
     });
 
     return deletedCount > 0;
   }
 
-  private buildWhereClause(query: ListAppointmentsInput): WhereOptions<AppointmentModel> {
-    const whereClause: WhereOptions<AppointmentModel> = {};
+  private buildWhereClause(
+    userId: number,
+    query: ListAppointmentsInput,
+  ): WhereOptions<AppointmentModel> {
+    const whereClause: WhereOptions<AppointmentModel> = {
+      userId,
+    };
 
     if (query.professionalId) {
       whereClause.professionalId = query.professionalId;

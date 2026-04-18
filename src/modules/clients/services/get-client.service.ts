@@ -19,16 +19,16 @@ type GetClientServiceResult =
 export class GetClientService {
   constructor(private readonly clientRepository: ClientRepository) {}
 
-  public async execute(id: number): Promise<GetClientServiceResult> {
-    if (!id) {
+  public async execute(userId: number, id: number): Promise<GetClientServiceResult> {
+    if (!userId || !id) {
       return {
         success: false,
-        message: "Id do cliente é obrigatório.",
+        message: "Usuário autenticado e id do cliente são obrigatórios.",
         statusCode: 400,
       };
     }
 
-    const client = await this.clientRepository.findById(id);
+    const client = await this.clientRepository.findById(userId, id);
 
     if (!client) {
       return {
@@ -46,4 +46,3 @@ export class GetClientService {
     };
   }
 }
-

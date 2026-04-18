@@ -38,13 +38,14 @@ export class UpdateProfessionalWorkDaysService {
   constructor(private readonly professionalRepository: ProfessionalRepository) {}
 
   public async execute(
+    userId: number,
     professionalId: number,
     input: UpdateProfessionalWorkDaysRequestDto,
   ): Promise<UpdateProfessionalWorkDaysServiceResult> {
-    if (!professionalId) {
+    if (!userId || !professionalId) {
       return {
         success: false,
-        message: "Id do profissional é obrigatório.",
+        message: "Usuário autenticado e id do profissional são obrigatórios.",
         statusCode: 400,
       };
     }
@@ -70,6 +71,7 @@ export class UpdateProfessionalWorkDaysService {
 
     try {
       const workDays = await this.professionalRepository.replaceWorkDays(
+        userId,
         professionalId,
         normalizedWorkDays,
       );
@@ -176,4 +178,3 @@ export class UpdateProfessionalWorkDaysService {
     return hours * 60 + minutes;
   }
 }
-

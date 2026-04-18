@@ -13,6 +13,7 @@ import { ListProfessionalWorkDaysService } from "../services/list-professional-w
 import { ListProfessionalsService } from "../services/list-professionals.service";
 import { UpdateProfessionalService } from "../services/update-professional.service";
 import { UpdateProfessionalWorkDaysService } from "../services/update-professional-work-days.service";
+import { getAuthenticatedUserId } from "../../auth/utils/auth-request.util";
 import {
   asBoolean,
   asNullableString,
@@ -28,8 +29,14 @@ const professionalRepository = new SequelizeProfessionalRepository();
 export class ProfessionalsController {
   public async getById(request: Request, response: Response): Promise<Response> {
     const getProfessionalService = new GetProfessionalService(professionalRepository);
+    const authenticatedUserId = getAuthenticatedUserId(request);
+
+    if (!authenticatedUserId) {
+      return this.sendFailure(response, 401, "Usuário autenticado é obrigatório.");
+    }
+
     const id = Number(request.params.id);
-    const result = await getProfessionalService.execute(id);
+    const result = await getProfessionalService.execute(authenticatedUserId, id);
 
     if (!result.success) {
       return this.sendFailure(response, result.statusCode, result.message);
@@ -40,20 +47,35 @@ export class ProfessionalsController {
 
   public async list(request: Request, response: Response): Promise<Response> {
     const listProfessionalsService = new ListProfessionalsService(professionalRepository);
+    const authenticatedUserId = getAuthenticatedUserId(request);
+
+    if (!authenticatedUserId) {
+      return this.sendFailure(response, 401, "Usuário autenticado é obrigatório.");
+    }
+
     const query: ListProfessionalsQueryDto = {
       page: asNumber(request.query.page),
       limit: asNumber(request.query.limit),
       search: asString(request.query.search),
     };
 
-    const result = await listProfessionalsService.execute(query);
+    const result = await listProfessionalsService.execute(authenticatedUserId, query);
 
     return response.status(200).json(result.data);
   }
 
   public async create(request: Request, response: Response): Promise<Response> {
     const createProfessionalService = new CreateProfessionalService(professionalRepository);
-    const result = await createProfessionalService.execute(this.buildProfessionalPayload(request));
+    const authenticatedUserId = getAuthenticatedUserId(request);
+
+    if (!authenticatedUserId) {
+      return this.sendFailure(response, 401, "Usuário autenticado é obrigatório.");
+    }
+
+    const result = await createProfessionalService.execute(
+      authenticatedUserId,
+      this.buildProfessionalPayload(request),
+    );
 
     if (!result.success) {
       return this.sendFailure(response, result.statusCode, result.message);
@@ -64,8 +86,14 @@ export class ProfessionalsController {
 
   public async listWorkDays(request: Request, response: Response): Promise<Response> {
     const listProfessionalWorkDaysService = new ListProfessionalWorkDaysService(professionalRepository);
+    const authenticatedUserId = getAuthenticatedUserId(request);
+
+    if (!authenticatedUserId) {
+      return this.sendFailure(response, 401, "Usuário autenticado é obrigatório.");
+    }
+
     const professionalId = Number(request.params.id);
-    const result = await listProfessionalWorkDaysService.execute(professionalId);
+    const result = await listProfessionalWorkDaysService.execute(authenticatedUserId, professionalId);
 
     if (!result.success) {
       return this.sendFailure(response, result.statusCode, result.message);
@@ -76,8 +104,18 @@ export class ProfessionalsController {
 
   public async update(request: Request, response: Response): Promise<Response> {
     const updateProfessionalService = new UpdateProfessionalService(professionalRepository);
+    const authenticatedUserId = getAuthenticatedUserId(request);
+
+    if (!authenticatedUserId) {
+      return this.sendFailure(response, 401, "Usuário autenticado é obrigatório.");
+    }
+
     const id = Number(request.params.id);
-    const result = await updateProfessionalService.execute(id, this.buildProfessionalPayload(request));
+    const result = await updateProfessionalService.execute(
+      authenticatedUserId,
+      id,
+      this.buildProfessionalPayload(request),
+    );
 
     if (!result.success) {
       return this.sendFailure(response, result.statusCode, result.message);
@@ -88,8 +126,14 @@ export class ProfessionalsController {
 
   public async delete(request: Request, response: Response): Promise<Response> {
     const deleteProfessionalService = new DeleteProfessionalService(professionalRepository);
+    const authenticatedUserId = getAuthenticatedUserId(request);
+
+    if (!authenticatedUserId) {
+      return this.sendFailure(response, 401, "Usuário autenticado é obrigatório.");
+    }
+
     const id = Number(request.params.id);
-    const result = await deleteProfessionalService.execute(id);
+    const result = await deleteProfessionalService.execute(authenticatedUserId, id);
 
     if (!result.success) {
       return this.sendFailure(response, result.statusCode, result.message);
@@ -100,8 +144,18 @@ export class ProfessionalsController {
 
   public async updateWorkDays(request: Request, response: Response): Promise<Response> {
     const updateProfessionalWorkDaysService = new UpdateProfessionalWorkDaysService(professionalRepository);
+    const authenticatedUserId = getAuthenticatedUserId(request);
+
+    if (!authenticatedUserId) {
+      return this.sendFailure(response, 401, "Usuário autenticado é obrigatório.");
+    }
+
     const id = Number(request.params.id);
-    const result = await updateProfessionalWorkDaysService.execute(id, this.buildWorkDaysPayload(request));
+    const result = await updateProfessionalWorkDaysService.execute(
+      authenticatedUserId,
+      id,
+      this.buildWorkDaysPayload(request),
+    );
 
     if (!result.success) {
       return this.sendFailure(response, result.statusCode, result.message);

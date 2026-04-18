@@ -18,8 +18,13 @@ type ListProfessionalsInput = {
 };
 
 export class SequelizeProfessionalRepository implements ProfessionalRepository {
-  public async findById(id: number): Promise<ProfessionalDto | null> {
-    const professional = await ProfessionalModel.findByPk(id);
+  public async findById(userId: number, id: number): Promise<ProfessionalDto | null> {
+    const professional = await ProfessionalModel.findOne({
+      where: {
+        id,
+        userId,
+      },
+    });
 
     if (!professional) {
       return null;
@@ -28,8 +33,16 @@ export class SequelizeProfessionalRepository implements ProfessionalRepository {
     return this.toProfessionalDto(professional);
   }
 
-  public async findWorkDaysByProfessionalId(professionalId: number): Promise<ProfessionalWorkDayDto[] | null> {
-    const professional = await ProfessionalModel.findByPk(professionalId);
+  public async findWorkDaysByProfessionalId(
+    userId: number,
+    professionalId: number,
+  ): Promise<ProfessionalWorkDayDto[] | null> {
+    const professional = await ProfessionalModel.findOne({
+      where: {
+        id: professionalId,
+        userId,
+      },
+    });
 
     if (!professional) {
       return null;
@@ -45,43 +58,46 @@ export class SequelizeProfessionalRepository implements ProfessionalRepository {
     return workDays.map((workDay) => this.toProfessionalWorkDayDto(workDay));
   }
 
-  public async list(query: ListProfessionalsInput): Promise<ListProfessionalsRepositoryResult> {
+  public async list(userId: number, query: ListProfessionalsInput): Promise<ListProfessionalsRepositoryResult> {
     const page = Math.max(1, query.page);
     const limit = Math.max(1, query.limit);
     const search = query.search.trim().toLowerCase();
 
     const { rows, count } = await ProfessionalModel.findAndCountAll({
-      where: search
-        ? {
-            [Op.or]: [
-              {
-                name: {
-                  [Op.iLike]: `%${search}%`,
+      where: {
+        userId,
+        ...(search
+          ? {
+              [Op.or]: [
+                {
+                  name: {
+                    [Op.iLike]: `%${search}%`,
+                  },
                 },
-              },
-              {
-                email: {
-                  [Op.iLike]: `%${search}%`,
+                {
+                  email: {
+                    [Op.iLike]: `%${search}%`,
+                  },
                 },
-              },
-              {
-                phone: {
-                  [Op.iLike]: `%${search}%`,
+                {
+                  phone: {
+                    [Op.iLike]: `%${search}%`,
+                  },
                 },
-              },
-              {
-                specialty: {
-                  [Op.iLike]: `%${search}%`,
+                {
+                  specialty: {
+                    [Op.iLike]: `%${search}%`,
+                  },
                 },
-              },
-              {
-                status: {
-                  [Op.iLike]: `%${search}%`,
+                {
+                  status: {
+                    [Op.iLike]: `%${search}%`,
+                  },
                 },
-              },
-            ],
-          }
-        : undefined,
+              ],
+            }
+          : {}),
+      },
       limit,
       offset: (page - 1) * limit,
       order: [["createdAt", "DESC"]],
@@ -93,8 +109,9 @@ export class SequelizeProfessionalRepository implements ProfessionalRepository {
     };
   }
 
-  public async create(input: CreateProfessionalRequestDto): Promise<ProfessionalDto> {
+  public async create(userId: number, input: CreateProfessionalRequestDto): Promise<ProfessionalDto> {
     const professional = await ProfessionalModel.create({
+      userId,
       name: input.name,
       email: input.email,
       phone: input.phone,
@@ -105,8 +122,17 @@ export class SequelizeProfessionalRepository implements ProfessionalRepository {
     return this.toProfessionalDto(professional);
   }
 
-  public async update(id: number, input: UpdateProfessionalRequestDto): Promise<ProfessionalDto | null> {
-    const professional = await ProfessionalModel.findByPk(id);
+  public async update(
+    userId: number,
+    id: number,
+    input: UpdateProfessionalRequestDto,
+  ): Promise<ProfessionalDto | null> {
+    const professional = await ProfessionalModel.findOne({
+      where: {
+        id,
+        userId,
+      },
+    });
 
     if (!professional) {
       return null;
@@ -124,10 +150,16 @@ export class SequelizeProfessionalRepository implements ProfessionalRepository {
   }
 
   public async replaceWorkDays(
+    userId: number,
     professionalId: number,
     workDays: ProfessionalWorkDayInputDto[],
   ): Promise<ProfessionalWorkDayDto[] | null> {
-    const professional = await ProfessionalModel.findByPk(professionalId);
+    const professional = await ProfessionalModel.findOne({
+      where: {
+        id: professionalId,
+        userId,
+      },
+    });
 
     if (!professional) {
       return null;
@@ -177,10 +209,11 @@ export class SequelizeProfessionalRepository implements ProfessionalRepository {
     return savedWorkDays.map((workDay) => this.toProfessionalWorkDayDto(workDay));
   }
 
-  public async delete(id: number): Promise<boolean> {
+  public async delete(userId: number, id: number): Promise<boolean> {
     const deletedCount = await ProfessionalModel.destroy({
       where: {
         id,
+        userId,
       },
     });
 

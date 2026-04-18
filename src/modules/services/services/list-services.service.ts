@@ -20,12 +20,12 @@ const DEFAULT_LIMIT = 6;
 export class ListServicesService {
   constructor(private readonly serviceRepository: ServiceRepository) {}
 
-  public async execute(query: ListServicesQueryDto): Promise<ListServicesServiceResult> {
+  public async execute(userId: number, query: ListServicesQueryDto): Promise<ListServicesServiceResult> {
     const page = this.normalizePositiveNumber(query.page, DEFAULT_PAGE);
     const limit = this.normalizePositiveNumber(query.limit, DEFAULT_LIMIT);
     const search = query.search?.trim() ?? "";
 
-    const { services, totalItems } = await this.serviceRepository.list({
+    const { services, totalItems } = await this.serviceRepository.list(userId, {
       page,
       limit,
       search,

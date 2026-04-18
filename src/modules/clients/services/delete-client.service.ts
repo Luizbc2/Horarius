@@ -18,16 +18,16 @@ type DeleteClientServiceResult =
 export class DeleteClientService {
   constructor(private readonly clientRepository: ClientRepository) {}
 
-  public async execute(id: number): Promise<DeleteClientServiceResult> {
-    if (!id) {
+  public async execute(userId: number, id: number): Promise<DeleteClientServiceResult> {
+    if (!userId || !id) {
       return {
         success: false,
-        message: "Id do cliente é obrigatório.",
+        message: "Usuário autenticado e id do cliente são obrigatórios.",
         statusCode: 400
       };
     }
 
-    const deleted = await this.clientRepository.delete(id);
+    const deleted = await this.clientRepository.delete(userId, id);
 
     if (!deleted) {
       return {
@@ -45,5 +45,4 @@ export class DeleteClientService {
     };
   }
 }
-
 

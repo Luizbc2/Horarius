@@ -11,9 +11,12 @@ export type ListServicesRepositoryResult = {
 };
 
 export interface ServiceRepository {
-  findById(id: number): Promise<ServiceDto | null>;
-  list(query: Required<ListServicesQueryDto> & { limit: number }): Promise<ListServicesRepositoryResult>;
-  create(input: CreateServiceRequestDto): Promise<ServiceDto>;
-  update(id: number, input: UpdateServiceRequestDto): Promise<ServiceDto | null>;
-  delete(id: number): Promise<boolean>;
+  findById(userId: number, id: number): Promise<ServiceDto | null>;
+  list(
+    userId: number,
+    query: Required<ListServicesQueryDto> & { limit: number },
+  ): Promise<ListServicesRepositoryResult>;
+  create(userId: number, input: CreateServiceRequestDto): Promise<ServiceDto>;
+  update(userId: number, id: number, input: UpdateServiceRequestDto): Promise<ServiceDto | null>;
+  delete(userId: number, id: number): Promise<boolean>;
 }

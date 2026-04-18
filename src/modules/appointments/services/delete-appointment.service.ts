@@ -18,16 +18,16 @@ type DeleteAppointmentServiceResult =
 export class DeleteAppointmentService {
   constructor(private readonly appointmentRepository: AppointmentRepository) {}
 
-  public async execute(id: number): Promise<DeleteAppointmentServiceResult> {
-    if (!id) {
+  public async execute(userId: number, id: number): Promise<DeleteAppointmentServiceResult> {
+    if (!userId || !id) {
       return {
         success: false,
-        message: "Id do agendamento é obrigatório.",
+        message: "Usuário autenticado e id do agendamento são obrigatórios.",
         statusCode: 400,
       };
     }
 
-    const deleted = await this.appointmentRepository.delete(id);
+    const deleted = await this.appointmentRepository.delete(userId, id);
 
     if (!deleted) {
       return {
@@ -45,4 +45,3 @@ export class DeleteAppointmentService {
     };
   }
 }
-

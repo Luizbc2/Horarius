@@ -32,17 +32,21 @@ type UpdateClientServiceResult =
 export class UpdateClientService {
   constructor(private readonly clientRepository: ClientRepository) {}
 
-  public async execute(id: number, input: UpdateClientRequestDto): Promise<UpdateClientServiceResult> {
+  public async execute(
+    userId: number,
+    id: number,
+    input: UpdateClientRequestDto,
+  ): Promise<UpdateClientServiceResult> {
     const name = normalizeSingleLineText(input.name, INPUT_LIMITS.clientName);
     const email = input.email.trim().toLowerCase();
     const phone = normalizePhone(input.phone);
     const cpf = normalizeCpf(input.cpf ?? "");
     const notes = normalizeMultiLineText(input.notes, INPUT_LIMITS.notes);
 
-    if (!id || !name || !email || !phone) {
+    if (!userId || !id || !name || !email || !phone) {
       return {
         success: false,
-        message: "Id, nome, e-mail e telefone são obrigatórios.",
+        message: "Usuário autenticado, id, nome, e-mail e telefone são obrigatórios.",
         statusCode: 400
       };
     }
@@ -96,7 +100,7 @@ export class UpdateClientService {
     }
 
     try {
-      const updatedClient = await this.clientRepository.update(id, {
+      const updatedClient = await this.clientRepository.update(userId, id, {
         name,
         email,
         phone,
@@ -132,6 +136,5 @@ export class UpdateClientService {
     }
   }
 }
-
 
 

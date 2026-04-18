@@ -30,7 +30,7 @@ type CreateServiceServiceResult =
 export class CreateServiceService {
   constructor(private readonly serviceRepository: ServiceRepository) {}
 
-  public async execute(input: CreateServiceRequestDto): Promise<CreateServiceServiceResult> {
+  public async execute(userId: number, input: CreateServiceRequestDto): Promise<CreateServiceServiceResult> {
     const name = normalizeSingleLineText(input.name, INPUT_LIMITS.name);
     const category = normalizeSingleLineText(input.category, INPUT_LIMITS.category);
     const description = normalizeMultiLineText(input.description, INPUT_LIMITS.description);
@@ -86,7 +86,7 @@ export class CreateServiceService {
     }
 
     try {
-      const createdService = await this.serviceRepository.create({
+      const createdService = await this.serviceRepository.create(userId, {
         name,
         category,
         durationMinutes,
@@ -114,4 +114,3 @@ export class CreateServiceService {
     }
   }
 }
-

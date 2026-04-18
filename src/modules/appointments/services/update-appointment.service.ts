@@ -35,6 +35,7 @@ export class UpdateAppointmentService {
   constructor(private readonly appointmentRepository: AppointmentRepository) {}
 
   public async execute(
+    userId: number,
     id: number,
     input: UpdateAppointmentRequestDto,
   ): Promise<UpdateAppointmentServiceResult> {
@@ -45,10 +46,10 @@ export class UpdateAppointmentService {
     const status = input.status?.trim().toLowerCase() as AppointmentStatus;
     const notes = normalizeMultiLineText(input.notes, INPUT_LIMITS.notes);
 
-    if (!id || !clientId || !professionalId || !serviceId || !scheduledAt || !status) {
+    if (!userId || !id || !clientId || !professionalId || !serviceId || !scheduledAt || !status) {
       return {
         success: false,
-        message: "Id, cliente, profissional, serviço, horário e status são obrigatórios.",
+        message: "Usuário autenticado, id, cliente, profissional, serviço, horário e status são obrigatórios.",
         statusCode: 400,
       };
     }
@@ -86,7 +87,7 @@ export class UpdateAppointmentService {
     }
 
     try {
-      const appointment = await this.appointmentRepository.update(id, {
+      const appointment = await this.appointmentRepository.update(userId, id, {
         clientId,
         professionalId,
         serviceId,
@@ -135,4 +136,3 @@ export class UpdateAppointmentService {
     return VALID_STATUSES.includes(status);
   }
 }
-

@@ -32,7 +32,7 @@ type CreateClientServiceResult =
 export class CreateClientService {
   constructor(private readonly clientRepository: ClientRepository) {}
 
-  public async execute(input: CreateClientRequestDto): Promise<CreateClientServiceResult> {
+  public async execute(userId: number, input: CreateClientRequestDto): Promise<CreateClientServiceResult> {
     const name = normalizeSingleLineText(input.name, INPUT_LIMITS.clientName);
     const email = input.email?.trim().toLowerCase() ?? "";
     const phone = normalizePhone(input.phone);
@@ -88,7 +88,7 @@ export class CreateClientService {
     }
 
     try {
-      const createdClient = await this.clientRepository.create({
+      const createdClient = await this.clientRepository.create(userId, {
         name,
         email,
         phone,
@@ -116,4 +116,3 @@ export class CreateClientService {
     }
   }
 }
-

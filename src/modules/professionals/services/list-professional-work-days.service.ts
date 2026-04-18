@@ -19,16 +19,19 @@ type ListProfessionalWorkDaysServiceResult =
 export class ListProfessionalWorkDaysService {
   constructor(private readonly professionalRepository: ProfessionalRepository) {}
 
-  public async execute(professionalId: number): Promise<ListProfessionalWorkDaysServiceResult> {
-    if (!professionalId) {
+  public async execute(
+    userId: number,
+    professionalId: number,
+  ): Promise<ListProfessionalWorkDaysServiceResult> {
+    if (!userId || !professionalId) {
       return {
         success: false,
-        message: "Id do profissional é obrigatório.",
+        message: "Usuário autenticado e id do profissional são obrigatórios.",
         statusCode: 400,
       };
     }
 
-    const workDays = await this.professionalRepository.findWorkDaysByProfessionalId(professionalId);
+    const workDays = await this.professionalRepository.findWorkDaysByProfessionalId(userId, professionalId);
 
     if (workDays === null) {
       return {
@@ -46,4 +49,3 @@ export class ListProfessionalWorkDaysService {
     };
   }
 }
-

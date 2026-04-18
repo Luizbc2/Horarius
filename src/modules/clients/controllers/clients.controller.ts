@@ -7,6 +7,7 @@ import { DeleteClientService } from "../services/delete-client.service";
 import { GetClientService } from "../services/get-client.service";
 import { ListClientsService } from "../services/list-clients.service";
 import { UpdateClientService } from "../services/update-client.service";
+import { getAuthenticatedUserId } from "../../auth/utils/auth-request.util";
 import { asNumber, asRequestBody, asString } from "../../../shared/http/request-parser";
 
 const clientRepository = new SequelizeClientRepository();
@@ -14,8 +15,14 @@ const clientRepository = new SequelizeClientRepository();
 export class ClientsController {
   public async getById(request: Request, response: Response): Promise<Response> {
     const getClientService = new GetClientService(clientRepository);
+    const authenticatedUserId = getAuthenticatedUserId(request);
+
+    if (!authenticatedUserId) {
+      return this.sendFailure(response, 401, "Usuário autenticado é obrigatório.");
+    }
+
     const id = Number(request.params.id);
-    const result = await getClientService.execute(id);
+    const result = await getClientService.execute(authenticatedUserId, id);
 
     if (!result.success) {
       return this.sendFailure(response, result.statusCode, result.message);
@@ -26,20 +33,32 @@ export class ClientsController {
 
   public async list(request: Request, response: Response): Promise<Response> {
     const listClientsService = new ListClientsService(clientRepository);
+    const authenticatedUserId = getAuthenticatedUserId(request);
+
+    if (!authenticatedUserId) {
+      return this.sendFailure(response, 401, "Usuário autenticado é obrigatório.");
+    }
+
     const query: ListClientsQueryDto = {
       page: asNumber(request.query.page),
       limit: asNumber(request.query.limit),
       search: asString(request.query.search),
     };
 
-    const result = await listClientsService.execute(query);
+    const result = await listClientsService.execute(authenticatedUserId, query);
 
     return response.status(200).json(result.data);
   }
 
   public async create(request: Request, response: Response): Promise<Response> {
     const createClientService = new CreateClientService(clientRepository);
-    const result = await createClientService.execute(this.buildClientPayload(request));
+    const authenticatedUserId = getAuthenticatedUserId(request);
+
+    if (!authenticatedUserId) {
+      return this.sendFailure(response, 401, "Usuário autenticado é obrigatório.");
+    }
+
+    const result = await createClientService.execute(authenticatedUserId, this.buildClientPayload(request));
 
     if (!result.success) {
       return this.sendFailure(response, result.statusCode, result.message);
@@ -50,8 +69,14 @@ export class ClientsController {
 
   public async update(request: Request, response: Response): Promise<Response> {
     const updateClientService = new UpdateClientService(clientRepository);
+    const authenticatedUserId = getAuthenticatedUserId(request);
+
+    if (!authenticatedUserId) {
+      return this.sendFailure(response, 401, "Usuário autenticado é obrigatório.");
+    }
+
     const id = Number(request.params.id);
-    const result = await updateClientService.execute(id, this.buildClientPayload(request));
+    const result = await updateClientService.execute(authenticatedUserId, id, this.buildClientPayload(request));
 
     if (!result.success) {
       return this.sendFailure(response, result.statusCode, result.message);
@@ -62,8 +87,14 @@ export class ClientsController {
 
   public async delete(request: Request, response: Response): Promise<Response> {
     const deleteClientService = new DeleteClientService(clientRepository);
+    const authenticatedUserId = getAuthenticatedUserId(request);
+
+    if (!authenticatedUserId) {
+      return this.sendFailure(response, 401, "Usuário autenticado é obrigatório.");
+    }
+
     const id = Number(request.params.id);
-    const result = await deleteClientService.execute(id);
+    const result = await deleteClientService.execute(authenticatedUserId, id);
 
     if (!result.success) {
       return this.sendFailure(response, result.statusCode, result.message);

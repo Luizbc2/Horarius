@@ -11,9 +11,13 @@ export type ListAppointmentsRepositoryResult = {
 };
 
 export interface AppointmentRepository {
-  findById(id: number): Promise<AppointmentDto | null>;
-  list(query: Required<Pick<ListAppointmentsQueryDto, "page" | "limit">> & Omit<ListAppointmentsQueryDto, "page" | "limit">): Promise<ListAppointmentsRepositoryResult>;
-  create(input: CreateAppointmentRequestDto): Promise<AppointmentDto>;
-  update(id: number, input: UpdateAppointmentRequestDto): Promise<AppointmentDto | null>;
-  delete(id: number): Promise<boolean>;
+  findById(userId: number, id: number): Promise<AppointmentDto | null>;
+  list(
+    userId: number,
+    query: Required<Pick<ListAppointmentsQueryDto, "page" | "limit">> &
+      Omit<ListAppointmentsQueryDto, "page" | "limit">,
+  ): Promise<ListAppointmentsRepositoryResult>;
+  create(userId: number, input: CreateAppointmentRequestDto): Promise<AppointmentDto>;
+  update(userId: number, id: number, input: UpdateAppointmentRequestDto): Promise<AppointmentDto | null>;
+  delete(userId: number, id: number): Promise<boolean>;
 }

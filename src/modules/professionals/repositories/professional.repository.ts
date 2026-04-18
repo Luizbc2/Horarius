@@ -13,14 +13,21 @@ export type ListProfessionalsRepositoryResult = {
 };
 
 export interface ProfessionalRepository {
-  findById(id: number): Promise<ProfessionalDto | null>;
-  findWorkDaysByProfessionalId(professionalId: number): Promise<ProfessionalWorkDayDto[] | null>;
-  list(query: Required<ListProfessionalsQueryDto> & { limit: number }): Promise<ListProfessionalsRepositoryResult>;
-  create(input: CreateProfessionalRequestDto): Promise<ProfessionalDto>;
-  update(id: number, input: UpdateProfessionalRequestDto): Promise<ProfessionalDto | null>;
+  findById(userId: number, id: number): Promise<ProfessionalDto | null>;
+  findWorkDaysByProfessionalId(
+    userId: number,
+    professionalId: number,
+  ): Promise<ProfessionalWorkDayDto[] | null>;
+  list(
+    userId: number,
+    query: Required<ListProfessionalsQueryDto> & { limit: number },
+  ): Promise<ListProfessionalsRepositoryResult>;
+  create(userId: number, input: CreateProfessionalRequestDto): Promise<ProfessionalDto>;
+  update(userId: number, id: number, input: UpdateProfessionalRequestDto): Promise<ProfessionalDto | null>;
   replaceWorkDays(
+    userId: number,
     professionalId: number,
     workDays: ProfessionalWorkDayInputDto[],
   ): Promise<ProfessionalWorkDayDto[] | null>;
-  delete(id: number): Promise<boolean>;
+  delete(userId: number, id: number): Promise<boolean>;
 }

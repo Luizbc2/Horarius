@@ -6,6 +6,7 @@ import { CreateAppointmentService } from "../services/create-appointment.service
 import { DeleteAppointmentService } from "../services/delete-appointment.service";
 import { ListAppointmentsService } from "../services/list-appointments.service";
 import { UpdateAppointmentService } from "../services/update-appointment.service";
+import { getAuthenticatedUserId } from "../../auth/utils/auth-request.util";
 import {
   asNumber,
   asRequestBody,
@@ -18,14 +19,29 @@ const appointmentRepository = new SequelizeAppointmentRepository();
 export class AppointmentsController {
   public async list(request: Request, response: Response): Promise<Response> {
     const listAppointmentsService = new ListAppointmentsService(appointmentRepository);
-    const result = await listAppointmentsService.execute(this.buildListQuery(request));
+    const authenticatedUserId = getAuthenticatedUserId(request);
+
+    if (!authenticatedUserId) {
+      return this.sendFailure(response, 401, "Usuário autenticado é obrigatório.");
+    }
+
+    const result = await listAppointmentsService.execute(authenticatedUserId, this.buildListQuery(request));
 
     return response.status(200).json(result.data);
   }
 
   public async create(request: Request, response: Response): Promise<Response> {
     const createAppointmentService = new CreateAppointmentService(appointmentRepository);
-    const result = await createAppointmentService.execute(this.buildAppointmentPayload(request));
+    const authenticatedUserId = getAuthenticatedUserId(request);
+
+    if (!authenticatedUserId) {
+      return this.sendFailure(response, 401, "Usuário autenticado é obrigatório.");
+    }
+
+    const result = await createAppointmentService.execute(
+      authenticatedUserId,
+      this.buildAppointmentPayload(request),
+    );
 
     if (!result.success) {
       return this.sendFailure(response, result.statusCode, result.message);
@@ -36,8 +52,18 @@ export class AppointmentsController {
 
   public async update(request: Request, response: Response): Promise<Response> {
     const updateAppointmentService = new UpdateAppointmentService(appointmentRepository);
+    const authenticatedUserId = getAuthenticatedUserId(request);
+
+    if (!authenticatedUserId) {
+      return this.sendFailure(response, 401, "Usuário autenticado é obrigatório.");
+    }
+
     const id = Number(request.params.id);
-    const result = await updateAppointmentService.execute(id, this.buildAppointmentPayload(request));
+    const result = await updateAppointmentService.execute(
+      authenticatedUserId,
+      id,
+      this.buildAppointmentPayload(request),
+    );
 
     if (!result.success) {
       return this.sendFailure(response, result.statusCode, result.message);
@@ -48,8 +74,14 @@ export class AppointmentsController {
 
   public async delete(request: Request, response: Response): Promise<Response> {
     const deleteAppointmentService = new DeleteAppointmentService(appointmentRepository);
+    const authenticatedUserId = getAuthenticatedUserId(request);
+
+    if (!authenticatedUserId) {
+      return this.sendFailure(response, 401, "Usuário autenticado é obrigatório.");
+    }
+
     const id = Number(request.params.id);
-    const result = await deleteAppointmentService.execute(id);
+    const result = await deleteAppointmentService.execute(authenticatedUserId, id);
 
     if (!result.success) {
       return this.sendFailure(response, result.statusCode, result.message);

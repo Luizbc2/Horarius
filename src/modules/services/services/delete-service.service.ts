@@ -18,16 +18,16 @@ type DeleteServiceServiceResult =
 export class DeleteServiceService {
   constructor(private readonly serviceRepository: ServiceRepository) {}
 
-  public async execute(id: number): Promise<DeleteServiceServiceResult> {
-    if (!id) {
+  public async execute(userId: number, id: number): Promise<DeleteServiceServiceResult> {
+    if (!userId || !id) {
       return {
         success: false,
-        message: "Id do serviço é obrigatório.",
+        message: "Usuário autenticado e id do serviço são obrigatórios.",
         statusCode: 400,
       };
     }
 
-    const deleted = await this.serviceRepository.delete(id);
+    const deleted = await this.serviceRepository.delete(userId, id);
 
     if (!deleted) {
       return {
@@ -45,4 +45,3 @@ export class DeleteServiceService {
     };
   }
 }
-

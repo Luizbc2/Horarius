@@ -34,7 +34,10 @@ const VALID_STATUSES: AppointmentStatus[] = ["confirmado", "pendente", "cancelad
 export class CreateAppointmentService {
   constructor(private readonly appointmentRepository: AppointmentRepository) {}
 
-  public async execute(input: CreateAppointmentRequestDto): Promise<CreateAppointmentServiceResult> {
+  public async execute(
+    userId: number,
+    input: CreateAppointmentRequestDto,
+  ): Promise<CreateAppointmentServiceResult> {
     const clientId = Number(input.clientId);
     const professionalId = Number(input.professionalId);
     const serviceId = Number(input.serviceId);
@@ -83,7 +86,7 @@ export class CreateAppointmentService {
     }
 
     try {
-      const appointment = await this.appointmentRepository.create({
+      const appointment = await this.appointmentRepository.create(userId, {
         clientId,
         professionalId,
         serviceId,
@@ -124,4 +127,3 @@ export class CreateAppointmentService {
     return VALID_STATUSES.includes(status);
   }
 }
-

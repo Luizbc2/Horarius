@@ -23,7 +23,10 @@ const DEFAULT_LIMIT = 6;
 export class ListAppointmentsService {
   constructor(private readonly appointmentRepository: AppointmentRepository) {}
 
-  public async execute(query: ListAppointmentsQueryDto): Promise<ListAppointmentsServiceResult> {
+  public async execute(
+    userId: number,
+    query: ListAppointmentsQueryDto,
+  ): Promise<ListAppointmentsServiceResult> {
     const page = this.normalizePositiveNumber(query.page, DEFAULT_PAGE);
     const limit = this.normalizePositiveNumber(query.limit, DEFAULT_LIMIT);
     const professionalId = query.professionalId
@@ -36,7 +39,7 @@ export class ListAppointmentsService {
       | "cancelado"
       | undefined;
 
-    const { appointments, totalItems } = await this.appointmentRepository.list({
+    const { appointments, totalItems } = await this.appointmentRepository.list(userId, {
       page,
       limit,
       date,

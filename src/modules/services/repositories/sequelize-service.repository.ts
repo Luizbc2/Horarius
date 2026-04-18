@@ -15,8 +15,13 @@ type ListServicesInput = {
 };
 
 export class SequelizeServiceRepository implements ServiceRepository {
-  public async findById(id: number): Promise<ServiceDto | null> {
-    const service = await ServiceModel.findByPk(id);
+  public async findById(userId: number, id: number): Promise<ServiceDto | null> {
+    const service = await ServiceModel.findOne({
+      where: {
+        id,
+        userId,
+      },
+    });
 
     if (!service) {
       return null;
@@ -25,33 +30,36 @@ export class SequelizeServiceRepository implements ServiceRepository {
     return this.toServiceDto(service);
   }
 
-  public async list(query: ListServicesInput): Promise<ListServicesRepositoryResult> {
+  public async list(userId: number, query: ListServicesInput): Promise<ListServicesRepositoryResult> {
     const page = Math.max(1, query.page);
     const limit = Math.max(1, query.limit);
     const search = query.search.trim().toLowerCase();
 
     const { rows, count } = await ServiceModel.findAndCountAll({
-      where: search
-        ? {
-            [Op.or]: [
-              {
-                name: {
-                  [Op.iLike]: `%${search}%`,
+      where: {
+        userId,
+        ...(search
+          ? {
+              [Op.or]: [
+                {
+                  name: {
+                    [Op.iLike]: `%${search}%`,
+                  },
                 },
-              },
-              {
-                category: {
-                  [Op.iLike]: `%${search}%`,
+                {
+                  category: {
+                    [Op.iLike]: `%${search}%`,
+                  },
                 },
-              },
-              {
-                description: {
-                  [Op.iLike]: `%${search}%`,
+                {
+                  description: {
+                    [Op.iLike]: `%${search}%`,
+                  },
                 },
-              },
-            ],
-          }
-        : undefined,
+              ],
+            }
+          : {}),
+      },
       limit,
       offset: (page - 1) * limit,
       order: [["createdAt", "DESC"]],
@@ -63,8 +71,9 @@ export class SequelizeServiceRepository implements ServiceRepository {
     };
   }
 
-  public async create(input: CreateServiceRequestDto): Promise<ServiceDto> {
+  public async create(userId: number, input: CreateServiceRequestDto): Promise<ServiceDto> {
     const service = await ServiceModel.create({
+      userId,
       name: input.name,
       category: input.category,
       durationMinutes: input.durationMinutes,
@@ -75,8 +84,13 @@ export class SequelizeServiceRepository implements ServiceRepository {
     return this.toServiceDto(service);
   }
 
-  public async update(id: number, input: UpdateServiceRequestDto): Promise<ServiceDto | null> {
-    const service = await ServiceModel.findByPk(id);
+  public async update(userId: number, id: number, input: UpdateServiceRequestDto): Promise<ServiceDto | null> {
+    const service = await ServiceModel.findOne({
+      where: {
+        id,
+        userId,
+      },
+    });
 
     if (!service) {
       return null;
@@ -93,10 +107,11 @@ export class SequelizeServiceRepository implements ServiceRepository {
     return this.toServiceDto(service);
   }
 
-  public async delete(id: number): Promise<boolean> {
+  public async delete(userId: number, id: number): Promise<boolean> {
     const deletedCount = await ServiceModel.destroy({
       where: {
         id,
+        userId,
       },
     });
 

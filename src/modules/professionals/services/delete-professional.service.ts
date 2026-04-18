@@ -18,16 +18,16 @@ type DeleteProfessionalServiceResult =
 export class DeleteProfessionalService {
   constructor(private readonly professionalRepository: ProfessionalRepository) {}
 
-  public async execute(id: number): Promise<DeleteProfessionalServiceResult> {
-    if (!id) {
+  public async execute(userId: number, id: number): Promise<DeleteProfessionalServiceResult> {
+    if (!userId || !id) {
       return {
         success: false,
-        message: "Id do profissional é obrigatório.",
+        message: "Usuário autenticado e id do profissional são obrigatórios.",
         statusCode: 400,
       };
     }
 
-    const deleted = await this.professionalRepository.delete(id);
+    const deleted = await this.professionalRepository.delete(userId, id);
 
     if (!deleted) {
       return {
@@ -45,4 +45,3 @@ export class DeleteProfessionalService {
     };
   }
 }
-
