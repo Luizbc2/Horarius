@@ -1,3 +1,4 @@
+import pg from "pg";
 import { Sequelize, type Options } from "sequelize";
 
 import { env } from "./env";
@@ -24,6 +25,7 @@ class Database {
       const sharedOptions: Options = {
         dialect: "postgres",
         logging: false,
+        dialectModule: pg,
       };
 
       if (env.database.ssl) {
