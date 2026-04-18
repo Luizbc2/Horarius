@@ -120,10 +120,11 @@ export class App {
 
       try {
         await prepareBackend();
-        next();
       } catch (error) {
-        next(error);
+        console.error("Backend preparation failed.", error);
       }
+
+      next();
     });
     this.server.use(express.json());
   }
