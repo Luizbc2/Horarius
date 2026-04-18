@@ -1,6 +1,7 @@
 import cors from "cors";
 import express, { Express } from "express";
 
+import { prepareBackend } from "./bootstrap";
 import { env } from "./config/env";
 import { HealthController } from "./controllers/health.controller";
 import { router } from "./routes";
@@ -94,6 +95,14 @@ export class App {
         },
       })
     );
+    this.server.use(async (_request, _response, next) => {
+      try {
+        await prepareBackend();
+        next();
+      } catch (error) {
+        next(error);
+      }
+    });
     this.server.use(express.json());
   }
 
@@ -101,6 +110,12 @@ export class App {
     this.server.get("/", (request, response) => this.healthController.check(request, response));
     this.server.get("/health", (request, response) => this.healthController.check(request, response));
     this.server.use("/api", router);
+    this.server.use((error: unknown, _request: express.Request, response: express.Response, _next: express.NextFunction) => {
+      console.error("Unhandled backend error.", error);
+      response.status(500).json({
+        message: "Internal server error",
+      });
+    });
   }
 }
 
