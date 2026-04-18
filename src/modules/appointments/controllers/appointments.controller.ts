@@ -6,6 +6,9 @@ import { CreateAppointmentService } from "../services/create-appointment.service
 import { DeleteAppointmentService } from "../services/delete-appointment.service";
 import { ListAppointmentsService } from "../services/list-appointments.service";
 import { UpdateAppointmentService } from "../services/update-appointment.service";
+import { SequelizeClientRepository } from "../../clients/repositories/sequelize-client.repository";
+import { SequelizeProfessionalRepository } from "../../professionals/repositories/sequelize-professional.repository";
+import { SequelizeServiceRepository } from "../../services/repositories/sequelize-service.repository";
 import { getAuthenticatedUserId } from "../../auth/utils/auth-request.util";
 import {
   asNumber,
@@ -15,6 +18,9 @@ import {
 } from "../../../shared/http/request-parser";
 
 const appointmentRepository = new SequelizeAppointmentRepository();
+const clientRepository = new SequelizeClientRepository();
+const professionalRepository = new SequelizeProfessionalRepository();
+const serviceRepository = new SequelizeServiceRepository();
 
 export class AppointmentsController {
   public async list(request: Request, response: Response): Promise<Response> {
@@ -31,7 +37,12 @@ export class AppointmentsController {
   }
 
   public async create(request: Request, response: Response): Promise<Response> {
-    const createAppointmentService = new CreateAppointmentService(appointmentRepository);
+    const createAppointmentService = new CreateAppointmentService(
+      appointmentRepository,
+      clientRepository,
+      professionalRepository,
+      serviceRepository,
+    );
     const authenticatedUserId = getAuthenticatedUserId(request);
 
     if (!authenticatedUserId) {
@@ -51,7 +62,12 @@ export class AppointmentsController {
   }
 
   public async update(request: Request, response: Response): Promise<Response> {
-    const updateAppointmentService = new UpdateAppointmentService(appointmentRepository);
+    const updateAppointmentService = new UpdateAppointmentService(
+      appointmentRepository,
+      clientRepository,
+      professionalRepository,
+      serviceRepository,
+    );
     const authenticatedUserId = getAuthenticatedUserId(request);
 
     if (!authenticatedUserId) {

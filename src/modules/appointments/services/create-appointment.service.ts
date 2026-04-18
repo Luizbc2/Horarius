@@ -12,6 +12,9 @@ import {
   normalizeMultiLineText,
 } from "../../../shared/utils/input-validation.util";
 import { AppointmentRepository } from "../repositories/appointment.repository";
+import { ClientRepository } from "../../clients/repositories/client.repository";
+import { ProfessionalRepository } from "../../professionals/repositories/professional.repository";
+import { ServiceRepository } from "../../services/repositories/service.repository";
 
 type CreateAppointmentResponseDto = {
   appointment: AppointmentDto;
@@ -32,7 +35,12 @@ type CreateAppointmentServiceResult =
 const VALID_STATUSES: AppointmentStatus[] = ["confirmado", "pendente", "cancelado"];
 
 export class CreateAppointmentService {
-  constructor(private readonly appointmentRepository: AppointmentRepository) {}
+  constructor(
+    private readonly appointmentRepository: AppointmentRepository,
+    private readonly clientRepository: ClientRepository,
+    private readonly professionalRepository: ProfessionalRepository,
+    private readonly serviceRepository: ServiceRepository,
+  ) {}
 
   public async execute(
     userId: number,
@@ -85,6 +93,17 @@ export class CreateAppointmentService {
       };
     }
 
+    const relatedEntityValidation = await this.validateRelatedEntities(
+      userId,
+      clientId,
+      professionalId,
+      serviceId,
+    );
+
+    if (relatedEntityValidation) {
+      return relatedEntityValidation;
+    }
+
     try {
       const appointment = await this.appointmentRepository.create(userId, {
         clientId,
@@ -125,5 +144,28 @@ export class CreateAppointmentService {
 
   private isValidStatus(status: AppointmentStatus): boolean {
     return VALID_STATUSES.includes(status);
+  }
+
+  private async validateRelatedEntities(
+    userId: number,
+    clientId: number,
+    professionalId: number,
+    serviceId: number,
+  ): Promise<CreateAppointmentServiceResult | null> {
+    const [client, professional, service] = await Promise.all([
+      this.clientRepository.findById(userId, clientId),
+      this.professionalRepository.findById(userId, professionalId),
+      this.serviceRepository.findById(userId, serviceId),
+    ]);
+
+    if (!client || !professional || !service) {
+      return {
+        success: false,
+        message: "Cliente, profissional ou serviço não encontrado para a conta autenticada.",
+        statusCode: 400,
+      };
+    }
+
+    return null;
   }
 }
