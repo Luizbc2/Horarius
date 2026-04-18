@@ -63,7 +63,7 @@ npm start
 
 - use este projeto como um projeto separado dentro do monorepo, com `Root Directory` em `Backend-Horarius`
 - o endpoint base publicado continuara em `/api`, por exemplo `https://seu-backend.vercel.app/api/health`
-- a raiz do projeto no Vercel agora reescreve `/` e `/health` para `/api/health`, evitando `404` ao abrir o link principal do backend
+- o Vercel reescreve todas as requisicoes para a funcao Express em `api/index.ts`, evitando `404` por roteamento do projeto
 - para Postgres gerenciado, prefira `DATABASE_URL`
 - ative `DB_SSL=true` quando o provedor exigir SSL
 - em producao, deixe `DB_AUTO_SYNC=false` para evitar `sync({ alter: true })` em toda inicializacao
