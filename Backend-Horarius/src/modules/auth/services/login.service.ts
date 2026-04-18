@@ -59,12 +59,10 @@ export class LoginService {
 
     try {
       user = await this.userRepository.findByEmail(email);
-    } catch (error) {
-      const databaseErrorMessage = error instanceof Error ? error.message : "Falha desconhecida no acesso ao banco.";
-
+    } catch {
       return {
         success: false,
-        message: `Falha no banco de autenticacao: ${databaseErrorMessage}`,
+        message: "O serviço de autenticação está indisponível no momento.",
         statusCode: 503,
       };
     }

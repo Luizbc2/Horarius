@@ -93,9 +93,7 @@ export class SequelizeUserRepository implements UserRepository {
     await database.connect();
 
     if (!UserModel.sequelize) {
-      throw new Error(
-        "O modelo de usuario nao foi inicializado. Confira DATABASE_URL, DB_SSL e se o backend foi redeployado apos salvar as variaveis no Vercel.",
-      );
+      throw new Error("Authentication model is not initialized.");
     }
   }
 }

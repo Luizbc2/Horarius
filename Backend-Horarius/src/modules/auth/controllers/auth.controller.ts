@@ -23,12 +23,10 @@ export class AuthController {
       return response.status(200).json(result.data);
     } catch (error) {
       console.error("Login request failed.", error);
-      const errorMessage = error instanceof Error ? error.message : "Falha desconhecida ao processar o login.";
 
       return response.status(500).json({
-        message: `Nao foi possivel processar o login agora: ${errorMessage}`
+        message: "Não foi possível processar o login agora."
       });
     }
   }
 }
-
