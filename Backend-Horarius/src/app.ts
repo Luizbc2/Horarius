@@ -8,8 +8,23 @@ import { router } from "./routes";
 
 const isProduction = process.env.NODE_ENV === "production";
 
+const normalizeOrigin = (value: string): string => {
+  const trimmedValue = value.trim();
+
+  if (!trimmedValue) {
+    return "";
+  }
+
+  try {
+    const { origin } = new URL(trimmedValue);
+    return origin;
+  } catch {
+    return trimmedValue.replace(/\/+$/, "");
+  }
+};
+
 const buildAllowedOrigins = (): string[] => {
-  const configuredOrigin = env.frontendUrl.trim();
+  const configuredOrigin = normalizeOrigin(env.frontendUrl);
 
   if (!configuredOrigin) {
     return ["http://localhost:5173", "http://127.0.0.1:5173"];
