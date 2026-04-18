@@ -2,10 +2,11 @@ import { CreateUserInputDto } from "../../users/dtos/create-user.dto";
 import { AuthenticatedUser } from "../auth.types";
 import { UserModel } from "../models/user.model";
 import { UpdateUserProfileInput, UserRepository } from "./user.repository";
+import { database } from "../../../config/database";
 
 export class SequelizeUserRepository implements UserRepository {
   public async findById(id: number): Promise<AuthenticatedUser | null> {
-    this.assertModelIsInitialized();
+    await this.ensureModelIsInitialized();
     const user = await UserModel.findByPk(id);
 
     if (!user) {
@@ -16,7 +17,7 @@ export class SequelizeUserRepository implements UserRepository {
   }
 
   public async findByEmail(email: string): Promise<AuthenticatedUser | null> {
-    this.assertModelIsInitialized();
+    await this.ensureModelIsInitialized();
     const user = await UserModel.findOne({
       where: {
         email: email.toLowerCase()
@@ -31,7 +32,7 @@ export class SequelizeUserRepository implements UserRepository {
   }
 
   public async findByCpf(cpf: string): Promise<AuthenticatedUser | null> {
-    this.assertModelIsInitialized();
+    await this.ensureModelIsInitialized();
     const user = await UserModel.findOne({
       where: {
         cpf
@@ -46,7 +47,7 @@ export class SequelizeUserRepository implements UserRepository {
   }
 
   public async create(input: CreateUserInputDto): Promise<AuthenticatedUser> {
-    this.assertModelIsInitialized();
+    await this.ensureModelIsInitialized();
     const user = await UserModel.create({
       name: input.name,
       email: input.email,
@@ -58,7 +59,7 @@ export class SequelizeUserRepository implements UserRepository {
   }
 
   public async updateProfile(id: number, input: UpdateUserProfileInput): Promise<AuthenticatedUser | null> {
-    this.assertModelIsInitialized();
+    await this.ensureModelIsInitialized();
     const user = await UserModel.findByPk(id);
 
     if (!user) {
@@ -84,7 +85,13 @@ export class SequelizeUserRepository implements UserRepository {
     };
   }
 
-  private assertModelIsInitialized(): void {
+  private async ensureModelIsInitialized(): Promise<void> {
+    if (UserModel.sequelize) {
+      return;
+    }
+
+    await database.connect();
+
     if (!UserModel.sequelize) {
       throw new Error(
         "O modelo de usuario nao foi inicializado. Confira DATABASE_URL, DB_SSL e se o backend foi redeployado apos salvar as variaveis no Vercel.",
