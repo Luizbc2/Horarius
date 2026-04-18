@@ -2,6 +2,7 @@ import cors from "cors";
 import express, { Express } from "express";
 
 import { env } from "./config/env";
+import { HealthController } from "./controllers/health.controller";
 import { router } from "./routes";
 
 const isProduction = process.env.NODE_ENV === "production";
@@ -58,9 +59,11 @@ const isPrivateNetworkOrigin = (origin: string): boolean => {
 
 export class App {
   public readonly server: Express;
+  private readonly healthController: HealthController;
 
   constructor() {
     this.server = express();
+    this.healthController = new HealthController();
 
     this.middlewares();
     this.routes();
@@ -95,6 +98,8 @@ export class App {
   }
 
   private routes(): void {
+    this.server.get("/", (request, response) => this.healthController.check(request, response));
+    this.server.get("/health", (request, response) => this.healthController.check(request, response));
     this.server.use("/api", router);
   }
 }
