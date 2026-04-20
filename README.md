@@ -1,7 +1,6 @@
 # Horarius
 
 [![Site](https://img.shields.io/badge/Link-Projeto-7dffb7?style=for-the-badge&logo=vercel&logoColor=0b1510&labelColor=0b1510)](https://horarius.vercel.app/login)
-[![Repositorio](https://img.shields.io/badge/Reposit%C3%B3rio-GitHub-7dffb7?style=for-the-badge&logo=github&logoColor=0b1510&labelColor=0b1510)](https://github.com/Luizbc2/Horarius)
 
 Sistema full stack de agenda com autenticação, painel interno e gerenciamento de clientes, profissionais e serviços. O projeto foi pensado como produto real para organizar a operação do dia a dia.
 
