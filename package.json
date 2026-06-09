@@ -1,0 +1,19 @@
+{
+  "name": "horarius-rubric-delivery",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "prepare": "husky",
+    "compose:up": "docker compose up --build -d",
+    "compose:down": "docker compose down",
+    "compose:logs": "docker compose logs -f",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
+    "@playwright/test": "^1.57.0",
+    "husky": "^9.1.7"
+  }
+}
