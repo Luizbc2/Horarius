@@ -45,9 +45,10 @@ export const env = {
   port: toNumber(process.env.PORT, 3333),
   frontendUrl: normalizeString(process.env.FRONTEND_URL, "http://localhost:5173"),
   database: {
+    dialect: normalizeString(process.env.DB_DIALECT, "postgres"),
     url: normalizeString(process.env.DATABASE_URL, ""),
     host: normalizeString(process.env.DB_HOST, ""),
-    port: toNumber(process.env.DB_PORT, 5432),
+    port: toNumber(process.env.DB_PORT, process.env.DB_DIALECT === "mysql" ? 3306 : 5432),
     name: normalizeString(process.env.DB_NAME, ""),
     user: normalizeString(process.env.DB_USER, ""),
     password: normalizeString(process.env.DB_PASSWORD, ""),

@@ -33,6 +33,17 @@ Backend-Horarius/
 
 ## Como rodar localmente
 
+### Entrega da rubrica 2026 com Docker
+
+```bash
+copy .env.example .env
+npm install
+npm run compose:up
+npm run test:e2e
+```
+
+Para HTTPS local, gere certificados com `mkcert` em `infra/nginx/certs` e cadastre `127.0.0.1 horarius.local` no arquivo de hosts do sistema. O mapeamento completo da rubrica esta em `docs/RUBRICA_2026.md`.
+
 ### Frontend
 
 ```bash
