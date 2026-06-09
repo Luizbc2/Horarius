@@ -1,6 +1,6 @@
 import { defineConfig } from "@playwright/test";
 
-const baseURL = process.env.E2E_BASE_URL || "https://horarius.local";
+const baseURL = process.env.E2E_BASE_URL || "https://horarius.app";
 
 export default defineConfig({
   testDir: "./tests/e2e",
