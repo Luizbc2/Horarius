@@ -1,4 +1,5 @@
 import pg from "pg";
+import mysql2 from "mysql2";
 import { Sequelize, type Options } from "sequelize";
 
 import { env } from "./env";
@@ -22,10 +23,11 @@ class Database {
 
   public getConnection(): Sequelize {
     if (!this.sequelize) {
+      const dialect = env.database.dialect === "mysql" ? "mysql" : "postgres";
       const sharedOptions: Options = {
-        dialect: "postgres",
+        dialect,
         logging: false,
-        dialectModule: pg,
+        dialectModule: dialect === "mysql" ? mysql2 : pg,
       };
 
       if (env.database.ssl) {
@@ -161,7 +163,7 @@ class Database {
     this.initializeModels();
 
     if (!this.isConfigured()) {
-      console.log("Database connection skipped: configure PostgreSQL variables when ready.");
+      console.log("Database connection skipped: configure database variables when ready.");
       return false;
     }
 
