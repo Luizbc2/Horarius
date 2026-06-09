@@ -1,0 +1,6 @@
+.env
+node_modules
+playwright-report
+test-results
+infra/nginx/certs/*
+!infra/nginx/certs/.gitkeep
