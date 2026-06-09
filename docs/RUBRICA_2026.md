@@ -18,7 +18,7 @@ Este documento mapeia os itens da rubrica para os arquivos da entrega atual.
 | --- | --- |
 | Headers de seguranca HTTP | `X-Frame-Options`, `X-Content-Type-Options`, `Content-Security-Policy`, `Referrer-Policy` e `Permissions-Policy` em `infra/nginx/conf.d/horarius.conf`. |
 | Senhas e dados sensiveis | `docker-compose.yml` usa interpolacao `${VAR}` e `env_file`; valores reais ficam no `.env`, ignorado pelo Git. |
-| HTTPS com host customizado | Nginx escuta `443` para `horarius.local` e espera certificados em `infra/nginx/certs`. |
+| HTTPS com host customizado | Nginx escuta `443` para `horarius.app` e espera certificados em `infra/nginx/certs`. |
 | Redirect HTTP para HTTPS | Bloco `server` na porta `80` retorna `301` para `https://$host$request_uri`. |
 | Isolamento via Docker Network | Apenas `nginx` publica portas; `mysql`, `backend` e `frontend` ficam em redes Docker internas. A rede `data` e marcada como `internal`. |
 
@@ -41,17 +41,17 @@ Este documento mapeia os itens da rubrica para os arquivos da entrega atual.
 
 ```bash
 mkcert -install
-mkcert -cert-file infra/nginx/certs/horarius.local.pem -key-file infra/nginx/certs/horarius.local-key.pem horarius.local
+mkcert -cert-file infra/nginx/certs/horarius.app.pem -key-file infra/nginx/certs/horarius.app-key.pem horarius.app
 ```
 
-3. Adicione `127.0.0.1 horarius.local` no arquivo de hosts do sistema.
+3. Adicione `127.0.0.1 horarius.app` no arquivo de hosts do sistema.
 4. Suba a stack:
 
 ```bash
 npm run compose:up
 ```
 
-5. Acesse `https://horarius.local`.
+5. Acesse `https://horarius.app`.
 6. Rode os testes e2e:
 
 ```bash
