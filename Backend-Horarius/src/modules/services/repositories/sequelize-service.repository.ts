@@ -1,5 +1,6 @@
 import { Op } from "sequelize";
 
+import { env } from "../../../config/env";
 import {
   CreateServiceRequestDto,
   ServiceDto,
@@ -34,6 +35,7 @@ export class SequelizeServiceRepository implements ServiceRepository {
     const page = Math.max(1, query.page);
     const limit = Math.max(1, query.limit);
     const search = query.search.trim().toLowerCase();
+    const likeOperator = env.database.dialect === "mysql" ? Op.like : Op.iLike;
 
     const { rows, count } = await ServiceModel.findAndCountAll({
       where: {
@@ -43,17 +45,17 @@ export class SequelizeServiceRepository implements ServiceRepository {
               [Op.or]: [
                 {
                   name: {
-                    [Op.iLike]: `%${search}%`,
+                    [likeOperator]: `%${search}%`,
                   },
                 },
                 {
                   category: {
-                    [Op.iLike]: `%${search}%`,
+                    [likeOperator]: `%${search}%`,
                   },
                 },
                 {
                   description: {
-                    [Op.iLike]: `%${search}%`,
+                    [likeOperator]: `%${search}%`,
                   },
                 },
               ],

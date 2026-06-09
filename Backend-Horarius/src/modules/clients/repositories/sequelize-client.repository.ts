@@ -1,5 +1,6 @@
 import { Op } from "sequelize";
 
+import { env } from "../../../config/env";
 import {
   ClientDto,
   CreateClientRequestDto,
@@ -34,6 +35,7 @@ export class SequelizeClientRepository implements ClientRepository {
     const page = Math.max(1, query.page);
     const limit = Math.max(1, query.limit);
     const search = query.search.trim().toLowerCase();
+    const likeOperator = env.database.dialect === "mysql" ? Op.like : Op.iLike;
 
     const { rows, count } = await ClientModel.findAndCountAll({
       where: {
@@ -43,22 +45,22 @@ export class SequelizeClientRepository implements ClientRepository {
               [Op.or]: [
                 {
                   name: {
-                    [Op.iLike]: `%${search}%`
+                    [likeOperator]: `%${search}%`
                   }
                 },
                 {
                   email: {
-                    [Op.iLike]: `%${search}%`
+                    [likeOperator]: `%${search}%`
                   }
                 },
                 {
                   phone: {
-                    [Op.iLike]: `%${search}%`
+                    [likeOperator]: `%${search}%`
                   }
                 },
                 {
                   notes: {
-                    [Op.iLike]: `%${search}%`
+                    [likeOperator]: `%${search}%`
                   }
                 }
               ]

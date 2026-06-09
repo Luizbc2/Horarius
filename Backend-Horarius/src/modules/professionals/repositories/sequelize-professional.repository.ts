@@ -1,5 +1,6 @@
 import { Op } from "sequelize";
 
+import { env } from "../../../config/env";
 import {
   CreateProfessionalRequestDto,
   ProfessionalWorkDayDto,
@@ -62,6 +63,7 @@ export class SequelizeProfessionalRepository implements ProfessionalRepository {
     const page = Math.max(1, query.page);
     const limit = Math.max(1, query.limit);
     const search = query.search.trim().toLowerCase();
+    const likeOperator = env.database.dialect === "mysql" ? Op.like : Op.iLike;
 
     const { rows, count } = await ProfessionalModel.findAndCountAll({
       where: {
@@ -71,27 +73,27 @@ export class SequelizeProfessionalRepository implements ProfessionalRepository {
               [Op.or]: [
                 {
                   name: {
-                    [Op.iLike]: `%${search}%`,
+                    [likeOperator]: `%${search}%`,
                   },
                 },
                 {
                   email: {
-                    [Op.iLike]: `%${search}%`,
+                    [likeOperator]: `%${search}%`,
                   },
                 },
                 {
                   phone: {
-                    [Op.iLike]: `%${search}%`,
+                    [likeOperator]: `%${search}%`,
                   },
                 },
                 {
                   specialty: {
-                    [Op.iLike]: `%${search}%`,
+                    [likeOperator]: `%${search}%`,
                   },
                 },
                 {
                   status: {
-                    [Op.iLike]: `%${search}%`,
+                    [likeOperator]: `%${search}%`,
                   },
                 },
               ],
