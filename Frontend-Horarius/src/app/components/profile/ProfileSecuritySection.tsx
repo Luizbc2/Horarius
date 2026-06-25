@@ -4,6 +4,7 @@ import { LockKeyhole } from "lucide-react";
 import { SectionCard } from "../PageShell";
 import { Input } from "../ui/input";
 import { FIELD_LIMITS } from "../../lib/field-rules";
+import { PasswordRequirementList } from "../auth/PasswordRequirementList";
 
 type ProfileSecuritySectionProps = {
   password: string;
@@ -45,6 +46,7 @@ export function ProfileSecuritySection({
               maxLength={FIELD_LIMITS.password}
             />
           </div>
+          {password ? <PasswordRequirementList password={password} /> : null}
           {passwordError ? (
             <p className="min-h-[1.25rem] text-sm text-destructive">{passwordError}</p>
           ) : (
