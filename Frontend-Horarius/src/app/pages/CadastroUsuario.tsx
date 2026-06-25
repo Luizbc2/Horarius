@@ -198,22 +198,19 @@ export function CadastroUsuario() {
                   <Input
                     id="signup-password"
                     type="password"
-                  value={formData.password}
-                  onChange={(event) => handleChange("password", event.target.value)}
-                  onFocus={() => setIsPasswordFocused(true)}
-                  onBlur={() => setIsPasswordFocused(false)}
-                  placeholder="Crie uma senha"
-                  className="pl-11"
+                    value={formData.password}
+                    onChange={(event) => handleChange("password", event.target.value)}
+                    onFocus={() => setIsPasswordFocused(true)}
+                    onBlur={() => setIsPasswordFocused(false)}
+                    placeholder="Crie uma senha"
+                    className="pl-11"
                     autoComplete="new-password"
                     aria-invalid={Boolean(formErrors.password)}
                     maxLength={FIELD_LIMITS.password}
                   />
+                </div>
+                {formErrors.password ? <p className="text-sm text-destructive">{formErrors.password}</p> : null}
               </div>
-              {isPasswordFocused || formData.password ? (
-                <PasswordRequirementList password={formData.password} />
-              ) : null}
-              {formErrors.password ? <p className="text-sm text-destructive">{formErrors.password}</p> : null}
-            </div>
 
               <div className="grid gap-2">
                 <label htmlFor="signup-confirm-password">Confirmar senha</label>
@@ -235,6 +232,12 @@ export function CadastroUsuario() {
                   <p className="text-sm text-destructive">{formErrors.confirmPassword}</p>
                 ) : null}
               </div>
+
+              {isPasswordFocused || formData.password ? (
+                <div className="md:col-span-2">
+                  <PasswordRequirementList password={formData.password} />
+                </div>
+              ) : null}
             </div>
 
             {formErrors.submit ? (
