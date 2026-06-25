@@ -42,7 +42,7 @@ describe("UpdateUserProfileService", () => {
       name: "Maria Atualizada",
       email: "maria@horarius.com",
       cpf: "52998224725",
-      password: "Senha123",
+      password: "Senha123!",
     });
 
     expect(result).toEqual({
@@ -72,7 +72,7 @@ describe("UpdateUserProfileService", () => {
       name: "Maria Atualizada",
       email: "outro@horarius.com",
       cpf: "52998224725",
-      password: "Senha123",
+      password: "Senha123!",
     });
 
     expect(result).toEqual({
@@ -102,7 +102,7 @@ describe("UpdateUserProfileService", () => {
       name: "Maria Atualizada",
       email: "maria@horarius.com",
       cpf: "12345678900",
-      password: "Senha123",
+      password: "Senha123!",
     });
 
     expect(result).toEqual({
@@ -132,7 +132,7 @@ describe("UpdateUserProfileService", () => {
       name: "  Maria Atualizada  ",
       email: "maria@horarius.com",
       cpf: "111.444.777-35",
-      password: "Senha123",
+      password: "Senha123!",
     });
 
     expect(result.success).toBe(true);
@@ -147,7 +147,7 @@ describe("UpdateUserProfileService", () => {
       email: "maria@horarius.com",
       cpf: "11144477735",
     });
-    await expect(comparePassword("Senha123", repository.lastUpdatedInput?.password ?? "")).resolves.toBe(true);
+    await expect(comparePassword("Senha123!", repository.lastUpdatedInput?.password ?? "")).resolves.toBe(true);
   });
 });
 
