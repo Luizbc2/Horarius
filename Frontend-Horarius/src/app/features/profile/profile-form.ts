@@ -3,9 +3,12 @@ import {
   FIELD_LIMITS,
   normalizePasswordInput,
   normalizeSingleLineTextInput,
+  validatePasswordStrength,
   validateTextField,
 } from "../../lib/field-rules";
 import type { AuthUser } from "../../lib/auth-storage";
+
+export { validatePasswordStrength } from "../../lib/field-rules";
 
 export type ProfileFormData = {
   name: string;
@@ -56,26 +59,6 @@ export function formatProfileField(field: keyof ProfileFormData, value: string) 
     default:
       return value;
   }
-}
-
-export function validatePasswordStrength(value: string) {
-  if (value.length < 8) {
-    return "Use pelo menos 8 caracteres na senha.";
-  }
-
-  if (!/[A-Z]/.test(value)) {
-    return "Inclua ao menos uma letra maiúscula na senha.";
-  }
-
-  if (!/[a-z]/.test(value)) {
-    return "Inclua ao menos uma letra minúscula na senha.";
-  }
-
-  if (!/\d/.test(value)) {
-    return "Inclua ao menos um número na senha.";
-  }
-
-  return "";
 }
 
 export function validateProfileForm(formData: ProfileFormData) {

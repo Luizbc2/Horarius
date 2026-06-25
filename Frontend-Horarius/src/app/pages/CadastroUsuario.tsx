@@ -3,6 +3,7 @@ import { ArrowRight, CalendarDays, CreditCard, LockKeyhole, Mail, UserRound } fr
 import { Link, useNavigate } from "react-router";
 
 import { AuthShowcasePanel } from "../components/auth/AuthShowcasePanel";
+import { PasswordRequirementList } from "../components/auth/PasswordRequirementList";
 import { Alert, AlertDescription, AlertTitle } from "../components/ui/alert";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -53,6 +54,7 @@ export function CadastroUsuario() {
   const [formData, setFormData] = useState<SignupFormData>(initialSignupFormData);
   const [formErrors, setFormErrors] = useState<SignupFormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isPasswordFocused, setIsPasswordFocused] = useState(false);
 
   const handleChange = (field: keyof SignupFormData, value: string) => {
     const nextValue =
@@ -196,17 +198,22 @@ export function CadastroUsuario() {
                   <Input
                     id="signup-password"
                     type="password"
-                    value={formData.password}
-                    onChange={(event) => handleChange("password", event.target.value)}
-                    placeholder="Crie uma senha"
-                    className="pl-11"
+                  value={formData.password}
+                  onChange={(event) => handleChange("password", event.target.value)}
+                  onFocus={() => setIsPasswordFocused(true)}
+                  onBlur={() => setIsPasswordFocused(false)}
+                  placeholder="Crie uma senha"
+                  className="pl-11"
                     autoComplete="new-password"
                     aria-invalid={Boolean(formErrors.password)}
                     maxLength={FIELD_LIMITS.password}
                   />
-                </div>
-                {formErrors.password ? <p className="text-sm text-destructive">{formErrors.password}</p> : null}
               </div>
+              {isPasswordFocused || formData.password ? (
+                <PasswordRequirementList password={formData.password} />
+              ) : null}
+              {formErrors.password ? <p className="text-sm text-destructive">{formErrors.password}</p> : null}
+            </div>
 
               <div className="grid gap-2">
                 <label htmlFor="signup-confirm-password">Confirmar senha</label>

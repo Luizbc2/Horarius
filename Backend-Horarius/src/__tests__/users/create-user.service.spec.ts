@@ -27,7 +27,7 @@ describe("CreateUserService", () => {
       name: "Maria",
       email: "maria@horarius.com",
       cpf: "12345678900",
-      password: "Senha123",
+      password: "Senha123!",
     });
 
     expect(result).toEqual({
@@ -72,7 +72,7 @@ describe("CreateUserService", () => {
       name: "Maria 2",
       email: "MARIA@horarius.com",
       cpf: "11144477735",
-      password: "Senha123",
+      password: "Senha123!",
     });
 
     expect(result).toEqual({
@@ -90,7 +90,7 @@ describe("CreateUserService", () => {
       name: "  Maria da Silva  ",
       email: "  MARIA@horarius.com  ",
       cpf: "529.982.247-25",
-      password: "Senha123",
+      password: "Senha123!",
     });
 
     expect(result.success).toBe(true);
@@ -106,7 +106,7 @@ describe("CreateUserService", () => {
       cpf: "52998224725",
     });
     expect(repository.lastCreatedInput).not.toBeNull();
-    expect(repository.lastCreatedInput?.password).not.toBe("Senha123");
+    expect(repository.lastCreatedInput?.password).not.toBe("Senha123!");
     expect(isPasswordHashed(repository.lastCreatedInput?.password ?? "")).toBe(true);
   });
 });
