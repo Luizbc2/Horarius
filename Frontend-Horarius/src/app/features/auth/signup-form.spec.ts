@@ -34,14 +34,14 @@ describe("signup form helpers", () => {
         name: "  Luiz Barbosa  ",
         email: "  LUIZ@EMAIL.COM  ",
         cpf: "529.982.247-25",
-        password: "Senha123",
-        confirmPassword: "Senha123",
+        password: "Senha123!",
+        confirmPassword: "Senha123!",
       }),
     ).toEqual({
       name: "Luiz Barbosa",
       email: "luiz@email.com",
       cpf: "52998224725",
-      password: "Senha123",
+      password: "Senha123!",
     });
   });
 
