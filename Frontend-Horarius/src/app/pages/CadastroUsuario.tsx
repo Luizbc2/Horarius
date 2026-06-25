@@ -3,7 +3,6 @@ import { ArrowRight, CalendarDays, CreditCard, LockKeyhole, Mail, UserRound } fr
 import { Link, useNavigate } from "react-router";
 
 import { AuthShowcasePanel } from "../components/auth/AuthShowcasePanel";
-import { PasswordRequirementList } from "../components/auth/PasswordRequirementList";
 import { Alert, AlertDescription, AlertTitle } from "../components/ui/alert";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -54,7 +53,6 @@ export function CadastroUsuario() {
   const [formData, setFormData] = useState<SignupFormData>(initialSignupFormData);
   const [formErrors, setFormErrors] = useState<SignupFormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isPasswordFocused, setIsPasswordFocused] = useState(false);
 
   const handleChange = (field: keyof SignupFormData, value: string) => {
     const nextValue =
@@ -190,54 +188,46 @@ export function CadastroUsuario() {
               {formErrors.cpf ? <p className="text-sm text-destructive">{formErrors.cpf}</p> : null}
             </div>
 
-            <div className="grid gap-3">
-              <div className="grid items-start gap-4 md:grid-cols-2">
-                <div className="grid gap-2 self-start">
-                  <label htmlFor="signup-password">Senha</label>
-                  <div className="relative">
-                    <LockKeyhole className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                      id="signup-password"
-                      type="password"
-                      value={formData.password}
-                      onChange={(event) => handleChange("password", event.target.value)}
-                      onFocus={() => setIsPasswordFocused(true)}
-                      onBlur={() => setIsPasswordFocused(false)}
-                      placeholder="Crie uma senha"
-                      className="pl-11"
-                      autoComplete="new-password"
-                      aria-invalid={Boolean(formErrors.password)}
-                      maxLength={FIELD_LIMITS.password}
-                    />
-                  </div>
-                  {formErrors.password ? <p className="text-sm text-destructive">{formErrors.password}</p> : null}
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="grid gap-2">
+                <label htmlFor="signup-password">Senha</label>
+                <div className="relative">
+                  <LockKeyhole className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    id="signup-password"
+                    type="password"
+                    value={formData.password}
+                    onChange={(event) => handleChange("password", event.target.value)}
+                    placeholder="Crie uma senha"
+                    className="pl-11"
+                    autoComplete="new-password"
+                    aria-invalid={Boolean(formErrors.password)}
+                    maxLength={FIELD_LIMITS.password}
+                  />
                 </div>
-
-                <div className="grid gap-2 self-start">
-                  <label htmlFor="signup-confirm-password">Confirmar senha</label>
-                  <div className="relative">
-                    <LockKeyhole className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                      id="signup-confirm-password"
-                      type="password"
-                      value={formData.confirmPassword}
-                      onChange={(event) => handleChange("confirmPassword", event.target.value)}
-                      placeholder="Repita a senha"
-                      className="pl-11"
-                      autoComplete="new-password"
-                      aria-invalid={Boolean(formErrors.confirmPassword)}
-                      maxLength={FIELD_LIMITS.password}
-                    />
-                  </div>
-                  {formErrors.confirmPassword ? (
-                    <p className="text-sm text-destructive">{formErrors.confirmPassword}</p>
-                  ) : null}
-                </div>
+                {formErrors.password ? <p className="text-sm text-destructive">{formErrors.password}</p> : null}
               </div>
 
-              {isPasswordFocused || formData.password ? (
-                <PasswordRequirementList password={formData.password} />
-              ) : null}
+              <div className="grid gap-2">
+                <label htmlFor="signup-confirm-password">Confirmar senha</label>
+                <div className="relative">
+                  <LockKeyhole className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    id="signup-confirm-password"
+                    type="password"
+                    value={formData.confirmPassword}
+                    onChange={(event) => handleChange("confirmPassword", event.target.value)}
+                    placeholder="Repita a senha"
+                    className="pl-11"
+                    autoComplete="new-password"
+                    aria-invalid={Boolean(formErrors.confirmPassword)}
+                    maxLength={FIELD_LIMITS.password}
+                  />
+                </div>
+                {formErrors.confirmPassword ? (
+                  <p className="text-sm text-destructive">{formErrors.confirmPassword}</p>
+                ) : null}
+              </div>
             </div>
 
             {formErrors.submit ? (

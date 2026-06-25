@@ -31,7 +31,6 @@ describe("profile form helpers", () => {
   test("validates password strength rules for the profile form", () => {
     expect(validatePasswordStrength("senha123")).toBe("Inclua ao menos uma letra maiúscula na senha.");
     expect(validatePasswordStrength("SenhaForte")).toBe("Inclua ao menos um número na senha.");
-    expect(validatePasswordStrength("Senha123")).toBe("Inclua ao menos um caractere especial na senha.");
   });
 
   test("returns clear errors when the profile form is invalid", () => {

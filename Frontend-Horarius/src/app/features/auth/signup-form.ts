@@ -1,6 +1,6 @@
 import { getApiErrorMessage, isApiErrorWithStatus } from "../../lib/api-error";
 import { normalizeCpf, validateCpf } from "../../lib/cpf";
-import { FIELD_LIMITS, validateEmailField, validatePasswordStrength, validateTextField } from "../../lib/field-rules";
+import { FIELD_LIMITS, validateEmailField, validateTextField } from "../../lib/field-rules";
 import type { SignupRequest } from "../../services/auth";
 import type { ApiErrorInput } from "../../types/http";
 
@@ -58,12 +58,6 @@ export function validateSignupForm(formData: SignupFormData) {
     errors.password = "Informe uma senha.";
   } else if (formData.password.length > FIELD_LIMITS.password) {
     errors.password = `A senha deve ter no máximo ${FIELD_LIMITS.password} caracteres.`;
-  } else {
-    const passwordError = validatePasswordStrength(formData.password);
-
-    if (passwordError) {
-      errors.password = passwordError;
-    }
   }
 
   if (!formData.confirmPassword.trim()) {

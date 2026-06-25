@@ -43,63 +43,6 @@ export function normalizePasswordInput(value: string) {
   return value.slice(0, FIELD_LIMITS.password);
 }
 
-export type PasswordRequirement = {
-  id: "length" | "uppercase" | "lowercase" | "number" | "special";
-  label: string;
-  met: boolean;
-};
-
-export function getPasswordRequirements(value: string): PasswordRequirement[] {
-  return [
-    {
-      id: "length",
-      label: "Pelo menos 8 caracteres",
-      met: value.length >= 8,
-    },
-    {
-      id: "uppercase",
-      label: "Uma letra maiúscula",
-      met: /[A-Z]/.test(value),
-    },
-    {
-      id: "lowercase",
-      label: "Uma letra minúscula",
-      met: /[a-z]/.test(value),
-    },
-    {
-      id: "number",
-      label: "Um número",
-      met: /\d/.test(value),
-    },
-    {
-      id: "special",
-      label: "Um caractere especial",
-      met: /[^A-Za-z0-9]/.test(value),
-    },
-  ];
-}
-
-export function validatePasswordStrength(value: string) {
-  const missingRequirement = getPasswordRequirements(value).find((requirement) => !requirement.met);
-
-  if (!missingRequirement) {
-    return "";
-  }
-
-  switch (missingRequirement.id) {
-    case "length":
-      return "Use pelo menos 8 caracteres na senha.";
-    case "uppercase":
-      return "Inclua ao menos uma letra maiúscula na senha.";
-    case "lowercase":
-      return "Inclua ao menos uma letra minúscula na senha.";
-    case "number":
-      return "Inclua ao menos um número na senha.";
-    case "special":
-      return "Inclua ao menos um caractere especial na senha.";
-  }
-}
-
 export function normalizeDigitsInput(value: string, maxDigits: number) {
   return value.replace(/\D/g, "").slice(0, maxDigits);
 }

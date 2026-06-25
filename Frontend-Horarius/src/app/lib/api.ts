@@ -23,9 +23,7 @@ export class ApiError extends Error {
 
 const buildUrl = (path: string, query?: Record<string, QueryValue>): string => {
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
-  const baseUrl = API_BASE_URL.endsWith("/") ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
-  const origin = typeof window === "undefined" ? "http://localhost" : window.location.origin;
-  const url = new URL(`${baseUrl}${normalizedPath}`, origin);
+  const url = new URL(`${API_BASE_URL}${normalizedPath}`);
 
   if (!query) {
     return url.toString();

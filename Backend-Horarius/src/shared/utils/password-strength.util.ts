@@ -15,9 +15,5 @@ export const validatePasswordStrength = (value: string): string | null => {
     return "A senha deve incluir pelo menos um numero.";
   }
 
-  if (!/[^A-Za-z0-9]/.test(value)) {
-    return "A senha deve incluir pelo menos um caractere especial.";
-  }
-
   return null;
 };

@@ -2,7 +2,7 @@ import { validatePasswordStrength } from "../../shared/utils/password-strength.u
 
 describe("Password strength utils", () => {
   it("aprova uma senha forte", () => {
-    expect(validatePasswordStrength("Senha123!")).toBeNull();
+    expect(validatePasswordStrength("Senha123")).toBeNull();
   });
 
   it("recusa senha curta", () => {
@@ -15,9 +15,5 @@ describe("Password strength utils", () => {
 
   it("recusa senha sem numero", () => {
     expect(validatePasswordStrength("SenhaForte")).toBe("A senha deve incluir pelo menos um numero.");
-  });
-
-  it("recusa senha sem caractere especial", () => {
-    expect(validatePasswordStrength("Senha123")).toBe("A senha deve incluir pelo menos um caractere especial.");
   });
 });
