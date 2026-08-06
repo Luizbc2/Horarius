@@ -17,12 +17,8 @@ const appointments = [
 export function AuthShowcasePanel({ eyebrow, title, description }: AuthShowcasePanelProps) {
   return (
     <section className="hidden min-h-[42rem] overflow-hidden rounded-lg bg-[#8f2449] p-7 text-white lg:grid lg:grid-rows-[auto_1fr] xl:p-9">
-      <div className="flex items-center justify-between">
+      <div>
         <BrandLockup inverse />
-        <div className="flex items-center gap-2 rounded-md border border-white/15 bg-white/10 px-3 py-2 text-xs font-semibold text-white/80">
-          <span className="h-2 w-2 rounded-full bg-[#d7f75b]" />
-          Operação online
-        </div>
       </div>
 
       <div className="mt-10 grid min-h-0 gap-8 xl:grid-cols-[0.72fr_1.28fr] xl:items-center">
