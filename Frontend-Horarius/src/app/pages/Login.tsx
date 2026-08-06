@@ -1,8 +1,9 @@
 import { useState, type FormEvent } from "react";
-import { ArrowRight, CalendarDays, LockKeyhole, Mail, ShieldCheck } from "lucide-react";
+import { ArrowRight, LockKeyhole, Mail } from "lucide-react";
 import { Link, Navigate, useLocation, useNavigate } from "react-router";
 
 import { useAuth } from "../auth/AuthContext";
+import { BrandLockup } from "../components/BrandLockup";
 import { AuthShowcasePanel } from "../components/auth/AuthShowcasePanel";
 import { brand } from "../config/brand";
 import { Alert, AlertDescription, AlertTitle } from "../components/ui/alert";
@@ -20,27 +21,6 @@ type FormErrors = {
   password?: string;
   submit?: string;
 };
-
-const loginFeatures = [
-  {
-    icon: CalendarDays,
-    title: "Agenda em tempo real",
-    description: "Horários, confirmações e disponibilidade em uma visão operacional.",
-    iconClassName: "bg-[#42b8ad] text-[#071b19]",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Operação protegida",
-    description: "Sessão autenticada e dados isolados para sua equipe trabalhar com segurança.",
-    iconClassName: "bg-[#e76f51] text-white",
-  },
-  {
-    icon: LockKeyhole,
-    title: "Gestão sem ruído",
-    description: "Clientes, equipe e serviços conectados ao mesmo fluxo de atendimento.",
-    iconClassName: "bg-[#2563eb] text-white",
-  },
-];
 
 export function Login() {
   const navigate = useNavigate();
@@ -124,32 +104,25 @@ export function Login() {
   };
 
   return (
-    <div className="flex min-h-screen bg-background px-4 py-4 lg:px-6 lg:py-6">
-      <div className="mx-auto grid w-full max-w-[90rem] gap-4 lg:grid-cols-[minmax(0,1.2fr)_28rem]">
+    <div className="flex min-h-screen bg-background px-3 py-3 sm:px-4 sm:py-4 lg:px-5 lg:py-5">
+      <div className="mx-auto grid w-full max-w-[96rem] gap-3 lg:grid-cols-[minmax(0,1.45fr)_27rem]">
         <AuthShowcasePanel
-          eyebrow="Controle da operação"
-          title="Seu dia inteiro, organizado antes do primeiro atendimento."
-          description="Uma central de trabalho feita para equipes que precisam agir rápido, reduzir conflitos de agenda e cuidar melhor de cada cliente."
-          features={loginFeatures}
+          eyebrow="Visão do dia"
+          title="A agenda fala. O Schedra deixa tudo claro."
+          description="Acompanhe o ritmo da equipe, enxergue os espaços livres e mantenha cada atendimento no lugar certo."
         />
 
-        <section className="surface-panel flex flex-col justify-center p-6 lg:p-8">
-          <div className="mb-8 flex items-center gap-3 border-b border-border pb-5 lg:hidden">
-            <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary text-primary-foreground">
-              <CalendarDays className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="font-extrabold text-foreground">{brand.name}</p>
-              <p className="text-xs text-muted-foreground">{brand.descriptor}</p>
-            </div>
+        <section className="surface-panel flex flex-col justify-center px-6 py-8 lg:px-8">
+          <div className="mb-10 border-b border-border pb-5 lg:hidden">
+            <BrandLockup />
           </div>
-          <div className="animate-fade-up animate-fade-up-delay-1">
+          <div>
             <p className="text-[0.72rem] font-semibold uppercase text-muted-foreground">
-              Acesso seguro
+              Área da equipe
             </p>
             <h2 className="mt-3 text-3xl text-foreground">Entrar no {brand.name}</h2>
             <p className="mt-3 text-sm leading-6 text-muted-foreground">
-              Use suas credenciais para acessar o workspace da sua equipe.
+              Entre para continuar de onde sua operação parou.
             </p>
           </div>
 

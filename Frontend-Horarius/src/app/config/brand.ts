@@ -5,11 +5,12 @@ export const brand = {
 } as const;
 
 export const brandColors = {
-  ink: "#172126",
-  canvas: "#F5F7F8",
-  primary: "#0F766E",
-  primaryLight: "#42B8AD",
-  coral: "#E76F51",
-  amber: "#F4A261",
-  blue: "#2563EB",
+  ink: "#181A20",
+  canvas: "#F2F3F6",
+  primary: "#4856F4",
+  primaryDark: "#3542D6",
+  lime: "#D7F75B",
+  coral: "#FF7051",
+  amber: "#F2B84B",
+  violet: "#8B5CF6",
 } as const;

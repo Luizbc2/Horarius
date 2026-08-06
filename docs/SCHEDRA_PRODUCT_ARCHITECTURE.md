@@ -8,13 +8,14 @@ O Schedra é uma plataforma de operação e agenda para negócios de serviços. 
 
 | Token | Valor | Uso |
 | --- | --- | --- |
-| Ink | `#172126` | Texto e hierarquia principal |
-| Canvas | `#F5F7F8` | Fundo da aplicação |
-| Primary | `#0F766E` | Ações e estados ativos |
-| Primary light | `#42B8AD` | Destaques sobre superfícies escuras |
-| Coral | `#E76F51` | Prioridade e comunicação |
-| Amber | `#F4A261` | Atenção e indicadores |
-| Blue | `#2563EB` | Informação e integrações |
+| Ink | `#181A20` | Texto e hierarquia principal |
+| Canvas | `#F2F3F6` | Fundo da aplicação |
+| Cobalt | `#4856F4` | Ações, navegação e estados ativos |
+| Lime | `#D7F75B` | Disponibilidade, confirmação e assinatura da marca |
+| Coral | `#FF7051` | Prioridade e comunicação |
+| Amber | `#F2B84B` | Atenção e indicadores |
+| Violet | `#8B5CF6` | Categorias e visualizações complementares |
+| Charcoal | `#202126` | Navegação lateral e superfícies de contraste |
 
 Os valores exportados em `Frontend-Horarius/src/app/config/brand.ts` são a fonte compartilhável para uma futura biblioteca de design usada pelo app Expo.
 

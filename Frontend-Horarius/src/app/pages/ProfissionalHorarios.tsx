@@ -198,7 +198,7 @@ export function ProfissionalHorarios() {
       }
     >
       <SectionCard className="overflow-hidden p-0" contentClassName="mt-0">
-        <div className="rounded-lg bg-[#11191c] p-6 text-white">
+        <div className="rounded-lg bg-[#4856f4] p-6 text-white">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/20 text-2xl font-semibold">

@@ -57,7 +57,7 @@ export function ProfessionalListCard({
           <span
             className={`inline-flex items-center rounded-md border px-3 py-1 text-xs font-semibold uppercase ${
               hasSchedule
-                ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                ? "border-lime-300 bg-lime-50 text-lime-950"
                 : "border-rose-200 bg-rose-50 text-rose-600"
             }`}
           >
@@ -71,7 +71,7 @@ export function ProfessionalListCard({
         </div>
 
         {hasSchedule ? (
-          <div className="rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-emerald-700">
+          <div className="rounded-md border border-lime-300 bg-lime-50 px-4 py-3 text-lime-950">
             <p className="text-base leading-7">
               A agenda já está configurada e esse profissional pode receber atendimentos normalmente.
             </p>
