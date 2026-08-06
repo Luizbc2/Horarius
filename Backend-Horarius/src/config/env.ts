@@ -56,8 +56,8 @@ export const env = {
     autoSync: toBoolean(process.env.DB_AUTO_SYNC, process.env.NODE_ENV !== "production"),
   },
   authSeedUser: {
-    name: normalizeString(process.env.AUTH_USER_NAME, "Usuario Horarius"),
-    email: normalizeString(process.env.AUTH_USER_EMAIL, "admin@horarius.com"),
+    name: normalizeString(process.env.AUTH_USER_NAME, "Administrador Schedra"),
+    email: normalizeString(process.env.AUTH_USER_EMAIL, "admin@schedra.app"),
     cpf: normalizeString(process.env.AUTH_USER_CPF, "52998224725"),
     password: normalizeString(process.env.AUTH_USER_PASSWORD, "123456"),
   },

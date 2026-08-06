@@ -10,6 +10,7 @@ import { hashPassword, isPasswordHashed } from "../modules/auth/utils/password.u
 import { ServiceModel } from "../modules/services/models/service.model";
 import { ProfessionalModel } from "../modules/professionals/models/professional.model";
 import { ProfessionalWorkDayModel } from "../modules/professionals/models/professional-work-day.model";
+import { initializePlatformModels } from "../platform/models/platform-models";
 
 class Database {
   private sequelize: Sequelize | null = null;
@@ -62,6 +63,7 @@ class Database {
     ProfessionalModel.initialize(this.getConnection());
     ProfessionalWorkDayModel.initialize(this.getConnection());
     AppointmentModel.initialize(this.getConnection());
+    initializePlatformModels(this.getConnection());
 
     UserModel.hasMany(ClientModel, {
       foreignKey: "userId",
