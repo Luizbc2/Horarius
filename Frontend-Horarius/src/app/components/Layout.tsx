@@ -61,6 +61,7 @@ const mobileNavigationItems: NavigationItem[] = [
   { label: "Agenda", path: "/agenda/timeline", icon: Clock3 },
   { label: "Clientes", path: "/clientes", icon: Users },
   { label: "Equipe", path: "/profissionais", icon: Scissors },
+  { label: "Perfil", path: "/perfil", icon: User },
 ];
 
 type SidebarContentProps = {
@@ -288,7 +289,7 @@ export function Layout() {
 
       <nav
         aria-label="Navegação principal mobile"
-        className="fixed inset-x-0 bottom-0 z-40 grid min-h-[4.5rem] grid-cols-3 border-t border-border bg-card/95 px-3 pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_28px_rgba(0,0,0,0.08)] backdrop-blur-xl lg:hidden"
+        className="fixed inset-x-0 bottom-0 z-40 flex min-h-[4.75rem] items-center gap-1 border-t border-border bg-card/95 px-3 pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_28px_rgba(0,0,0,0.08)] backdrop-blur-xl lg:hidden"
       >
         {mobileNavigationItems.map((item) => {
           const Icon = item.icon;
@@ -298,15 +299,17 @@ export function Layout() {
             <Link
               key={item.label}
               to={item.path ?? "/"}
+              aria-label={item.label}
               className={cn(
-                "relative flex min-w-0 flex-col items-center justify-center gap-1 px-2 pt-1 text-[0.64rem] font-semibold transition-colors",
-                active ? "text-primary" : "text-muted-foreground",
+                "flex h-12 min-w-0 items-center justify-center rounded-xl text-sm font-semibold transition-[flex,color,background-color] duration-200",
+                active
+                  ? "flex-[1.65] gap-2.5 bg-primary/12 px-4 text-primary"
+                  : "flex-1 text-muted-foreground hover:bg-muted hover:text-foreground",
               )}
               aria-current={active ? "page" : undefined}
             >
-              {active ? <span className="absolute inset-x-5 top-0 h-0.5 rounded-full bg-primary" /> : null}
-              <Icon className={cn("h-5 w-5", active ? "stroke-[2.2]" : "stroke-[1.8]")} />
-              <span className="truncate">{item.label}</span>
+              <Icon className={cn("h-5 w-5 shrink-0", active ? "stroke-[2.2]" : "stroke-[1.8]")} />
+              {active ? <span className="truncate">{item.label}</span> : null}
             </Link>
           );
         })}
