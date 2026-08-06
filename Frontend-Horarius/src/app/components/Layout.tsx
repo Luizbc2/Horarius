@@ -289,7 +289,7 @@ export function Layout() {
 
       <nav
         aria-label="Navegação principal mobile"
-        className="fixed inset-x-0 bottom-0 z-40 flex min-h-[4.75rem] items-center gap-1 border-t border-border bg-card/95 px-3 pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_28px_rgba(0,0,0,0.08)] backdrop-blur-xl lg:hidden"
+        className="fixed inset-x-0 bottom-0 z-40 box-border flex min-h-[4.75rem] items-center gap-2 overflow-x-clip border-t border-border bg-card/95 px-3 py-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] shadow-[0_-8px_28px_rgba(0,0,0,0.08)] backdrop-blur-xl lg:hidden"
       >
         {mobileNavigationItems.map((item) => {
           const Icon = item.icon;
@@ -301,10 +301,10 @@ export function Layout() {
               to={item.path ?? "/"}
               aria-label={item.label}
               className={cn(
-                "flex h-12 min-w-0 items-center justify-center rounded-xl text-sm font-semibold transition-[flex,color,background-color] duration-200",
+                "flex h-11 min-w-0 items-center justify-center rounded-lg border text-sm font-semibold shadow-sm transition-[flex,color,background-color,border-color,transform] duration-200 active:scale-95",
                 active
-                  ? "flex-[1.65] gap-2.5 bg-primary/12 px-4 text-primary"
-                  : "flex-1 text-muted-foreground hover:bg-muted hover:text-foreground",
+                  ? "flex-[1.65] gap-2.5 border-primary/25 bg-primary/15 px-4 text-primary"
+                  : "flex-1 border-border/80 bg-muted/55 text-muted-foreground hover:border-primary/25 hover:bg-muted hover:text-foreground",
               )}
               aria-current={active ? "page" : undefined}
             >
