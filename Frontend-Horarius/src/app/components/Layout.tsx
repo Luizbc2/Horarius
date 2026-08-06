@@ -1,12 +1,14 @@
 import { useState, type ReactNode } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router";
 import {
-  ChevronLeft,
+  CalendarDays,
   Clock3,
   List,
   LogOut,
   Menu,
   Package,
+  PanelLeftClose,
+  PanelLeftOpen,
   Scissors,
   Sparkles,
   User,
@@ -92,23 +94,24 @@ function SidebarContent({
     const Icon = item.icon;
     const active = item.path ? isActive(item.path) : false;
     const className = cn(
-      "group flex min-h-11 w-full items-center rounded-md border text-sm font-medium transition-colors",
-      isCollapsed ? "justify-center px-2" : "justify-between px-3",
+      "group relative flex min-h-11 w-full items-center text-sm font-medium transition-colors",
+      isCollapsed ? "justify-center rounded-md px-2" : "justify-between rounded-r-md py-2 pl-4 pr-3",
       active
-        ? "border-white/10 bg-white/10 text-white"
-        : "border-transparent text-white/62 hover:bg-white/[0.06] hover:text-white",
+        ? "bg-white/[0.075] text-white"
+        : "text-white/58 hover:bg-white/[0.04] hover:text-white/90",
       item.disabled && "cursor-not-allowed opacity-45",
     );
     const content = (
       <>
-        <span className="flex min-w-0 items-center gap-3">
-          <span className={cn("flex h-8 w-8 shrink-0 items-center justify-center rounded-md", active ? "bg-[#d7f75b] text-[#181a20]" : "bg-white/[0.06] text-white/65")}>
-            <Icon className="h-4 w-4" />
+        {active && !isCollapsed ? <span className="absolute inset-y-2 left-0 w-0.5 rounded-full bg-[#d7f75b]" /> : null}
+        <span className="flex min-w-0 items-center gap-3.5">
+          <span className={cn("flex h-6 w-6 shrink-0 items-center justify-center", active ? "text-[#d7f75b]" : "text-white/48 group-hover:text-white/72")}>
+            <Icon className="h-[1.05rem] w-[1.05rem] stroke-[1.8]" />
           </span>
-          {!isCollapsed ? <span className="truncate">{item.label}</span> : null}
+          {!isCollapsed ? <span className="truncate tracking-[0.01em]">{item.label}</span> : null}
         </span>
         {!isCollapsed && item.badge ? (
-          <span className="rounded border border-white/10 bg-white/[0.06] px-1.5 py-0.5 text-[0.6rem] font-bold uppercase text-white/50">
+          <span className="text-[0.58rem] font-bold uppercase tracking-[0.08em] text-white/32">
             {item.badge}
           </span>
         ) : null}
@@ -125,58 +128,65 @@ function SidebarContent({
   const initials = userName.split(" ").filter(Boolean).slice(0, 2).map((part) => part.charAt(0)).join("") || "SC";
 
   return (
-    <div className={cn("flex h-full flex-col bg-[#202126] py-5 text-white", isCollapsed ? "px-2.5" : "px-4")}>
-      <div className={cn("flex min-h-12 items-center", isCollapsed ? "flex-col gap-3" : "justify-between")}>
+    <div className={cn("flex h-full flex-col bg-[#1d1e22] text-white", isCollapsed ? "px-2.5 py-4" : "px-5 py-6")}>
+      <div className={cn("flex min-h-10 items-start", isCollapsed ? "flex-col items-center gap-3" : "justify-between")}>
         <BrandLockup compact={isCollapsed} inverse />
         {toggleSidebarCollapse ? (
           <button
             type="button"
             onClick={toggleSidebarCollapse}
-            className="flex h-9 w-9 items-center justify-center rounded-md text-white/55 transition-colors hover:bg-white/[0.07] hover:text-white"
+            className="flex h-8 w-8 items-center justify-center rounded-md text-white/38 transition-colors hover:bg-white/[0.06] hover:text-white/85"
             aria-label={isCollapsed ? "Expandir menu lateral" : "Recolher menu lateral"}
           >
-            {isCollapsed ? <Menu className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+            {isCollapsed ? <PanelLeftOpen className="h-[1.05rem] w-[1.05rem]" /> : <PanelLeftClose className="h-[1.05rem] w-[1.05rem]" />}
           </button>
         ) : null}
       </div>
 
       {!isCollapsed ? (
-        <div className="mt-5 border-y border-white/[0.07] py-3">
-          <p className="text-[0.65rem] font-bold uppercase text-white/38">Hoje</p>
-          <p className="mt-1 text-sm capitalize text-white/75">{workspaceDate}</p>
+        <div className="mt-7 flex items-center gap-3 border-b border-white/[0.07] pb-5">
+          <CalendarDays className="h-4 w-4 shrink-0 text-[#d7f75b]" />
+          <div className="min-w-0">
+            <p className="text-[0.58rem] font-bold uppercase tracking-[0.12em] text-white/32">Hoje</p>
+            <p className="mt-0.5 truncate text-[0.78rem] capitalize text-white/68">{workspaceDate}</p>
+          </div>
         </div>
       ) : null}
 
-      <nav className="mt-5 flex-1 space-y-5 overflow-y-auto">
+      <nav className={cn("flex-1 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden", isCollapsed ? "mt-6 space-y-5" : "mt-7 space-y-7")}>
         {navigationGroups.map((group) => (
-          <div key={group.title} className="space-y-1.5">
+          <div key={group.title} className="space-y-2">
             {!isCollapsed ? (
-              <p className="px-3 text-[0.65rem] font-bold uppercase text-white/32">{group.title}</p>
+              <p className="px-4 text-[0.58rem] font-bold uppercase tracking-[0.13em] text-white/28">{group.title}</p>
             ) : null}
-            <div className="space-y-1">{group.items.map(renderNavigationItem)}</div>
+            <div className="space-y-0.5">{group.items.map(renderNavigationItem)}</div>
           </div>
         ))}
       </nav>
 
-      <div className="mt-4 border-t border-white/[0.08] pt-4">
-        <div className={cn("flex items-center", isCollapsed ? "justify-center" : "gap-3 px-2")}>
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-white/[0.08] text-xs font-bold text-[#d7f75b]">{initials}</div>
+      <div className="mt-5 border-t border-white/[0.08] pt-5">
+        <div className={cn("flex items-center", isCollapsed ? "justify-center" : "gap-3")}>
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/[0.045] text-[0.66rem] font-bold text-[#d7f75b]">{initials}</div>
           {!isCollapsed ? (
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-semibold text-white/90">{userName}</p>
-              <p className="truncate text-xs text-white/40">{userEmail}</p>
+              <p className="truncate text-[0.78rem] font-semibold text-white/82">{userName}</p>
+              <p className="mt-0.5 truncate text-[0.68rem] text-white/36">{userEmail}</p>
             </div>
           ) : null}
         </div>
-        <div className={cn("mt-3", isCollapsed ? "flex justify-center" : "px-2")}>
-          <ThemeToggle inverse showLabel={!isCollapsed} />
+        <div className={cn("mt-4 flex items-center", isCollapsed ? "flex-col gap-2" : "gap-1")}>
+          <ThemeToggle inverse showLabel={!isCollapsed} className={cn(!isCollapsed && "flex-1 border-transparent bg-transparent px-2.5 text-white/55 hover:bg-white/[0.05] hover:text-white")} />
+          {withTooltip("Sair", (
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="flex h-10 w-10 items-center justify-center rounded-md text-sm font-medium text-white/42 transition-colors hover:bg-white/[0.05] hover:text-white/80"
+              aria-label="Sair"
+            >
+              <LogOut className="h-4 w-4" />
+            </button>
+          ))}
         </div>
-        {withTooltip("Sair", (
-          <button onClick={handleLogout} className={cn("mt-3 flex min-h-10 w-full items-center rounded-md text-sm font-medium text-white/55 transition-colors hover:bg-white/[0.06] hover:text-white", isCollapsed ? "justify-center" : "justify-center gap-2")}>
-            <LogOut className="h-4 w-4" />
-            {!isCollapsed ? <span>Sair</span> : null}
-          </button>
-        ))}
       </div>
     </div>
   );
@@ -200,7 +210,7 @@ export function Layout() {
 
   return (
     <div className="flex min-h-screen bg-background">
-      <aside className={cn("sticky top-0 hidden h-screen shrink-0 overflow-hidden border-r border-black/10 transition-[width] duration-200 lg:block", sidebarCollapsed ? "w-[4.75rem]" : "w-[17rem]")}>
+      <aside className={cn("sticky top-0 hidden h-screen shrink-0 overflow-hidden border-r border-black/10 transition-[width] duration-200 lg:block", sidebarCollapsed ? "w-[4.5rem]" : "w-[18.5rem]")}>
         <SidebarContent
           isCollapsed={sidebarCollapsed}
           currentPath={currentPath}
@@ -216,7 +226,7 @@ export function Layout() {
       {sidebarOpen ? (
         <>
           <button type="button" aria-label="Fechar menu" className="fixed inset-0 z-40 bg-black/50 lg:hidden" onClick={() => setSidebarOpen(false)} />
-          <aside className="fixed inset-y-0 left-0 z-50 w-[min(17rem,calc(100vw-2rem))] shadow-2xl lg:hidden">
+          <aside className="fixed inset-y-0 left-0 z-50 w-[min(18.5rem,calc(100vw-2rem))] shadow-2xl lg:hidden">
             <SidebarContent
               isCollapsed={false}
               currentPath={currentPath}
