@@ -45,7 +45,7 @@ export function ProfessionalListCard({
   const displayEmail = professional.email || "E-mail não informado";
 
   return (
-    <article className="flex h-full flex-col rounded-lg border border-border bg-white p-5 shadow-sm transition-[border-color,box-shadow] hover:border-primary/20 hover:shadow-md">
+    <article className="flex h-full flex-col rounded-lg border border-border bg-card p-5 shadow-sm transition-[border-color,box-shadow] hover:border-primary/20 hover:shadow-md">
       <div className="space-y-5">
         <div className="flex flex-wrap items-start gap-3">
           <h3 className="max-w-full text-[2rem] font-semibold leading-none text-foreground" title={professional.name}>

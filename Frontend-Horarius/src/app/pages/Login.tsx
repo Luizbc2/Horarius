@@ -4,6 +4,7 @@ import { Link, Navigate, useLocation, useNavigate } from "react-router";
 
 import { useAuth } from "../auth/AuthContext";
 import { BrandLockup } from "../components/BrandLockup";
+import { ThemeToggle } from "../components/ThemeToggle";
 import { AuthShowcasePanel } from "../components/auth/AuthShowcasePanel";
 import { brand } from "../config/brand";
 import { Alert, AlertDescription, AlertTitle } from "../components/ui/alert";
@@ -112,7 +113,8 @@ export function Login() {
           description="Acompanhe o ritmo da equipe, enxergue os espaços livres e mantenha cada atendimento no lugar certo."
         />
 
-        <section className="surface-panel flex flex-col justify-center px-6 py-8 lg:px-8">
+        <section className="surface-panel relative flex flex-col justify-center px-6 py-8 lg:px-8">
+          <ThemeToggle className="absolute right-5 top-5" />
           <div className="mb-10 border-b border-border pb-5 lg:hidden">
             <BrandLockup />
           </div>
@@ -120,7 +122,7 @@ export function Login() {
             <p className="text-[0.72rem] font-semibold uppercase text-muted-foreground">
               Área da equipe
             </p>
-            <h2 className="mt-3 text-3xl text-foreground">Entrar no {brand.name}</h2>
+            <h2 className="mt-3 text-4xl font-medium text-foreground">Entrar no {brand.name}</h2>
             <p className="mt-3 text-sm leading-6 text-muted-foreground">
               Entre para continuar de onde sua operação parou.
             </p>

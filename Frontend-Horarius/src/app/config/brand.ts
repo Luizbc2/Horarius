@@ -6,9 +6,9 @@ export const brand = {
 
 export const brandColors = {
   ink: "#181A20",
-  canvas: "#F2F3F6",
-  primary: "#4856F4",
-  primaryDark: "#3542D6",
+  canvas: "#F3F3F5",
+  primary: "#A72C53",
+  primaryDark: "#842140",
   lime: "#D7F75B",
   coral: "#FF7051",
   amber: "#F2B84B",

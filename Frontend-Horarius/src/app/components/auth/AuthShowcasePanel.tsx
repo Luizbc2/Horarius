@@ -11,12 +11,12 @@ type AuthShowcasePanelProps = {
 const appointments = [
   { time: "09:00", client: "Camila Rocha", service: "Corte + finalização", status: "Confirmado", color: "bg-[#d7f75b]" },
   { time: "10:30", client: "Lucas Martins", service: "Barba completa", status: "Em atendimento", color: "bg-[#ff7051]" },
-  { time: "13:00", client: "Marina Alves", service: "Coloração", status: "Confirmado", color: "bg-[#8b5cf6]" },
+  { time: "13:00", client: "Marina Alves", service: "Coloração", status: "Confirmado", color: "bg-[#2f8f89]" },
 ];
 
 export function AuthShowcasePanel({ eyebrow, title, description }: AuthShowcasePanelProps) {
   return (
-    <section className="hidden min-h-[42rem] overflow-hidden rounded-lg bg-[#4856f4] p-7 text-white lg:grid lg:grid-rows-[auto_1fr] xl:p-9">
+    <section className="hidden min-h-[42rem] overflow-hidden rounded-lg bg-[#8f2449] p-7 text-white lg:grid lg:grid-rows-[auto_1fr] xl:p-9">
       <div className="flex items-center justify-between">
         <BrandLockup inverse />
         <div className="flex items-center gap-2 rounded-md border border-white/15 bg-white/10 px-3 py-2 text-xs font-semibold text-white/80">
@@ -28,16 +28,16 @@ export function AuthShowcasePanel({ eyebrow, title, description }: AuthShowcaseP
       <div className="mt-10 grid min-h-0 gap-8 xl:grid-cols-[0.72fr_1.28fr] xl:items-center">
         <div className="max-w-md self-center">
           <p className="text-xs font-bold uppercase text-[#d7f75b]">{eyebrow}</p>
-          <h1 className="mt-4 text-3xl font-extrabold leading-tight text-white xl:text-4xl">{title}</h1>
+          <h1 className="mt-4 max-w-[13ch] text-4xl font-medium leading-[1.08] text-white xl:text-5xl">{title}</h1>
           <p className="mt-4 text-sm leading-6 text-white/68 xl:text-base xl:leading-7">{description}</p>
           <div className="mt-8 flex items-center gap-5 border-t border-white/15 pt-5">
             <div>
-              <p className="text-2xl font-extrabold">08</p>
+              <p className="font-[var(--font-display)] text-3xl font-medium">08</p>
               <p className="mt-1 text-xs text-white/55">atendimentos hoje</p>
             </div>
             <div className="h-10 w-px bg-white/15" />
             <div>
-              <p className="text-2xl font-extrabold">82%</p>
+              <p className="font-[var(--font-display)] text-3xl font-medium">82%</p>
               <p className="mt-1 text-xs text-white/55">ocupação da equipe</p>
             </div>
           </div>
@@ -47,7 +47,7 @@ export function AuthShowcasePanel({ eyebrow, title, description }: AuthShowcaseP
           <header className="flex items-center justify-between border-b border-black/8 px-5 py-4">
             <div>
               <p className="text-xs font-semibold text-[#6b6f7b]">QUINTA-FEIRA</p>
-              <h2 className="mt-1 text-lg font-extrabold">Agenda de hoje</h2>
+              <h2 className="mt-1 text-2xl font-medium">Agenda de hoje</h2>
             </div>
             <button type="button" aria-label="Mais opções" className="flex h-9 w-9 items-center justify-center rounded-md border border-black/10 bg-white text-[#6b6f7b]">
               <MoreHorizontal className="h-4 w-4" />
@@ -59,7 +59,7 @@ export function AuthShowcasePanel({ eyebrow, title, description }: AuthShowcaseP
               {appointments.map((appointment) => (
                 <div key={appointment.time} className="grid grid-cols-[3.25rem_1fr] gap-3 py-4">
                   <p className="pt-1 text-xs font-bold text-[#6b6f7b]">{appointment.time}</p>
-                  <div className="border-l-2 border-[#4856f4] pl-3">
+                  <div className="border-l-2 border-[#a72c53] pl-3">
                     <div className="flex items-start justify-between gap-2">
                       <div>
                         <p className="text-sm font-bold">{appointment.client}</p>
@@ -67,7 +67,7 @@ export function AuthShowcasePanel({ eyebrow, title, description }: AuthShowcaseP
                       </div>
                       <span className={`mt-1 h-2.5 w-2.5 shrink-0 rounded-full ${appointment.color}`} />
                     </div>
-                    <p className="mt-2 inline-flex items-center gap-1 text-[0.68rem] font-semibold text-[#4856f4]">
+                    <p className="mt-2 inline-flex items-center gap-1 text-[0.68rem] font-semibold text-[#a72c53]">
                       <Check className="h-3 w-3" /> {appointment.status}
                     </p>
                   </div>
@@ -75,7 +75,7 @@ export function AuthShowcasePanel({ eyebrow, title, description }: AuthShowcaseP
               ))}
               <div className="grid grid-cols-[3.25rem_1fr] gap-3 py-4">
                 <p className="pt-1 text-xs font-bold text-[#6b6f7b]">14:30</p>
-                <div className="rounded-md border border-dashed border-[#4856f4]/35 bg-[#4856f4]/5 px-3 py-2 text-xs font-semibold text-[#4856f4]">
+                <div className="rounded-md border border-dashed border-[#a72c53]/35 bg-[#a72c53]/5 px-3 py-2 text-xs font-semibold text-[#a72c53]">
                   Horário disponível
                 </div>
               </div>
@@ -85,7 +85,7 @@ export function AuthShowcasePanel({ eyebrow, title, description }: AuthShowcaseP
               <p className="text-[0.68rem] font-bold uppercase text-[#6b6f7b]">Resumo</p>
               <div className="mt-5 space-y-5">
                 <div>
-                  <CalendarDays className="h-4 w-4 text-[#4856f4]" />
+                  <CalendarDays className="h-4 w-4 text-[#a72c53]" />
                   <p className="mt-2 text-lg font-extrabold">8</p>
                   <p className="text-[0.68rem] text-[#6b6f7b]">agendados</p>
                 </div>
@@ -95,7 +95,7 @@ export function AuthShowcasePanel({ eyebrow, title, description }: AuthShowcaseP
                   <p className="text-[0.68rem] text-[#6b6f7b]">livres</p>
                 </div>
                 <div>
-                  <UserRound className="h-4 w-4 text-[#8b5cf6]" />
+                  <UserRound className="h-4 w-4 text-[#2f8f89]" />
                   <p className="mt-2 text-lg font-extrabold">4</p>
                   <p className="text-[0.68rem] text-[#6b6f7b]">profissionais</p>
                 </div>

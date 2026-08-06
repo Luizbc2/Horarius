@@ -3,6 +3,7 @@ import { ArrowRight, CreditCard, LockKeyhole, Mail, UserRound } from "lucide-rea
 import { Link, useNavigate } from "react-router";
 
 import { BrandLockup } from "../components/BrandLockup";
+import { ThemeToggle } from "../components/ThemeToggle";
 import { AuthShowcasePanel } from "../components/auth/AuthShowcasePanel";
 import { PasswordRequirementList } from "../components/auth/PasswordRequirementList";
 import { Alert, AlertDescription, AlertTitle } from "../components/ui/alert";
@@ -94,7 +95,8 @@ export function CadastroUsuario() {
           description="Crie seu acesso e monte a base da operação que vai acompanhar clientes, equipe e crescimento."
         />
 
-        <section className="surface-panel flex flex-col justify-center px-6 py-8 lg:px-8">
+        <section className="surface-panel relative flex flex-col justify-center px-6 py-8 lg:px-8">
+          <ThemeToggle className="absolute right-5 top-5" />
           <div className="mb-8 border-b border-border pb-5 lg:hidden">
             <BrandLockup />
           </div>
@@ -102,7 +104,7 @@ export function CadastroUsuario() {
             <p className="text-[0.72rem] font-semibold uppercase text-muted-foreground">
               Cadastro
             </p>
-            <h2 className="mt-3 text-3xl text-foreground">Criar conta</h2>
+            <h2 className="mt-3 text-4xl font-medium text-foreground">Criar conta</h2>
             <p className="mt-3 text-sm leading-6 text-muted-foreground">
               Preencha seus dados para liberar seu acesso ao painel.
             </p>

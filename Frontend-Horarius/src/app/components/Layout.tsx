@@ -18,6 +18,7 @@ import {
 import { useAuth } from "../auth/AuthContext";
 import { brand } from "../config/brand";
 import { BrandLockup } from "./BrandLockup";
+import { ThemeToggle } from "./ThemeToggle";
 import { Button } from "./ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import { cn } from "./ui/utils";
@@ -167,6 +168,9 @@ function SidebarContent({
             </div>
           ) : null}
         </div>
+        <div className={cn("mt-3", isCollapsed ? "flex justify-center" : "px-2")}>
+          <ThemeToggle inverse showLabel={!isCollapsed} />
+        </div>
         {withTooltip("Sair", (
           <button onClick={handleLogout} className={cn("mt-3 flex min-h-10 w-full items-center rounded-md text-sm font-medium text-white/55 transition-colors hover:bg-white/[0.06] hover:text-white", isCollapsed ? "justify-center" : "justify-center gap-2")}>
             <LogOut className="h-4 w-4" />
@@ -227,11 +231,14 @@ export function Layout() {
       ) : null}
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-white/95 px-4 lg:hidden">
+        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-card/95 px-4 backdrop-blur lg:hidden">
           <BrandLockup />
-          <Button variant="outline" size="icon" onClick={() => setSidebarOpen((value) => !value)} aria-label="Abrir menu">
-            {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </Button>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <Button variant="outline" size="icon" onClick={() => setSidebarOpen((value) => !value)} aria-label="Abrir menu">
+              {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </Button>
+          </div>
         </header>
         <main className="min-w-0 flex-1 overflow-x-hidden"><Outlet /></main>
       </div>

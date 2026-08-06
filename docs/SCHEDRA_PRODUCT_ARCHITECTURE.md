@@ -9,15 +9,17 @@ O Schedra é uma plataforma de operação e agenda para negócios de serviços. 
 | Token | Valor | Uso |
 | --- | --- | --- |
 | Ink | `#181A20` | Texto e hierarquia principal |
-| Canvas | `#F2F3F6` | Fundo da aplicação |
-| Cobalt | `#4856F4` | Ações, navegação e estados ativos |
+| Canvas | `#F3F3F5` | Fundo da aplicação |
+| Framboesa | `#A72C53` | Ações, navegação e estados ativos |
 | Lime | `#D7F75B` | Disponibilidade, confirmação e assinatura da marca |
 | Coral | `#FF7051` | Prioridade e comunicação |
 | Amber | `#F2B84B` | Atenção e indicadores |
-| Violet | `#8B5CF6` | Categorias e visualizações complementares |
+| Verde mineral | `#2F8F89` | Categorias e visualizações complementares |
 | Charcoal | `#202126` | Navegação lateral e superfícies de contraste |
 
 Os valores exportados em `Frontend-Horarius/src/app/config/brand.ts` são a fonte compartilhável para uma futura biblioteca de design usada pelo app Expo.
+
+Oswald Medium define a hierarquia de títulos e Roboto atende textos, formulários e controles. As fontes são empacotadas localmente no frontend. Os temas claro e escuro usam os mesmos tokens semânticos e a preferência fica persistida no navegador.
 
 ## Modelo de dados
 

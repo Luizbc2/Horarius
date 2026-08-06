@@ -25,7 +25,7 @@ export function ProfessionalWorkDayCard({
   onUpdate,
 }: ProfessionalWorkDayCardProps) {
   return (
-    <div className="rounded-lg border border-border bg-white p-5 shadow-sm">
+    <div className="rounded-lg border border-border bg-card p-5 shadow-sm">
       <div className="flex flex-col gap-4 xl:flex-row xl:items-center">
         <div className="flex min-w-[10rem] items-center gap-4">
           <span className="h-10 w-1 rounded-full bg-primary/80" />

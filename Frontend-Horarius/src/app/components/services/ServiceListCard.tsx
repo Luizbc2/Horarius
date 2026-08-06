@@ -20,7 +20,7 @@ type ServiceListCardProps = {
 
 export function ServiceListCard({ service, onDelete }: ServiceListCardProps) {
   return (
-    <article className="rounded-lg border border-border bg-white p-5 shadow-sm transition-[border-color,box-shadow] hover:border-primary/20 hover:shadow-md">
+    <article className="rounded-lg border border-border bg-card p-5 shadow-sm transition-[border-color,box-shadow] hover:border-primary/20 hover:shadow-md">
       <div className="flex items-start justify-between gap-3">
         <span className="soft-badge" data-variant="warm">
           {service.category}

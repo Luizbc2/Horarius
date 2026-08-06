@@ -2,13 +2,13 @@
 
 :root {
   --font-size: 16px;
-  --background: #f2f3f6;
+  --background: #f3f3f5;
   --foreground: #181a20;
   --card: #ffffff;
   --card-foreground: #181a20;
   --popover: #ffffff;
   --popover-foreground: #181a20;
-  --primary: #4856f4;
+  --primary: #a72c53;
   --primary-foreground: #ffffff;
   --secondary: #e9ebf0;
   --secondary-foreground: #292c35;
@@ -24,12 +24,12 @@
   --switch-background: #c9ccd5;
   --font-weight-medium: 600;
   --font-weight-normal: 400;
-  --ring: #4856f4;
-  --chart-1: #4856f4;
+  --ring: #a72c53;
+  --chart-1: #a72c53;
   --chart-2: #ff7051;
   --chart-3: #9acb35;
   --chart-4: #f2b84b;
-  --chart-5: #8b5cf6;
+  --chart-5: #2f8f89;
   --radius: 0.75rem;
   --sidebar: #202126;
   --sidebar-foreground: #f8f8fa;
@@ -44,17 +44,17 @@
 }
 
 .dark {
-  --background: #17181d;
+  --background: #141316;
   --foreground: #f6f6f8;
-  --card: #202126;
+  --card: #1d1b1f;
   --card-foreground: #f6f6f8;
-  --popover: #202126;
+  --popover: #1d1b1f;
   --popover-foreground: #f6f6f8;
-  --primary: #7580ff;
+  --primary: #df5c86;
   --primary-foreground: #ffffff;
-  --secondary: #2b2d34;
+  --secondary: #29262c;
   --secondary-foreground: #f3f3f5;
-  --muted: #292b31;
+  --muted: #272429;
   --muted-foreground: #a9acb5;
   --accent: #343c18;
   --accent-foreground: #d7f75b;
@@ -62,9 +62,9 @@
   --destructive-foreground: #1e0907;
   --border: rgba(255, 255, 255, 0.1);
   --input: rgba(255, 255, 255, 0.04);
-  --input-background: #202126;
-  --ring: #7580ff;
-  --sidebar: #15161a;
+  --input-background: #211e23;
+  --ring: #df5c86;
+  --sidebar: #111013;
   --sidebar-foreground: #f6f6f8;
   --sidebar-primary: #d7f75b;
   --sidebar-primary-foreground: #181a20;
@@ -132,6 +132,7 @@
     background: var(--background);
     color: var(--foreground);
     text-rendering: optimizeLegibility;
+    transition: background-color 180ms ease, color 180ms ease;
   }
 
   #root {
@@ -139,7 +140,7 @@
   }
 
   ::selection {
-    background: rgba(72, 86, 244, 0.2);
+    background: rgba(167, 44, 83, 0.22);
     color: var(--foreground);
   }
 
@@ -148,23 +149,24 @@
   h3 {
     font-family: var(--font-display);
     letter-spacing: 0;
+    font-weight: 500;
   }
 
   h1 {
     font-size: var(--text-2xl);
-    font-weight: 700;
+    font-weight: 500;
     line-height: 1.16;
   }
 
   h2 {
     font-size: var(--text-xl);
-    font-weight: 700;
+    font-weight: 500;
     line-height: 1.2;
   }
 
   h3 {
     font-size: var(--text-lg);
-    font-weight: 700;
+    font-weight: 500;
     line-height: 1.25;
   }
 
@@ -257,8 +259,8 @@
     color: var(--foreground);
     font-family: var(--font-display);
     font-size: clamp(2rem, 3.5vw, 3.1rem);
-    font-weight: 800;
-    line-height: 1.08;
+    font-weight: 500;
+    line-height: 1.05;
     letter-spacing: 0;
     text-wrap: balance;
   }
@@ -309,7 +311,8 @@
   }
 
   .metric-value {
-    @apply mt-2 text-3xl font-bold text-foreground;
+    @apply mt-2 text-3xl font-medium text-foreground;
+    font-family: var(--font-display);
     letter-spacing: 0;
   }
 
@@ -337,7 +340,7 @@
   }
 
   .section-title {
-    @apply text-2xl font-bold text-foreground;
+    @apply text-2xl font-medium text-foreground;
   }
 
   .section-copy {
@@ -347,9 +350,9 @@
   .soft-badge {
     @apply inline-flex items-center gap-2 rounded-md px-2.5 py-1 text-xs font-bold uppercase;
     letter-spacing: 0;
-    border: 1px solid rgba(72, 86, 244, 0.18);
-    background: rgba(72, 86, 244, 0.08);
-    color: #3542d6;
+    border: 1px solid rgba(167, 44, 83, 0.18);
+    background: rgba(167, 44, 83, 0.08);
+    color: #8b2345;
   }
 
   .soft-badge[data-variant="warm"] {
@@ -366,12 +369,12 @@
 
   .empty-state {
     border: 1px dashed rgba(23, 33, 38, 0.18);
-    background: #fafbfb;
+    background: color-mix(in srgb, var(--card) 88%, var(--muted));
     @apply flex flex-col items-center justify-center rounded-lg px-6 py-12 text-center;
   }
 
   .empty-state__icon {
-    background: rgba(72, 86, 244, 0.09);
+    background: rgba(167, 44, 83, 0.09);
     color: var(--primary);
     @apply mb-4 flex h-14 w-14 items-center justify-center rounded-lg;
   }
@@ -385,8 +388,12 @@
 
   .data-pill {
     border: 1px solid var(--border);
-    background: #f8fafb;
+    background: var(--muted);
     color: var(--foreground);
     @apply inline-flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium;
+  }
+
+  .dark .soft-badge {
+    color: #f2a1ba;
   }
 }

@@ -210,7 +210,7 @@ export function ProfissionalFormulario() {
     >
       <form noValidate onSubmit={handleSubmit} className="grid gap-6">
         {isEditing && isLoadingProfessional ? (
-          <Alert className="border-border/60 bg-white/70">
+          <Alert className="border-border/60 bg-card/70">
             <AlertTitle>Carregando profissional</AlertTitle>
             <AlertDescription>Buscando os dados para preencher o formulário.</AlertDescription>
           </Alert>

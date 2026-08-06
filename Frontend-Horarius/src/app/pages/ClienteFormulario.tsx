@@ -201,7 +201,7 @@ export function ClienteFormulario() {
     >
       <form noValidate onSubmit={handleSubmit} className="grid gap-6">
         {isEditing && isLoadingClient ? (
-          <Alert className="border-border/60 bg-white/70">
+          <Alert className="border-border/60 bg-card/70">
             <AlertTitle>Carregando ficha</AlertTitle>
             <AlertDescription>Estamos buscando os dados deste cliente.</AlertDescription>
           </Alert>
