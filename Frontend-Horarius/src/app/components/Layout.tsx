@@ -289,7 +289,7 @@ export function Layout() {
 
       <nav
         aria-label="Navegação principal mobile"
-        className="fixed inset-x-0 bottom-0 z-40 box-border flex min-h-[4.75rem] items-center gap-2 border-t border-border bg-card px-3 py-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] shadow-[0_-8px_28px_rgba(0,0,0,0.08)] after:pointer-events-none after:absolute after:inset-x-0 after:top-full after:h-[100dvh] after:bg-card after:content-[''] lg:hidden"
+        className="fixed inset-x-0 bottom-[-100dvh] z-40 box-border flex h-[calc(100dvh+4.75rem+env(safe-area-inset-bottom))] items-start gap-2 border-t border-border bg-card px-3 pt-2 shadow-[0_-8px_28px_rgba(0,0,0,0.08)] lg:hidden"
       >
         {mobileNavigationItems.map((item) => {
           const Icon = item.icon;
