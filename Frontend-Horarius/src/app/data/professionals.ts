@@ -58,7 +58,7 @@ export type ProfessionalBaseData = {
   status: string;
 };
 
-export const PROFESSIONALS_STORAGE_KEY = "horarius:profissionais";
+export const PROFESSIONALS_STORAGE_KEY = "schedra:profissionais";
 
 function getProfessionalsStorageKey(userId: number) {
   return `${PROFESSIONALS_STORAGE_KEY}:${userId}`;

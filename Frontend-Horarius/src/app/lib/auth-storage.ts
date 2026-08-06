@@ -1,4 +1,4 @@
-export const AUTH_STORAGE_KEY = "horarius:auth";
+export const AUTH_STORAGE_KEY = "schedra:auth";
 
 export type AuthUser = {
   id: number;

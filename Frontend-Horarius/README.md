@@ -1,4 +1,4 @@
-# Horarius Front-end
+# Schedra Web
 
 Aplicacao front-end desenvolvida com React e Vite para gestao de agenda, clientes, profissionais e servicos.
 

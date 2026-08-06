@@ -82,7 +82,7 @@ export function MetricCard({
           <p className="metric-value">{value}</p>
         </div>
         {icon ? (
-          <div className="flex h-11 w-11 items-center justify-center rounded-[1rem] bg-white/60 text-primary shadow-[0_18px_40px_-28px_rgba(31,109,104,0.7)]">
+          <div className="flex h-10 w-10 items-center justify-center rounded-md border border-primary/10 bg-primary/8 text-primary">
             {icon}
           </div>
         ) : null}
@@ -128,7 +128,7 @@ export function EmptyStatePanel({
   return (
     <div className={cn("empty-state animate-fade-up animate-fade-up-delay-3", className)}>
       <div className="empty-state__icon">{icon}</div>
-      <h3 className="text-3xl text-foreground">{title}</h3>
+      <h3 className="text-2xl text-foreground">{title}</h3>
       <p className="mt-3 max-w-xl text-sm leading-7 text-muted-foreground">{description}</p>
       {action ? <div className="mt-6">{action}</div> : null}
     </div>

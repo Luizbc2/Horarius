@@ -189,7 +189,7 @@ export function AgendaAppointmentDialogs({
               </Select>
             </div>
 
-            <div className="space-y-3 rounded-[1rem] border border-dashed border-border/80 bg-muted/30 px-4 py-3">
+            <div className="space-y-3 rounded-md border border-dashed border-border bg-muted/30 px-4 py-3">
               <div>
                 <p className="text-sm font-semibold text-foreground">Dados opcionais do cliente</p>
                 <p className="text-xs text-muted-foreground">

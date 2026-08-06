@@ -20,12 +20,12 @@ type ServiceListCardProps = {
 
 export function ServiceListCard({ service, onDelete }: ServiceListCardProps) {
   return (
-    <article className="rounded-[1.6rem] border border-white/70 bg-white/64 p-5 shadow-[0_22px_52px_-34px_rgba(73,47,22,0.34)]">
+    <article className="rounded-lg border border-border bg-white p-5 shadow-sm transition-[border-color,box-shadow] hover:border-primary/20 hover:shadow-md">
       <div className="flex items-start justify-between gap-3">
         <span className="soft-badge" data-variant="warm">
           {service.category}
         </span>
-        <span className="data-pill text-xs uppercase tracking-[0.18em]">
+        <span className="data-pill text-xs uppercase">
           {service.durationMinutes} min
         </span>
       </div>
@@ -42,7 +42,7 @@ export function ServiceListCard({ service, onDelete }: ServiceListCardProps) {
         </div>
       </div>
 
-      <div className="mt-6 flex gap-2 border-t border-[rgba(74,52,34,0.08)] pt-4">
+      <div className="mt-6 flex gap-2 border-t border-border pt-4">
         <Button variant="outline" className="flex-1" asChild>
           <Link to={`/servicos/${service.id}/editar`} state={{ service }}>
             <Edit className="h-4 w-4" />
