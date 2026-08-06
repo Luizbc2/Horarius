@@ -20,8 +20,8 @@ type ClientListItemProps = {
 
 export function ClientListItem({ client, onDelete }: ClientListItemProps) {
   return (
-    <article className="flex flex-col gap-4 rounded-[1.4rem] border border-white/70 bg-white/60 p-4 shadow-[0_18px_45px_-30px_rgba(73,47,22,0.32)] md:flex-row md:items-start">
-      <div className="flex h-12 w-12 items-center justify-center rounded-[1rem] bg-primary text-lg font-semibold text-primary-foreground">
+    <article className="flex flex-col gap-4 rounded-lg border border-border bg-white p-4 shadow-sm transition-[border-color,box-shadow] hover:border-primary/20 hover:shadow-md md:flex-row md:items-start">
+      <div className="flex h-11 w-11 items-center justify-center rounded-md bg-primary text-sm font-bold text-primary-foreground">
         {client.name.charAt(0).toUpperCase()}
       </div>
 
@@ -29,7 +29,7 @@ export function ClientListItem({ client, onDelete }: ClientListItemProps) {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h3 className="text-lg font-semibold text-foreground">{client.name}</h3>
           {client.createdAt ? (
-            <span className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+            <span className="text-xs uppercase text-muted-foreground">
               Cliente desde{" "}
               {new Intl.DateTimeFormat("pt-BR", {
                 day: "2-digit",

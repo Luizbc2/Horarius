@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router";
 
 import { AuthShowcasePanel } from "../components/auth/AuthShowcasePanel";
 import { PasswordRequirementList } from "../components/auth/PasswordRequirementList";
+import { brand } from "../config/brand";
 import { Alert, AlertDescription, AlertTitle } from "../components/ui/alert";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -28,24 +29,21 @@ import { signupWithApi } from "../services/auth";
 const signupFeatures = [
   {
     icon: UserRound,
-    title: "Cadastro sem enrolação",
-    description: "Você preenche o básico uma vez e já deixa o acesso pronto para usar o sistema.",
-    iconClassName:
-      "bg-[linear-gradient(135deg,rgba(89,184,171,0.96),rgba(31,109,104,0.92))] text-primary-foreground",
+    title: "Workspace próprio",
+    description: "Sua conta inicia um ambiente preparado para agenda, equipe e clientes.",
+    iconClassName: "bg-[#42b8ad] text-[#071b19]",
   },
   {
     icon: CalendarDays,
-    title: "Primeiro acesso claro",
-    description: "Cada etapa tem sua própria tela para você criar a conta sem dúvida nem excesso de informação.",
-    iconClassName:
-      "bg-[linear-gradient(135deg,rgba(211,140,86,0.94),rgba(168,103,53,0.92))] text-white",
+    title: "Configuração rápida",
+    description: "Comece com o essencial e evolua a operação no ritmo do seu negócio.",
+    iconClassName: "bg-[#e76f51] text-white",
   },
   {
     icon: ArrowRight,
-    title: "Entrada imediata",
-    description: "Assim que terminar, você já volta para o login com tudo pronto para entrar no painel.",
-    iconClassName:
-      "bg-[linear-gradient(135deg,rgba(53,92,125,0.94),rgba(31,47,80,0.92))] text-white",
+    title: "Pronto para crescer",
+    description: "Uma base pensada para mais unidades, profissionais e canais de atendimento.",
+    iconClassName: "bg-[#2563eb] text-white",
   },
 ];
 
@@ -109,21 +107,27 @@ export function CadastroUsuario() {
   };
 
   return (
-    <div className="relative flex min-h-screen overflow-hidden px-4 py-6 lg:px-6 lg:py-8">
-      <div className="pointer-events-none absolute left-[-8rem] top-[-6rem] h-72 w-72 rounded-full bg-[radial-gradient(circle,rgba(89,184,171,0.24),transparent_68%)] blur-2xl" />
-      <div className="pointer-events-none absolute bottom-[-8rem] right-[-6rem] h-80 w-80 rounded-full bg-[radial-gradient(circle,rgba(211,140,86,0.18),transparent_68%)] blur-2xl" />
-
-      <div className="relative mx-auto grid w-full max-w-6xl gap-6 lg:grid-cols-[minmax(0,1.05fr)_30rem]">
+    <div className="flex min-h-screen bg-background px-4 py-4 lg:px-6 lg:py-6">
+      <div className="mx-auto grid w-full max-w-[90rem] gap-4 lg:grid-cols-[minmax(0,1.15fr)_31rem]">
         <AuthShowcasePanel
-          eyebrow="Primeiro acesso"
-          title="Crie sua conta e comece a usar o painel em poucos minutos."
-          description="Esse é o primeiro passo para organizar agenda, clientes e equipe em um só lugar."
+          eyebrow="Comece pelo essencial"
+          title="Construa uma operação mais previsível desde o primeiro dia."
+          description="Crie seu acesso ao Schedra e prepare a base que vai acompanhar o crescimento da sua equipe."
           features={signupFeatures}
         />
 
-        <section className="surface-panel flex flex-col justify-center rounded-[2rem] p-6 lg:p-7">
+        <section className="surface-panel flex flex-col justify-center p-6 lg:p-8">
+          <div className="mb-8 flex items-center gap-3 border-b border-border pb-5 lg:hidden">
+            <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary text-primary-foreground">
+              <CalendarDays className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="font-extrabold text-foreground">{brand.name}</p>
+              <p className="text-xs text-muted-foreground">{brand.descriptor}</p>
+            </div>
+          </div>
           <div className="animate-fade-up animate-fade-up-delay-1">
-            <p className="text-[0.72rem] font-semibold uppercase tracking-[0.3em] text-muted-foreground">
+            <p className="text-[0.72rem] font-semibold uppercase text-muted-foreground">
               Cadastro
             </p>
             <h2 className="mt-3 text-3xl text-foreground">Criar conta</h2>
