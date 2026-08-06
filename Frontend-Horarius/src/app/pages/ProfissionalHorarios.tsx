@@ -198,7 +198,7 @@ export function ProfissionalHorarios() {
       }
     >
       <SectionCard className="overflow-hidden p-0" contentClassName="mt-0">
-        <div className="rounded-lg bg-[#11191c] p-6 text-white">
+        <div className="rounded-lg bg-primary p-6 text-primary-foreground">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/20 text-2xl font-semibold">
@@ -226,7 +226,7 @@ export function ProfissionalHorarios() {
           ) : null}
 
           {isLoading ? (
-            <div className="rounded-lg border border-border bg-white p-6 text-sm text-muted-foreground">
+            <div className="rounded-lg border border-border bg-card p-6 text-sm text-muted-foreground">
               Carregando horários do profissional...
             </div>
           ) : null}
@@ -244,7 +244,7 @@ export function ProfissionalHorarios() {
             : null}
         </div>
 
-        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border bg-white px-6 py-5">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border bg-card px-6 py-5">
           <Button
             type="button"
             variant="ghost"

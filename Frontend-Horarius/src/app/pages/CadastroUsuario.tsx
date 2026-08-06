@@ -1,10 +1,11 @@
 import { useState, type FormEvent } from "react";
-import { ArrowRight, CalendarDays, CreditCard, LockKeyhole, Mail, UserRound } from "lucide-react";
+import { ArrowRight, CreditCard, LockKeyhole, Mail, UserRound } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 
+import { BrandLockup } from "../components/BrandLockup";
+import { ThemeToggle } from "../components/ThemeToggle";
 import { AuthShowcasePanel } from "../components/auth/AuthShowcasePanel";
 import { PasswordRequirementList } from "../components/auth/PasswordRequirementList";
-import { brand } from "../config/brand";
 import { Alert, AlertDescription, AlertTitle } from "../components/ui/alert";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -25,27 +26,6 @@ import {
   validateSignupForm,
 } from "../features/auth/signup-form";
 import { signupWithApi } from "../services/auth";
-
-const signupFeatures = [
-  {
-    icon: UserRound,
-    title: "Workspace próprio",
-    description: "Sua conta inicia um ambiente preparado para agenda, equipe e clientes.",
-    iconClassName: "bg-[#42b8ad] text-[#071b19]",
-  },
-  {
-    icon: CalendarDays,
-    title: "Configuração rápida",
-    description: "Comece com o essencial e evolua a operação no ritmo do seu negócio.",
-    iconClassName: "bg-[#e76f51] text-white",
-  },
-  {
-    icon: ArrowRight,
-    title: "Pronto para crescer",
-    description: "Uma base pensada para mais unidades, profissionais e canais de atendimento.",
-    iconClassName: "bg-[#2563eb] text-white",
-  },
-];
 
 export function CadastroUsuario() {
   const navigate = useNavigate();
@@ -107,30 +87,24 @@ export function CadastroUsuario() {
   };
 
   return (
-    <div className="flex min-h-screen bg-background px-4 py-4 lg:px-6 lg:py-6">
-      <div className="mx-auto grid w-full max-w-[90rem] gap-4 lg:grid-cols-[minmax(0,1.15fr)_31rem]">
+    <div className="flex min-h-screen bg-background px-3 py-3 sm:px-4 sm:py-4 lg:px-5 lg:py-5">
+      <div className="mx-auto grid w-full max-w-[96rem] gap-3 lg:grid-cols-[minmax(0,1.4fr)_31rem]">
         <AuthShowcasePanel
-          eyebrow="Comece pelo essencial"
-          title="Construa uma operação mais previsível desde o primeiro dia."
-          description="Crie seu acesso ao Schedra e prepare a base que vai acompanhar o crescimento da sua equipe."
-          features={signupFeatures}
+          eyebrow="Novo workspace"
+          title="Uma rotina mais clara começa com uma agenda bem desenhada."
+          description="Crie seu acesso e monte a base da operação que vai acompanhar clientes, equipe e crescimento."
         />
 
-        <section className="surface-panel flex flex-col justify-center p-6 lg:p-8">
-          <div className="mb-8 flex items-center gap-3 border-b border-border pb-5 lg:hidden">
-            <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary text-primary-foreground">
-              <CalendarDays className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="font-extrabold text-foreground">{brand.name}</p>
-              <p className="text-xs text-muted-foreground">{brand.descriptor}</p>
-            </div>
+        <section className="surface-panel relative flex flex-col justify-center px-6 py-8 lg:px-8">
+          <ThemeToggle className="absolute right-5 top-5" />
+          <div className="mb-8 border-b border-border pb-5 lg:hidden">
+            <BrandLockup />
           </div>
-          <div className="animate-fade-up animate-fade-up-delay-1">
+          <div>
             <p className="text-[0.72rem] font-semibold uppercase text-muted-foreground">
               Cadastro
             </p>
-            <h2 className="mt-3 text-3xl text-foreground">Criar conta</h2>
+            <h2 className="mt-3 text-4xl font-medium text-foreground">Criar conta</h2>
             <p className="mt-3 text-sm leading-6 text-muted-foreground">
               Preencha seus dados para liberar seu acesso ao painel.
             </p>

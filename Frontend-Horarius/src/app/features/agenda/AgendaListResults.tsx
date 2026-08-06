@@ -50,7 +50,7 @@ export function AgendaListResults({
   onUpdateAppointmentStatus,
 }: AgendaListResultsProps) {
   return (
-    <div className="mt-6 overflow-hidden rounded-lg border border-border bg-white shadow-sm">
+    <div className="mt-6 overflow-hidden rounded-lg border border-border bg-card shadow-sm">
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>

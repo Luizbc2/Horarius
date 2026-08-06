@@ -82,7 +82,7 @@ export function AgendaTimelineBoard({
   }
 
   return (
-    <div className="overflow-hidden rounded-lg border border-border bg-white shadow-sm">
+    <div className="overflow-hidden rounded-lg border border-border bg-card shadow-sm">
       <div className="overflow-x-auto">
         <div
           className="min-w-[980px]"
@@ -139,7 +139,7 @@ export function AgendaTimelineBoard({
             return (
               <div
                 key={`column-${professional.id}`}
-                className="relative border-r border-border bg-white last:border-r-0"
+                className="relative border-r border-border bg-card last:border-r-0"
                 style={{ height: `${timelineHeight}px` }}
               >
                 {timeSlots.map((time, index) => (

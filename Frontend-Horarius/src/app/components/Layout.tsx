@@ -1,7 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router";
 import {
-  CalendarDays,
   ChevronLeft,
   Clock3,
   List,
@@ -18,6 +17,8 @@ import {
 
 import { useAuth } from "../auth/AuthContext";
 import { brand } from "../config/brand";
+import { BrandLockup } from "./BrandLockup";
+import { ThemeToggle } from "./ThemeToggle";
 import { Button } from "./ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import { cn } from "./ui/utils";
@@ -64,24 +65,6 @@ type SidebarContentProps = {
   toggleSidebarCollapse?: () => void;
 };
 
-function BrandMark({ compact = false }: { compact?: boolean }) {
-  return (
-    <div className={cn("flex items-center", compact ? "justify-center" : "gap-3")}>
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-[#42b8ad] text-[#071b19] shadow-[0_10px_28px_-16px_rgba(66,184,173,0.9)]">
-        <CalendarDays className="h-5 w-5" strokeWidth={2.2} />
-      </div>
-      {!compact ? (
-        <div className="min-w-0">
-          <p className="text-[0.66rem] font-bold uppercase text-white/45">
-            {brand.descriptor}
-          </p>
-          <h1 className="mt-0.5 text-xl font-extrabold text-white">{brand.name}</h1>
-        </div>
-      ) : null}
-    </div>
-  );
-}
-
 function SidebarContent({
   isCollapsed,
   currentPath,
@@ -119,7 +102,7 @@ function SidebarContent({
     const content = (
       <>
         <span className="flex min-w-0 items-center gap-3">
-          <span className={cn("flex h-8 w-8 shrink-0 items-center justify-center rounded-md", active ? "bg-[#42b8ad] text-[#071b19]" : "bg-white/[0.06] text-white/65")}>
+          <span className={cn("flex h-8 w-8 shrink-0 items-center justify-center rounded-md", active ? "bg-[#d7f75b] text-[#181a20]" : "bg-white/[0.06] text-white/65")}>
             <Icon className="h-4 w-4" />
           </span>
           {!isCollapsed ? <span className="truncate">{item.label}</span> : null}
@@ -142,9 +125,9 @@ function SidebarContent({
   const initials = userName.split(" ").filter(Boolean).slice(0, 2).map((part) => part.charAt(0)).join("") || "SC";
 
   return (
-    <div className={cn("flex h-full flex-col bg-[#11191c] py-5 text-white", isCollapsed ? "px-2.5" : "px-4")}>
+    <div className={cn("flex h-full flex-col bg-[#202126] py-5 text-white", isCollapsed ? "px-2.5" : "px-4")}>
       <div className={cn("flex min-h-12 items-center", isCollapsed ? "flex-col gap-3" : "justify-between")}>
-        <BrandMark compact={isCollapsed} />
+        <BrandLockup compact={isCollapsed} inverse />
         {toggleSidebarCollapse ? (
           <button
             type="button"
@@ -177,13 +160,16 @@ function SidebarContent({
 
       <div className="mt-4 border-t border-white/[0.08] pt-4">
         <div className={cn("flex items-center", isCollapsed ? "justify-center" : "gap-3 px-2")}>
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-white/[0.08] text-xs font-bold text-[#6ed2c8]">{initials}</div>
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-white/[0.08] text-xs font-bold text-[#d7f75b]">{initials}</div>
           {!isCollapsed ? (
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-semibold text-white/90">{userName}</p>
               <p className="truncate text-xs text-white/40">{userEmail}</p>
             </div>
           ) : null}
+        </div>
+        <div className={cn("mt-3", isCollapsed ? "flex justify-center" : "px-2")}>
+          <ThemeToggle inverse showLabel={!isCollapsed} />
         </div>
         {withTooltip("Sair", (
           <button onClick={handleLogout} className={cn("mt-3 flex min-h-10 w-full items-center rounded-md text-sm font-medium text-white/55 transition-colors hover:bg-white/[0.06] hover:text-white", isCollapsed ? "justify-center" : "justify-center gap-2")}>
@@ -245,11 +231,14 @@ export function Layout() {
       ) : null}
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-white/95 px-4 lg:hidden">
-          <BrandMark />
-          <Button variant="outline" size="icon" onClick={() => setSidebarOpen((value) => !value)} aria-label="Abrir menu">
-            {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </Button>
+        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-card/95 px-4 backdrop-blur lg:hidden">
+          <BrandLockup />
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <Button variant="outline" size="icon" onClick={() => setSidebarOpen((value) => !value)} aria-label="Abrir menu">
+              {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </Button>
+          </div>
         </header>
         <main className="min-w-0 flex-1 overflow-x-hidden"><Outlet /></main>
       </div>
