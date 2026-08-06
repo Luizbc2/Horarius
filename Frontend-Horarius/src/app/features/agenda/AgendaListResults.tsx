@@ -50,7 +50,7 @@ export function AgendaListResults({
   onUpdateAppointmentStatus,
 }: AgendaListResultsProps) {
   return (
-    <div className="mt-6 overflow-hidden rounded-[1.5rem] border border-white/70 bg-white/52 shadow-[0_24px_55px_-34px_rgba(73,47,22,0.28)]">
+    <div className="mt-6 overflow-hidden rounded-lg border border-border bg-card shadow-sm">
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>
@@ -134,7 +134,7 @@ export function AgendaListResults({
       </div>
 
       {filteredCount > 0 ? (
-        <div className="flex flex-col gap-3 border-t border-[rgba(74,52,34,0.08)] px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 border-t border-border px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm text-muted-foreground">
             Exibindo {appointments.length} de {filteredCount} agendamentos encontrados.
           </p>

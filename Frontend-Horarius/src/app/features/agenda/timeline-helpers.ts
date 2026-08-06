@@ -45,8 +45,8 @@ export const timelineStatusStyles: Record<
   { card: string; badge: string; label: string }
 > = {
   confirmado: {
-    card: "border-emerald-300 bg-emerald-100/90",
-    badge: "border-emerald-300 bg-emerald-50 text-emerald-800",
+    card: "border-lime-300 bg-lime-100/90",
+    badge: "border-lime-300 bg-lime-50 text-lime-950",
     label: "Confirmado",
   },
   pendente: {

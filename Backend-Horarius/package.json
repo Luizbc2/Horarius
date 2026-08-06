@@ -1,7 +1,7 @@
 {
-  "name": "horarius-backend",
+  "name": "schedra-backend",
   "version": "1.0.0",
-  "description": "Backend base do projeto Horarius",
+  "description": "API de operação e agenda do Schedra",
   "main": "dist/server.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",

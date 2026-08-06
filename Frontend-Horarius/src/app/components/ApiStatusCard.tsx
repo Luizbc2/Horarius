@@ -47,7 +47,7 @@ export function ApiStatusCard() {
 
   const toneClassName =
     status === "online"
-      ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-100"
+      ? "border-lime-300/25 bg-lime-300/10 text-lime-100"
       : status === "offline"
         ? "border-red-500/20 bg-red-500/10 text-red-100"
         : "border-white/10 bg-white/6 text-sidebar-foreground/80";
@@ -57,19 +57,19 @@ export function ApiStatusCard() {
 
   const indicatorClassName =
     status === "online"
-      ? "bg-emerald-300"
+      ? "bg-lime-300"
       : status === "offline"
         ? "bg-red-300"
         : "bg-white/70";
 
   return (
-    <div className={`mt-4 rounded-[1rem] border px-3 py-3 text-sm ${toneClassName}`}>
+    <div className={`mt-4 rounded-md border px-3 py-3 text-sm ${toneClassName}`}>
       <div className="flex items-center justify-between gap-3">
         <p className="flex items-center gap-2 font-medium">
           <span className={`h-2.5 w-2.5 rounded-full ${indicatorClassName}`} />
           <span>{label}</span>
         </p>
-        <span className="text-[0.65rem] uppercase tracking-[0.24em] opacity-75">/health</span>
+        <span className="text-[0.65rem] uppercase opacity-75">/health</span>
       </div>
       <p className="mt-2 text-xs leading-5 opacity-90">{message}</p>
       <p className="mt-2 truncate text-[0.7rem] opacity-70">{API_BASE_URL}</p>

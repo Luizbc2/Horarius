@@ -4,6 +4,11 @@ import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 
 export default defineConfig({
+  server: {
+    proxy: {
+      "/api": "http://127.0.0.1:3333",
+    },
+  },
   plugins: [
     // Keep React and Tailwind plugins enabled for project build and styles.
     react(),

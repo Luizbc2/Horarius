@@ -130,7 +130,7 @@ export function Perfil() {
           onChange={(field, value) => handleChange(field, value)}
         />
 
-        <div className="flex flex-col gap-3 rounded-[1.5rem] border border-border/60 bg-card/70 p-4 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-col gap-3 rounded-lg border border-border bg-card p-4 md:flex-row md:items-center md:justify-between">
           <p className="text-sm text-muted-foreground">
             Use o botão ao lado para salvar suas novas informações.
           </p>

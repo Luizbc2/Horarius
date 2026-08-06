@@ -25,7 +25,7 @@ export function ProfessionalWorkDayCard({
   onUpdate,
 }: ProfessionalWorkDayCardProps) {
   return (
-    <div className="rounded-[1.6rem] border border-[rgba(74,52,34,0.12)] bg-white/88 p-5 shadow-[0_16px_40px_-30px_rgba(73,47,22,0.3)]">
+    <div className="rounded-lg border border-border bg-card p-5 shadow-sm">
       <div className="flex flex-col gap-4 xl:flex-row xl:items-center">
         <div className="flex min-w-[10rem] items-center gap-4">
           <span className="h-10 w-1 rounded-full bg-primary/80" />
@@ -97,7 +97,7 @@ export function ProfessionalWorkDayCard({
       </div>
 
       {isBreakOpen ? (
-        <div className="mt-5 border-t border-[rgba(74,52,34,0.12)] pt-5">
+        <div className="mt-5 border-t border-border pt-5">
           <div className="grid gap-3 md:grid-cols-[minmax(0,11rem)_minmax(0,1fr)_auto_minmax(0,1fr)_minmax(0,8rem)] md:items-center">
             <div className="flex items-center gap-2 text-base text-muted-foreground">
               <Coffee className="h-4 w-4" />

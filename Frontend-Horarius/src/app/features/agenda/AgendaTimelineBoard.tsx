@@ -82,7 +82,7 @@ export function AgendaTimelineBoard({
   }
 
   return (
-    <div className="overflow-hidden rounded-[1.5rem] border border-white/70 bg-white/52 shadow-[0_24px_55px_-34px_rgba(73,47,22,0.28)]">
+    <div className="overflow-hidden rounded-lg border border-border bg-card shadow-sm">
       <div className="overflow-x-auto">
         <div
           className="min-w-[980px]"
@@ -91,17 +91,17 @@ export function AgendaTimelineBoard({
             gridTemplateColumns: `100px repeat(${visibleProfessionals.length}, minmax(320px, 1fr))`,
           }}
         >
-          <div className="border-b border-r border-[rgba(74,52,34,0.08)] bg-white/70 px-4 py-4 text-sm font-medium text-foreground">
+          <div className="border-b border-r border-border bg-muted/35 px-4 py-4 text-sm font-medium text-foreground">
             Hora
           </div>
 
           {visibleProfessionals.map((professional) => (
             <div
               key={professional.id}
-              className="border-b border-r border-[rgba(74,52,34,0.08)] bg-white/70 px-4 py-4 last:border-r-0"
+              className="border-b border-r border-border bg-muted/35 px-4 py-4 last:border-r-0"
             >
               <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[rgba(74,52,34,0.08)] text-sm font-semibold text-foreground">
+                <div className="flex h-10 w-10 items-center justify-center rounded-md bg-secondary text-sm font-semibold text-foreground">
                   {getInitials(professional.name)}
                 </div>
                 <div>
@@ -112,7 +112,7 @@ export function AgendaTimelineBoard({
             </div>
           ))}
 
-          <div className="border-r border-[rgba(74,52,34,0.08)] bg-white/45">
+          <div className="border-r border-border bg-muted/20">
             <div className="relative" style={{ height: `${timelineHeight}px` }}>
               {timeSlots.map((time, index) => {
                 const shouldLabel = Number(time.split(":")[1]) % 30 === 0;
@@ -120,7 +120,7 @@ export function AgendaTimelineBoard({
                 return (
                   <div
                     key={time}
-                    className="absolute left-0 right-0 border-b border-[rgba(74,52,34,0.08)] px-4 text-sm text-muted-foreground"
+                    className="absolute left-0 right-0 border-b border-border px-4 text-sm text-muted-foreground"
                     style={{
                       top: `${index * SLOT_HEIGHT}px`,
                       height: `${SLOT_HEIGHT}px`,
@@ -139,14 +139,14 @@ export function AgendaTimelineBoard({
             return (
               <div
                 key={`column-${professional.id}`}
-                className="relative border-r border-[rgba(74,52,34,0.08)] bg-white/35 last:border-r-0"
+                className="relative border-r border-border bg-card last:border-r-0"
                 style={{ height: `${timelineHeight}px` }}
               >
                 {timeSlots.map((time, index) => (
                   <div
                     key={`${professional.id}-${time}-slot`}
                     className={cn(
-                      "absolute left-0 right-0 border-b border-[rgba(74,52,34,0.08)] transition-colors",
+                      "absolute left-0 right-0 border-b border-border transition-colors",
                       dragOverSlot === `${professional.id}-${time}` ? "bg-primary/10" : "",
                     )}
                     style={{
@@ -180,7 +180,7 @@ export function AgendaTimelineBoard({
                     <div
                       key={appointment.id}
                       className={cn(
-                        "absolute left-2 right-2 cursor-grab overflow-hidden rounded-[1rem] border px-3 py-2 shadow-[0_16px_35px_-28px_rgba(73,47,22,0.45)] active:cursor-grabbing",
+                        "absolute left-2 right-2 cursor-grab overflow-hidden rounded-md border px-3 py-2 shadow-sm active:cursor-grabbing",
                         timelineStatusStyles[appointment.status].card,
                         draggedAppointmentId === appointment.id ? "opacity-60" : "",
                       )}

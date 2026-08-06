@@ -20,11 +20,11 @@ export function PasswordRequirementList({ password }: PasswordRequirementListPro
               key={requirement.id}
               className={
                 requirement.met
-                  ? "inline-flex min-w-[8.5rem] items-center gap-1.5 text-xs font-medium text-emerald-700"
+                  ? "inline-flex min-w-[8.5rem] items-center gap-1.5 text-xs font-medium text-lime-800"
                   : "inline-flex min-w-[8.5rem] items-center gap-1.5 text-xs font-medium text-muted-foreground"
               }
             >
-              <Icon className={requirement.met ? "h-3.5 w-3.5 text-emerald-600" : "h-3.5 w-3.5"} />
+              <Icon className={requirement.met ? "h-3.5 w-3.5 text-lime-700" : "h-3.5 w-3.5"} />
               <span>{requirement.label}</span>
             </div>
           );

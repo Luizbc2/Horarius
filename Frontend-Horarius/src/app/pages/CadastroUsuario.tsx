@@ -1,7 +1,9 @@
 import { useState, type FormEvent } from "react";
-import { ArrowRight, CalendarDays, CreditCard, LockKeyhole, Mail, UserRound } from "lucide-react";
+import { ArrowRight, CreditCard, LockKeyhole, Mail, UserRound } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 
+import { BrandLockup } from "../components/BrandLockup";
+import { ThemeToggle } from "../components/ThemeToggle";
 import { AuthShowcasePanel } from "../components/auth/AuthShowcasePanel";
 import { PasswordRequirementList } from "../components/auth/PasswordRequirementList";
 import { Alert, AlertDescription, AlertTitle } from "../components/ui/alert";
@@ -24,30 +26,6 @@ import {
   validateSignupForm,
 } from "../features/auth/signup-form";
 import { signupWithApi } from "../services/auth";
-
-const signupFeatures = [
-  {
-    icon: UserRound,
-    title: "Cadastro sem enrolação",
-    description: "Você preenche o básico uma vez e já deixa o acesso pronto para usar o sistema.",
-    iconClassName:
-      "bg-[linear-gradient(135deg,rgba(89,184,171,0.96),rgba(31,109,104,0.92))] text-primary-foreground",
-  },
-  {
-    icon: CalendarDays,
-    title: "Primeiro acesso claro",
-    description: "Cada etapa tem sua própria tela para você criar a conta sem dúvida nem excesso de informação.",
-    iconClassName:
-      "bg-[linear-gradient(135deg,rgba(211,140,86,0.94),rgba(168,103,53,0.92))] text-white",
-  },
-  {
-    icon: ArrowRight,
-    title: "Entrada imediata",
-    description: "Assim que terminar, você já volta para o login com tudo pronto para entrar no painel.",
-    iconClassName:
-      "bg-[linear-gradient(135deg,rgba(53,92,125,0.94),rgba(31,47,80,0.92))] text-white",
-  },
-];
 
 export function CadastroUsuario() {
   const navigate = useNavigate();
@@ -109,24 +87,24 @@ export function CadastroUsuario() {
   };
 
   return (
-    <div className="relative flex min-h-screen overflow-hidden px-4 py-6 lg:px-6 lg:py-8">
-      <div className="pointer-events-none absolute left-[-8rem] top-[-6rem] h-72 w-72 rounded-full bg-[radial-gradient(circle,rgba(89,184,171,0.24),transparent_68%)] blur-2xl" />
-      <div className="pointer-events-none absolute bottom-[-8rem] right-[-6rem] h-80 w-80 rounded-full bg-[radial-gradient(circle,rgba(211,140,86,0.18),transparent_68%)] blur-2xl" />
-
-      <div className="relative mx-auto grid w-full max-w-6xl gap-6 lg:grid-cols-[minmax(0,1.05fr)_30rem]">
+    <div className="flex min-h-screen bg-background px-3 py-3 sm:px-4 sm:py-4 lg:px-5 lg:py-5">
+      <div className="mx-auto grid w-full max-w-[96rem] gap-3 lg:grid-cols-[minmax(0,1.4fr)_31rem]">
         <AuthShowcasePanel
-          eyebrow="Primeiro acesso"
-          title="Crie sua conta e comece a usar o painel em poucos minutos."
-          description="Esse é o primeiro passo para organizar agenda, clientes e equipe em um só lugar."
-          features={signupFeatures}
+          eyebrow="Novo workspace"
+          title="Uma rotina mais clara começa com uma agenda bem desenhada."
+          description="Crie seu acesso e monte a base da operação que vai acompanhar clientes, equipe e crescimento."
         />
 
-        <section className="surface-panel flex flex-col justify-center rounded-[2rem] p-6 lg:p-7">
-          <div className="animate-fade-up animate-fade-up-delay-1">
-            <p className="text-[0.72rem] font-semibold uppercase tracking-[0.3em] text-muted-foreground">
+        <section className="surface-panel relative flex flex-col justify-center px-6 py-8 lg:px-8">
+          <ThemeToggle className="absolute right-5 top-5" />
+          <div className="mb-8 border-b border-border pb-5 lg:hidden">
+            <BrandLockup />
+          </div>
+          <div>
+            <p className="text-[0.72rem] font-semibold uppercase text-muted-foreground">
               Cadastro
             </p>
-            <h2 className="mt-3 text-3xl text-foreground">Criar conta</h2>
+            <h2 className="mt-3 text-4xl font-medium text-foreground">Criar conta</h2>
             <p className="mt-3 text-sm leading-6 text-muted-foreground">
               Preencha seus dados para liberar seu acesso ao painel.
             </p>

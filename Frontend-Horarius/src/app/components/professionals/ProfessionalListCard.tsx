@@ -45,19 +45,19 @@ export function ProfessionalListCard({
   const displayEmail = professional.email || "E-mail não informado";
 
   return (
-    <article className="flex h-full flex-col rounded-[1.8rem] border border-white/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.94),rgba(255,248,242,0.88))] p-6 shadow-[0_28px_60px_-34px_rgba(73,47,22,0.35)]">
+    <article className="flex h-full flex-col rounded-lg border border-border bg-card p-5 shadow-sm transition-[border-color,box-shadow] hover:border-primary/20 hover:shadow-md">
       <div className="space-y-5">
         <div className="flex flex-wrap items-start gap-3">
           <h3 className="max-w-full text-[2rem] font-semibold leading-none text-foreground" title={professional.name}>
             {displayName}
           </h3>
-          <span className="inline-flex items-center rounded-full border border-[rgba(74,52,34,0.12)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em]">
+          <span className="inline-flex items-center rounded-md border border-border px-2.5 py-1 text-xs font-semibold uppercase">
             {professional.status === "ativo" ? "Ativo" : "Férias"}
           </span>
           <span
-            className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] ${
+            className={`inline-flex items-center rounded-md border px-3 py-1 text-xs font-semibold uppercase ${
               hasSchedule
-                ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                ? "border-lime-300 bg-lime-50 text-lime-950"
                 : "border-rose-200 bg-rose-50 text-rose-600"
             }`}
           >
@@ -71,13 +71,13 @@ export function ProfessionalListCard({
         </div>
 
         {hasSchedule ? (
-          <div className="rounded-[1.5rem] border border-emerald-200 bg-emerald-50/70 px-5 py-4 text-emerald-700">
+          <div className="rounded-md border border-lime-300 bg-lime-50 px-4 py-3 text-lime-950">
             <p className="text-base leading-7">
               A agenda já está configurada e esse profissional pode receber atendimentos normalmente.
             </p>
           </div>
         ) : (
-          <div className="rounded-[1.5rem] border border-rose-200 bg-rose-50/80 px-5 py-4 text-rose-600">
+          <div className="rounded-md border border-rose-200 bg-rose-50 px-4 py-3 text-rose-600">
             <div className="flex items-start gap-3">
               <CircleAlert className="mt-0.5 h-5 w-5 shrink-0" />
               <p className="text-base leading-7">
@@ -95,7 +95,7 @@ export function ProfessionalListCard({
           </p>
 
           <div className="space-y-2 pt-1">
-            <div className="rounded-[1rem] border border-[rgba(74,52,34,0.08)] bg-white/64 px-3 py-2">
+            <div className="rounded-md border border-border bg-muted/35 px-3 py-2">
               <div className="flex items-start gap-2 text-xs text-foreground">
                 <Mail className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                 <span className="min-w-0 break-all leading-5" title={displayEmail}>
@@ -104,7 +104,7 @@ export function ProfessionalListCard({
               </div>
             </div>
 
-            <div className="rounded-[1rem] border border-[rgba(74,52,34,0.08)] bg-white/64 px-3 py-2">
+            <div className="rounded-md border border-border bg-muted/35 px-3 py-2">
               <div className="flex items-start gap-2 text-xs text-foreground">
                 <Phone className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                 <span className="min-w-0 break-words leading-5" title={displayPhone}>
@@ -116,7 +116,7 @@ export function ProfessionalListCard({
         </div>
       </div>
 
-      <div className="mt-6 flex flex-wrap gap-3 border-t border-[rgba(74,52,34,0.08)] pt-5">
+      <div className="mt-6 flex flex-wrap gap-3 border-t border-border pt-5">
         <Button variant="outline" className="min-w-[8.5rem] flex-1 md:flex-none" asChild>
           <Link to={`/profissionais/${professional.id}/editar`} state={{ professional }}>
             <PencilLine className="h-4 w-4" />
