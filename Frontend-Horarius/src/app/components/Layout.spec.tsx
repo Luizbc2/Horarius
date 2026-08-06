@@ -39,6 +39,7 @@ describe("Layout mobile navigation", () => {
     expect(within(navigation).getByRole("link", { name: "Agenda" })).toHaveAttribute("href", "/agenda/timeline");
     expect(within(navigation).getByRole("link", { name: "Clientes" })).toHaveAttribute("aria-current", "page");
     expect(within(navigation).getByRole("link", { name: "Equipe" })).toHaveAttribute("href", "/profissionais");
+    expect(within(navigation).getByRole("link", { name: "Perfil" })).toHaveAttribute("href", "/perfil");
   });
 
   test("opens the quick appointment flow from any protected page", async () => {
