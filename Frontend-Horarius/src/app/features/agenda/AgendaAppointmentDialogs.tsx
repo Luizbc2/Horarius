@@ -189,14 +189,15 @@ export function AgendaAppointmentDialogs({
               </Select>
             </div>
 
-            <div className="space-y-3 rounded-md border border-dashed border-border bg-muted/30 px-4 py-3">
-              <div>
-                <p className="text-sm font-semibold text-foreground">Dados opcionais do cliente</p>
-                <p className="text-xs text-muted-foreground">
-                  Para novo cliente, basta o nome. Os demais campos podem ficar em branco.
-                </p>
-              </div>
-              <div className="grid gap-3 sm:grid-cols-2">
+            <details className="group rounded-md border border-dashed border-border bg-muted/30 px-4 py-3 [&>summary::-webkit-details-marker]:hidden">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-3">
+                <span>
+                  <span className="block text-sm font-semibold text-foreground">Adicionar dados do cliente</span>
+                  <span className="mt-0.5 block text-xs text-muted-foreground">Email, telefone e CPF</span>
+                </span>
+                <span className="text-[0.62rem] font-bold uppercase tracking-[0.08em] text-muted-foreground">Opcional</span>
+              </summary>
+              <div className="mt-4 grid gap-3 border-t border-border pt-4 sm:grid-cols-2">
                 <div className="space-y-2 sm:col-span-2">
                   <Label htmlFor="timeline-new-client-name-readonly">Nome</Label>
                   <Input
@@ -261,7 +262,7 @@ export function AgendaAppointmentDialogs({
                   />
                 </div>
               </div>
-            </div>
+            </details>
 
             <div className="space-y-2">
               <Label htmlFor="timeline-new-professional">Profissional</Label>

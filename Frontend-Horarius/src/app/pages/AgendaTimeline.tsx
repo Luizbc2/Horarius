@@ -653,6 +653,7 @@ export function AgendaTimeline() {
         <>
           <Button
             variant="default"
+            className="hidden sm:inline-flex"
             onClick={() => {
               setSearchParams((currentParams) => {
                 const nextParams = new URLSearchParams(currentParams);
