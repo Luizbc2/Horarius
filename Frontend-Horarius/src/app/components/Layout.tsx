@@ -9,6 +9,7 @@ import {
   Package,
   PanelLeftClose,
   PanelLeftOpen,
+  Plus,
   Scissors,
   Sparkles,
   User,
@@ -54,6 +55,12 @@ const navigationGroups: Array<{ title: string; items: NavigationItem[] }> = [
     title: "Conta",
     items: [{ label: "Perfil", path: "/perfil", icon: User }],
   },
+];
+
+const mobileNavigationItems: NavigationItem[] = [
+  { label: "Agenda", path: "/agenda/timeline", icon: Clock3 },
+  { label: "Clientes", path: "/clientes", icon: Users },
+  { label: "Equipe", path: "/profissionais", icon: Scissors },
 ];
 
 type SidebarContentProps = {
@@ -197,6 +204,8 @@ export function Layout() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const currentPath = location.pathname === "/" ? "/agenda/timeline" : location.pathname;
+  const isQuickAppointmentOpen =
+    currentPath.startsWith("/agenda/timeline") && new URLSearchParams(location.search).get("novo") === "1";
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const workspaceDate = new Intl.DateTimeFormat("pt-BR", { weekday: "long", day: "2-digit", month: "long" }).format(new Date());
@@ -206,6 +215,18 @@ export function Layout() {
   const handleLogout = () => {
     logout();
     navigate("/login", { replace: true });
+  };
+
+  const isMobileNavigationActive = (item: NavigationItem) => {
+    if (item.label === "Agenda") {
+      return currentPath.startsWith("/agenda/");
+    }
+
+    return Boolean(item.path && (currentPath === item.path || currentPath.startsWith(`${item.path}/`)));
+  };
+
+  const openQuickAppointment = () => {
+    navigate("/agenda/timeline?novo=1");
   };
 
   return (
@@ -250,8 +271,46 @@ export function Layout() {
             </Button>
           </div>
         </header>
-        <main className="min-w-0 flex-1 overflow-x-hidden"><Outlet /></main>
+        <main className="min-w-0 flex-1 overflow-x-hidden pb-[calc(5.25rem+env(safe-area-inset-bottom))] lg:pb-0"><Outlet /></main>
       </div>
+
+      {!sidebarOpen && !isQuickAppointmentOpen ? (
+        <button
+          type="button"
+          onClick={openQuickAppointment}
+          className="fixed right-4 bottom-[calc(5.25rem+env(safe-area-inset-bottom))] z-50 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-[0_12px_32px_rgba(167,44,83,0.38)] transition-[transform,box-shadow] active:scale-95 lg:hidden"
+          aria-label="Novo agendamento rápido"
+          title="Novo agendamento"
+        >
+          <Plus className="h-6 w-6 stroke-[2.4]" />
+        </button>
+      ) : null}
+
+      <nav
+        aria-label="Navegação principal mobile"
+        className="fixed inset-x-0 bottom-0 z-40 grid min-h-[4.5rem] grid-cols-3 border-t border-border bg-card/95 px-3 pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_28px_rgba(0,0,0,0.08)] backdrop-blur-xl lg:hidden"
+      >
+        {mobileNavigationItems.map((item) => {
+          const Icon = item.icon;
+          const active = isMobileNavigationActive(item);
+
+          return (
+            <Link
+              key={item.label}
+              to={item.path ?? "/"}
+              className={cn(
+                "relative flex min-w-0 flex-col items-center justify-center gap-1 px-2 pt-1 text-[0.64rem] font-semibold transition-colors",
+                active ? "text-primary" : "text-muted-foreground",
+              )}
+              aria-current={active ? "page" : undefined}
+            >
+              {active ? <span className="absolute inset-x-5 top-0 h-0.5 rounded-full bg-primary" /> : null}
+              <Icon className={cn("h-5 w-5", active ? "stroke-[2.2]" : "stroke-[1.8]")} />
+              <span className="truncate">{item.label}</span>
+            </Link>
+          );
+        })}
+      </nav>
     </div>
   );
 }
