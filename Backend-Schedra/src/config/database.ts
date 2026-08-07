@@ -1,6 +1,6 @@
 import pg from "pg";
 import mysql2 from "mysql2";
-import { Sequelize, type Options } from "sequelize";
+import { Op, Sequelize, type Options } from "sequelize";
 
 import { env } from "./env";
 import { AppointmentModel } from "../modules/appointments/models/appointment.model";
@@ -139,8 +139,8 @@ class Database {
     const hashedPassword = await hashPassword(env.authSeedUser.password);
     const existingUser = await UserModel.findOne({
       where: {
-        email
-      }
+        [Op.or]: [{ email }, { cpf: env.authSeedUser.cpf }],
+      },
     });
 
     if (!existingUser) {
@@ -154,11 +154,16 @@ class Database {
       return;
     }
 
+    const updates: Partial<{ name: string; email: string; password: string }> = {
+      name: env.authSeedUser.name.trim(),
+      email,
+    };
+
     if (!isPasswordHashed(existingUser.password)) {
-      await existingUser.update({
-        password: hashedPassword
-      });
+      updates.password = hashedPassword;
     }
+
+    await existingUser.update(updates);
   }
 
   public async connect(): Promise<boolean> {
@@ -181,9 +186,7 @@ class Database {
   }
 
   public async synchronize(): Promise<void> {
-    await this.getConnection().sync({
-      alter: true
-    });
+    await this.getConnection().sync();
     await this.seedAuthUser();
 
     console.log("Database tables synchronized.");

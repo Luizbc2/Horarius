@@ -105,30 +105,26 @@ export function Login() {
   };
 
   return (
-    <div className="flex min-h-screen bg-background px-3 py-3 sm:px-4 sm:py-4 lg:px-5 lg:py-5">
-      <div className="mx-auto grid w-full max-w-[96rem] gap-3 lg:grid-cols-[minmax(0,1.45fr)_27rem]">
+    <div className="auth-shell flex min-h-screen overflow-x-hidden bg-background px-3 py-3 sm:px-4 sm:py-4 lg:px-5 lg:py-5">
+      <div className="mx-auto grid min-w-0 w-full max-w-[118rem] gap-4 xl:grid-cols-[minmax(0,2.05fr)_minmax(30rem,0.88fr)]">
         <AuthShowcasePanel
           eyebrow="Visão do dia"
           title="A agenda fala. O Schedra deixa tudo claro."
           description="Acompanhe o ritmo da equipe, enxergue os espaços livres e mantenha cada atendimento no lugar certo."
         />
 
-        <section className="surface-panel relative flex flex-col justify-center px-6 py-8 lg:px-8">
-          <ThemeToggle className="absolute right-5 top-5" />
-          <div className="mb-10 border-b border-border pb-5 lg:hidden">
+        <section className="auth-form-panel surface-panel relative flex min-h-[calc(100vh-1.5rem)] flex-col justify-center px-6 py-8 sm:min-h-[calc(100vh-2rem)] sm:py-10 lg:px-10 xl:min-h-[calc(100vh-2.5rem)] xl:px-12">
+          <ThemeToggle className="absolute right-6 top-6 h-12 w-12 border-primary/25 bg-primary/5 xl:right-7 xl:top-7" />
+          <div className="mb-10 border-b border-border pb-5 xl:hidden">
             <BrandLockup />
           </div>
-          <div>
-            <p className="text-[0.72rem] font-semibold uppercase text-muted-foreground">
-              Área da equipe
-            </p>
-            <h2 className="mt-3 text-4xl font-medium text-foreground">Entrar no {brand.name}</h2>
-            <p className="mt-3 text-sm leading-6 text-muted-foreground">
+          <div className="mx-auto w-full max-w-[31rem]">
+            <p className="text-xs font-semibold uppercase text-muted-foreground">Área da equipe</p>
+            <h2 className="mt-4 text-[2.7rem] font-medium leading-[1.02] text-foreground sm:mt-5 sm:text-5xl">Entrar no {brand.name}</h2>
+            <p className="mt-3 text-sm leading-6 text-muted-foreground sm:mt-4 sm:text-base sm:leading-7">
               Entre para continuar de onde sua operação parou.
             </p>
-          </div>
-
-          <form noValidate onSubmit={handleSubmit} className="mt-8 grid gap-4">
+          <form noValidate onSubmit={handleSubmit} className="mt-8 grid gap-4 sm:mt-10 sm:gap-5">
             {successNotice ? (
               <Alert className="border-primary/15 bg-primary/5">
                 <AlertTitle>Conta criada</AlertTitle>
@@ -136,7 +132,7 @@ export function Login() {
               </Alert>
             ) : null}
 
-            <div className="grid gap-2">
+            <div className="grid gap-2.5">
               <label htmlFor="login-email">E-mail</label>
               <div className="relative">
                 <Mail className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -146,7 +142,7 @@ export function Login() {
                   value={email}
                   onChange={(event) => setEmail(normalizeEmailInput(event.target.value))}
                   placeholder="voce@empresa.com"
-                  className="pl-11"
+                  className="h-12 pl-11 sm:h-14"
                   aria-invalid={Boolean(errors.email)}
                   autoComplete="email"
                   maxLength={FIELD_LIMITS.email}
@@ -155,7 +151,7 @@ export function Login() {
               {errors.email ? <p className="text-sm text-destructive">{errors.email}</p> : null}
             </div>
 
-            <div className="grid gap-2">
+            <div className="grid gap-2.5">
               <label htmlFor="login-password">Senha</label>
               <div className="relative">
                 <LockKeyhole className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -165,7 +161,7 @@ export function Login() {
                   value={password}
                   onChange={(event) => setPassword(normalizePasswordInput(event.target.value))}
                   placeholder="Digite sua senha"
-                  className="pl-11"
+                  className="h-12 pl-11 sm:h-14"
                   aria-invalid={Boolean(errors.password)}
                   autoComplete="current-password"
                   maxLength={FIELD_LIMITS.password}
@@ -181,7 +177,7 @@ export function Login() {
               </Alert>
             ) : null}
 
-            <Button type="submit" size="lg" disabled={isSubmitting} className="mt-2 w-full">
+            <Button type="submit" size="lg" disabled={isSubmitting} className="mt-2 h-12 w-full sm:mt-3 sm:h-14 sm:text-base">
               {isSubmitting ? "Entrando..." : "Entrar"}
               {!isSubmitting ? <ArrowRight className="h-4 w-4" /> : null}
             </Button>
@@ -190,6 +186,7 @@ export function Login() {
               <Link to="/cadastro">Ainda não tem acesso? Criar conta</Link>
             </Button>
           </form>
+          </div>
         </section>
       </div>
     </div>

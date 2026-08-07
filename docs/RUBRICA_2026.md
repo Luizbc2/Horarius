@@ -9,16 +9,16 @@ Este documento mapeia os itens da rubrica para os arquivos da entrega atual.
 | Organizacao do `docker-compose.yml` | `docker-compose.yml` separa `mysql`, `backend`, `frontend` e `nginx`, com volumes, redes e variaveis via `.env`. |
 | Integracao entre servicos | `backend` usa `mysql` pela rede interna `data`; `frontend` usa `/api`; `nginx` encaminha `/api` para o backend e `/` para o frontend. |
 | Persistencia no MySQL | Volume nomeado `mysql_data` montado em `/var/lib/mysql`. |
-| Nginx como proxy reverso | `infra/nginx/conf.d/horarius.conf`. |
+| Nginx como proxy reverso | `infra/nginx/conf.d/schedra.conf`. |
 | Ambiente de desenvolvimento | `.env.example`, Dockerfiles e scripts `compose:up`, `compose:down` no `package.json` da raiz. |
 
 ## Sistemas Operacionais, Redes e Cyberseguranca
 
 | Item | Onde foi atendido |
 | --- | --- |
-| Headers de seguranca HTTP | `X-Frame-Options`, `X-Content-Type-Options`, `Content-Security-Policy`, `Referrer-Policy` e `Permissions-Policy` em `infra/nginx/conf.d/horarius.conf`. |
+| Headers de seguranca HTTP | `X-Frame-Options`, `X-Content-Type-Options`, `Content-Security-Policy`, `Referrer-Policy` e `Permissions-Policy` em `infra/nginx/conf.d/schedra.conf`. |
 | Senhas e dados sensiveis | `docker-compose.yml` usa interpolacao `${VAR}` e `env_file`; valores reais ficam no `.env`, ignorado pelo Git. |
-| HTTPS com host customizado | Nginx escuta `443` para `horarius.app` e espera certificados em `infra/nginx/certs`. |
+| HTTPS com host customizado | Nginx escuta `443` para `schedra.app` e espera certificados em `infra/nginx/certs`. |
 | Redirect HTTP para HTTPS | Bloco `server` na porta `80` retorna `301` para `https://$host$request_uri`. |
 | Isolamento via Docker Network | Apenas `nginx` publica portas; `mysql`, `backend` e `frontend` ficam em redes Docker internas. A rede `data` e marcada como `internal`. |
 
@@ -26,8 +26,8 @@ Este documento mapeia os itens da rubrica para os arquivos da entrega atual.
 
 | Item | Onde foi atendido |
 | --- | --- |
-| Login sucesso/falha | `tests/e2e/horarius-api.spec.ts`. |
-| Criacao de usuario sucesso/falha | `tests/e2e/horarius-api.spec.ts`. |
+| Login sucesso/falha | `tests/e2e/schedra-api.spec.ts`. |
+| Criacao de usuario sucesso/falha | `tests/e2e/schedra-api.spec.ts`. |
 | CRUD completo 1 | Clientes: cadastrar, editar, listar e excluir, com casos de sucesso e falha. |
 | CRUD completo 2 | Servicos: cadastrar, editar, listar e excluir, com casos de sucesso e falha. |
 | Husky pre-commit/pre-push | `.husky/commit-msg`, `.husky/pre-commit`, `.husky/pre-push`. |
@@ -41,17 +41,17 @@ Este documento mapeia os itens da rubrica para os arquivos da entrega atual.
 
 ```bash
 mkcert -install
-mkcert -cert-file infra/nginx/certs/horarius.app.pem -key-file infra/nginx/certs/horarius.app-key.pem horarius.app
+mkcert -cert-file infra/nginx/certs/schedra.app.pem -key-file infra/nginx/certs/schedra.app-key.pem schedra.app
 ```
 
-3. Adicione `127.0.0.1 horarius.app` no arquivo de hosts do sistema.
+3. Adicione `127.0.0.1 schedra.app` no arquivo de hosts do sistema.
 4. Suba a stack:
 
 ```bash
 npm run compose:up
 ```
 
-5. Acesse `https://horarius.app`.
+5. Acesse `https://schedra.app`.
 6. Rode os testes e2e:
 
 ```bash

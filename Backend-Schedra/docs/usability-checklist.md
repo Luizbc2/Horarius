@@ -6,7 +6,7 @@
 
 ## Objetivo
 
-Registrar a verificacao manual orientada pelos fluxos principais consumidos pelo frontend do Horarius e deixar uma evidencia mais objetiva para a rubrica.
+Registrar a verificacao manual orientada pelos fluxos principais consumidos pelo frontend do Schedra e deixar uma evidencia mais objetiva para a rubrica.
 
 ## Escopo avaliado
 

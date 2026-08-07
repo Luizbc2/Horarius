@@ -22,12 +22,12 @@ const generateValidCpf = () => {
 
 const signupPayload = (suffix = unique()) => ({
   name: `Usuario E2E ${suffix}`,
-  email: `usuario.e2e.${suffix}@horarius.test`,
+  email: `usuario.e2e.${suffix}@schedra.test`,
   cpf: generateValidCpf(),
   password: "Senha@123",
 });
 
-const login = async (request: APIRequestContext, email = "admin@horarius.com", password = "123456") => {
+const login = async (request: APIRequestContext, email = "admin@schedra.com", password = "123456") => {
   const response = await request.post("api/auth/login", {
     data: {
       email,
@@ -52,7 +52,7 @@ test.describe("autenticacao", () => {
   test("login com sucesso e falha", async ({ request }) => {
     const success = await request.post("api/auth/login", {
       data: {
-        email: "admin@horarius.com",
+        email: "admin@schedra.com",
         password: "123456",
       },
     });
@@ -63,7 +63,7 @@ test.describe("autenticacao", () => {
 
     const failure = await request.post("api/auth/login", {
       data: {
-        email: "admin@horarius.com",
+        email: "admin@schedra.com",
         password: "senha-incorreta",
       },
     });
@@ -125,7 +125,7 @@ test.describe("crud de clientes", () => {
       headers,
       data: {
         name: `Cliente E2E ${suffix}`,
-        email: `cliente.${suffix}@horarius.test`,
+        email: `cliente.${suffix}@schedra.test`,
         phone: "11999998888",
         notes: "Cliente criado durante teste e2e.",
       },
@@ -139,7 +139,7 @@ test.describe("crud de clientes", () => {
       headers,
       data: {
         name: `Cliente E2E Atualizado ${suffix}`,
-        email: `cliente.atualizado.${suffix}@horarius.test`,
+        email: `cliente.atualizado.${suffix}@schedra.test`,
         phone: "11888887777",
         notes: "Cliente atualizado durante teste e2e.",
       },

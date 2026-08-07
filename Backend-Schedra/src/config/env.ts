@@ -62,7 +62,7 @@ export const env = {
     password: normalizeString(process.env.AUTH_USER_PASSWORD, "123456"),
   },
   jwt: {
-    secret: normalizeString(process.env.JWT_SECRET, "horarius_jwt_secret"),
+    secret: normalizeString(process.env.JWT_SECRET, "schedra_jwt_secret"),
     expiresIn: normalizeString(process.env.JWT_EXPIRES_IN, "1d"),
   },
 };
