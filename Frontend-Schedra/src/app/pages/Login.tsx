@@ -105,7 +105,7 @@ export function Login() {
   };
 
   return (
-    <div className="auth-shell flex min-h-screen overflow-x-hidden bg-background px-3 py-3 sm:px-4 sm:py-4 lg:px-5 lg:py-5 xl:h-dvh xl:min-h-0 xl:overflow-hidden">
+    <div className="auth-shell flex min-h-screen overflow-x-hidden bg-background px-3 py-3 sm:px-4 sm:py-4 lg:px-5 lg:py-5 xl:h-dvh xl:min-h-0 xl:overflow-y-auto">
       <div className="auth-layout mx-auto grid min-w-0 w-full max-w-[118rem] gap-4 xl:h-full xl:min-h-0 xl:grid-cols-[minmax(0,2.05fr)_minmax(30rem,0.88fr)]">
         <AuthShowcasePanel
           eyebrow="Visão do dia"

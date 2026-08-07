@@ -18,21 +18,22 @@ export function AuthShowcasePanel({ eyebrow, title, description }: AuthShowcaseP
   const hasLongTitle = title.length > 46;
 
   return (
-    <section className="auth-showcase relative hidden h-full min-h-0 overflow-hidden rounded-lg bg-[#96244c] p-10 text-white xl:block 2xl:p-12">
+    <section className="auth-showcase relative hidden h-full min-h-0 overflow-hidden rounded-lg bg-[#96244c] p-10 text-white xl:block">
       <div aria-hidden="true" className="pointer-events-none absolute -right-28 -top-52 h-[34rem] w-[34rem] rounded-full border border-[#d5a64d]/55" />
       <div aria-hidden="true" className="pointer-events-none absolute -right-6 -top-44 h-[30rem] w-[30rem] rounded-full border-[3rem] border-white/[0.025]" />
       <div aria-hidden="true" className="pointer-events-none absolute -bottom-28 -left-24 h-72 w-72 rotate-45 border border-white/15" />
 
       <BrandLockup inverse className="relative z-10" />
 
-      <div className="auth-showcase-layout relative z-10 mt-16 grid grid-cols-[minmax(14rem,0.68fr)_minmax(28rem,1.32fr)] items-start gap-8 2xl:mt-20 2xl:grid-cols-[minmax(18rem,0.66fr)_minmax(38rem,1.34fr)] 2xl:gap-10">
+      <div className="auth-showcase-layout relative z-10 mt-16 grid grid-cols-[minmax(14rem,0.68fr)_minmax(28rem,1.32fr)] items-start gap-8">
         <div className="auth-showcase-copy max-w-[25rem] pb-2">
           <p className="text-xs font-bold uppercase text-[#d7f75b]">{eyebrow}</p>
           <h1
+            data-long-title={hasLongTitle || undefined}
             className={`auth-showcase-title ${
               hasLongTitle
-                ? "mt-5 max-w-[12ch] text-5xl font-medium leading-[1.03] text-white 2xl:text-6xl"
-                : "mt-5 max-w-[8ch] text-6xl font-medium leading-[1.01] text-white 2xl:text-7xl"
+                ? "mt-5 max-w-[12ch] text-5xl font-medium leading-[1.03] text-white"
+                : "mt-5 max-w-[8ch] text-6xl font-medium leading-[1.01] text-white"
             }`}
           >
             {title}
@@ -51,7 +52,7 @@ export function AuthShowcasePanel({ eyebrow, title, description }: AuthShowcaseP
           </div>
         </div>
 
-        <div className="auth-agenda-preview w-full translate-y-5 overflow-hidden rounded-lg border border-black/15 bg-[#f8f9fb] text-[#181a20] shadow-[0_32px_80px_-30px_rgba(18,10,15,0.72)] dark:border-white/10 dark:bg-[#17161a] dark:text-[#f6f6f8] 2xl:translate-y-7">
+        <div className="auth-agenda-preview w-full translate-y-5 overflow-hidden rounded-lg border border-black/15 bg-[#f8f9fb] text-[#181a20] shadow-[0_32px_80px_-30px_rgba(18,10,15,0.72)] dark:border-white/10 dark:bg-[#17161a] dark:text-[#f6f6f8]">
           <header className="auth-agenda-header flex items-center justify-between border-b border-black/8 px-6 py-5 dark:border-white/10">
             <div>
               <p className="text-xs font-semibold text-[#6b6f7b] dark:text-[#a9acb5]">QUINTA-FEIRA · VISÃO DO DIA</p>
