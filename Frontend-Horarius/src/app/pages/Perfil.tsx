@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { Save } from "lucide-react";
+import { LogOut, Save } from "lucide-react";
+import { useNavigate } from "react-router";
 
 import { useAuth } from "../auth/AuthContext";
 import { ProfileIdentitySection } from "../components/profile/ProfileIdentitySection";
@@ -18,7 +19,8 @@ import {
 } from "../features/profile/profile-form";
 
 export function Perfil() {
-  const { user, updateUserProfile } = useAuth();
+  const navigate = useNavigate();
+  const { user, logout, updateUserProfile } = useAuth();
   const [formData, setFormData] = useState<ProfileFormData>(createEmptyProfileFormData);
   const [formErrors, setFormErrors] = useState<ProfileFormErrors>({});
   const [successMessage, setSuccessMessage] = useState("");
@@ -90,6 +92,11 @@ export function Perfil() {
 
   const passwordStatus = formData.password ? "Preenchida" : "Em branco";
 
+  const handleLogout = () => {
+    logout();
+    navigate("/login", { replace: true });
+  };
+
   return (
     <PageShell
       eyebrow="Conta"
@@ -140,6 +147,22 @@ export function Perfil() {
           </Button>
         </div>
       </form>
+
+      <section className="flex flex-col gap-4 border-t border-border pt-6 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-base font-semibold text-foreground">Encerrar sessão</h2>
+          <p className="mt-1 text-sm text-muted-foreground">Saia com segurança deste dispositivo.</p>
+        </div>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={handleLogout}
+          className="w-full border-destructive/30 bg-destructive/10 text-destructive hover:border-destructive/40 hover:bg-destructive/15 sm:w-auto"
+        >
+          <LogOut className="h-4 w-4" />
+          Sair da conta
+        </Button>
+      </section>
     </PageShell>
   );
 }

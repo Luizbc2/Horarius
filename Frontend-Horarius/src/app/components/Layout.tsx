@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router";
 import {
   CalendarDays,
@@ -66,6 +66,8 @@ const mobileNavigationItems: NavigationItem[] = [
 
 type SidebarContentProps = {
   isCollapsed: boolean;
+  showLogoutItem?: boolean;
+  showCloseButton?: boolean;
   currentPath: string;
   workspaceDate: string;
   userName: string;
@@ -77,6 +79,8 @@ type SidebarContentProps = {
 
 function SidebarContent({
   isCollapsed,
+  showLogoutItem = false,
+  showCloseButton = false,
   currentPath,
   workspaceDate,
   userName,
@@ -139,7 +143,16 @@ function SidebarContent({
     <div className={cn("flex h-full flex-col bg-[#1d1e22] text-white", isCollapsed ? "px-2.5 py-4" : "px-5 py-6")}>
       <div className={cn("flex min-h-10 items-start", isCollapsed ? "flex-col items-center gap-3" : "justify-between")}>
         <BrandLockup compact={isCollapsed} inverse />
-        {toggleSidebarCollapse ? (
+        {showCloseButton ? (
+          <button
+            type="button"
+            onClick={closeSidebar}
+            className="flex h-10 w-10 items-center justify-center rounded-md border border-white/10 bg-white/[0.04] text-white/60 transition-colors hover:bg-white/[0.08] hover:text-white"
+            aria-label="Fechar menu"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        ) : toggleSidebarCollapse ? (
           <button
             type="button"
             onClick={toggleSidebarCollapse}
@@ -167,7 +180,24 @@ function SidebarContent({
             {!isCollapsed ? (
               <p className="px-4 text-[0.58rem] font-bold uppercase tracking-[0.13em] text-white/28">{group.title}</p>
             ) : null}
-            <div className="space-y-0.5">{group.items.map(renderNavigationItem)}</div>
+            <div className="space-y-0.5">
+              {group.items.map(renderNavigationItem)}
+              {showLogoutItem && group.title === "Conta" ? (
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="group relative flex min-h-11 w-full items-center rounded-r-md border border-transparent py-2 pl-4 pr-3 text-sm font-medium text-red-300/80 transition-colors hover:border-red-400/15 hover:bg-red-500/10 hover:text-red-200"
+                  aria-label="Sair da conta"
+                >
+                  <span className="flex min-w-0 items-center gap-3.5">
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center text-red-300/65 group-hover:text-red-200">
+                      <LogOut className="h-[1.05rem] w-[1.05rem] stroke-[1.8]" />
+                    </span>
+                    <span>Sair da conta</span>
+                  </span>
+                </button>
+              ) : null}
+            </div>
           </div>
         ))}
       </nav>
@@ -182,16 +212,20 @@ function SidebarContent({
             </div>
           ) : null}
         </div>
-        <div className={cn("mt-4 flex items-center", isCollapsed ? "flex-col gap-2" : "gap-1")}>
+        <div className={cn("mt-4 flex items-center", isCollapsed ? "flex-col gap-2" : "gap-2")}>
           <ThemeToggle inverse showLabel={!isCollapsed} className={cn(!isCollapsed && "flex-1 border-transparent bg-transparent px-2.5 text-white/55 hover:bg-white/[0.05] hover:text-white")} />
-          {withTooltip("Sair", (
+          {withTooltip("Sair da conta", (
             <button
               type="button"
               onClick={handleLogout}
-              className="flex h-10 w-10 items-center justify-center rounded-md text-sm font-medium text-white/42 transition-colors hover:bg-white/[0.05] hover:text-white/80"
-              aria-label="Sair"
+              className={cn(
+                "flex h-10 items-center justify-center gap-2 rounded-md border border-red-400/20 bg-red-500/10 text-sm font-semibold text-red-200 transition-colors hover:border-red-400/30 hover:bg-red-500/15 hover:text-red-100",
+                isCollapsed ? "w-10" : "flex-1 px-3",
+              )}
+              aria-label="Sair da conta"
             >
               <LogOut className="h-4 w-4" />
+              {!isCollapsed ? <span>Sair</span> : null}
             </button>
           ))}
         </div>
@@ -212,6 +246,17 @@ export function Layout() {
   const workspaceDate = new Intl.DateTimeFormat("pt-BR", { weekday: "long", day: "2-digit", month: "long" }).format(new Date());
   const userName = user?.name ?? "Equipe Schedra";
   const userEmail = user?.email ?? brand.supportEmail;
+
+  useEffect(() => {
+    if (!sidebarOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [sidebarOpen]);
 
   const handleLogout = () => {
     logout();
@@ -245,22 +290,27 @@ export function Layout() {
         />
       </aside>
 
-      {sidebarOpen ? (
-        <>
-          <button type="button" aria-label="Fechar menu" className="fixed inset-0 z-40 bg-black/50 lg:hidden" onClick={() => setSidebarOpen(false)} />
-          <aside className="fixed inset-y-0 left-0 z-50 w-[min(18.5rem,calc(100vw-2rem))] shadow-2xl lg:hidden">
-            <SidebarContent
-              isCollapsed={false}
-              currentPath={currentPath}
-              workspaceDate={workspaceDate}
-              userName={userName}
-              userEmail={userEmail}
-              closeSidebar={() => setSidebarOpen(false)}
-              handleLogout={handleLogout}
-            />
-          </aside>
-        </>
-      ) : null}
+      <aside
+        aria-hidden={!sidebarOpen}
+        className={cn(
+          "fixed inset-0 z-[120] overflow-hidden bg-[#1d1e22] shadow-2xl transition-[transform,opacity,visibility] duration-300 ease-out motion-reduce:transition-none lg:hidden",
+          sidebarOpen
+            ? "visible translate-y-0 opacity-100"
+            : "invisible pointer-events-none -translate-y-full opacity-0",
+        )}
+      >
+          <SidebarContent
+            isCollapsed={false}
+            showLogoutItem
+            showCloseButton
+            currentPath={currentPath}
+            workspaceDate={workspaceDate}
+            userName={userName}
+            userEmail={userEmail}
+            closeSidebar={() => setSidebarOpen(false)}
+            handleLogout={handleLogout}
+          />
+      </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-card/95 px-4 backdrop-blur lg:hidden">
@@ -272,7 +322,14 @@ export function Layout() {
             </Button>
           </div>
         </header>
-        <main className="min-w-0 flex-1 overflow-x-hidden pb-[calc(5.25rem+env(safe-area-inset-bottom))] lg:pb-0"><Outlet /></main>
+        <main className="min-w-0 flex-1 overflow-x-hidden pb-[calc(5.25rem+env(safe-area-inset-bottom))] lg:pb-0">
+          <div
+            key={currentPath}
+            className="min-h-full animate-in fade-in slide-in-from-bottom-2 duration-300 motion-reduce:animate-none lg:animate-none"
+          >
+            <Outlet />
+          </div>
+        </main>
       </div>
 
       {!sidebarOpen && !isQuickAppointmentOpen ? (
@@ -287,6 +344,8 @@ export function Layout() {
         </button>
       ) : null}
 
+      {!sidebarOpen ? (
+        <>
       <nav
         aria-label="Navegação principal mobile"
         className="fixed inset-x-0 bottom-[-100dvh] z-[100] box-border flex h-[calc(100dvh+4.75rem+env(safe-area-inset-bottom))] items-start gap-2 border-t border-border bg-card px-3 pt-2 shadow-[0_-8px_28px_rgba(0,0,0,0.08)] lg:hidden"
@@ -318,6 +377,8 @@ export function Layout() {
         aria-hidden="true"
         className="pointer-events-none fixed inset-x-0 bottom-0 z-[110] h-[calc(1.5rem+env(safe-area-inset-bottom))] bg-card lg:hidden"
       />
+        </>
+      ) : null}
     </div>
   );
 }

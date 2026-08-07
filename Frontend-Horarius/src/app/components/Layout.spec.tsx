@@ -40,6 +40,7 @@ describe("Layout mobile navigation", () => {
     expect(within(navigation).getByRole("link", { name: "Clientes" })).toHaveAttribute("aria-current", "page");
     expect(within(navigation).getByRole("link", { name: "Equipe" })).toHaveAttribute("href", "/profissionais");
     expect(within(navigation).getByRole("link", { name: "Perfil" })).toHaveAttribute("href", "/perfil");
+    expect(screen.getByRole("button", { name: "Sair da conta" })).toHaveTextContent("Sair");
   });
 
   test("opens the quick appointment flow from any protected page", async () => {
@@ -50,5 +51,24 @@ describe("Layout mobile navigation", () => {
 
     expect(screen.getByTestId("current-location")).toHaveTextContent("/agenda/timeline?novo=1");
     expect(screen.queryByRole("button", { name: "Novo agendamento rápido" })).not.toBeInTheDocument();
+  });
+
+  test("opens mobile navigation as a full-screen menu", async () => {
+    const user = userEvent.setup();
+
+    renderLayout("/perfil");
+    await user.click(screen.getByRole("button", { name: "Abrir menu" }));
+
+    expect(screen.queryByRole("navigation", { name: /principal mobile/i })).not.toBeInTheDocument();
+    const closeButton = screen.getByRole("button", { name: "Fechar menu" });
+    const fullScreenMenu = closeButton.closest("aside");
+
+    expect(closeButton).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: "Sair da conta" })).toHaveLength(3);
+
+    await user.click(closeButton);
+
+    expect(fullScreenMenu).toHaveClass("-translate-y-full", "opacity-0");
+    expect(screen.getByRole("navigation", { name: /principal mobile/i })).toBeInTheDocument();
   });
 });
