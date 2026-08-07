@@ -1,6 +1,6 @@
-# Backend Horarius
+# Backend Schedra
 
-Backend academico do projeto Horarius desenvolvido com Node.js, TypeScript, Express, Sequelize e PostgreSQL.
+Backend academico do projeto Schedra desenvolvido com Node.js, TypeScript, Express, Sequelize e PostgreSQL.
 
 ## Stack
 
@@ -61,7 +61,7 @@ npm start
 
 ## Deploy no Vercel
 
-- use este projeto como um projeto separado dentro do monorepo, com `Root Directory` em `Backend-Horarius`
+- use este projeto como um projeto separado dentro do monorepo, com `Root Directory` em `Backend-Schedra`
 - o endpoint base publicado continuara em `/api`, por exemplo `https://seu-backend.vercel.app/api/health`
 - o Vercel reescreve todas as requisicoes para a funcao Express em `api/index.ts`, evitando `404` por roteamento do projeto
 - para Postgres gerenciado, prefira `DATABASE_URL`
@@ -77,8 +77,8 @@ DB_SSL=true
 DB_AUTO_SYNC=false
 JWT_SECRET=troque-este-segredo
 JWT_EXPIRES_IN=1d
-AUTH_USER_NAME=Usuario Horarius
-AUTH_USER_EMAIL=admin@horarius.com
+AUTH_USER_NAME=Usuario Schedra
+AUTH_USER_EMAIL=admin@schedra.com
 AUTH_USER_CPF=52998224725
 AUTH_USER_PASSWORD=123456
 ```
@@ -145,7 +145,7 @@ Corpo:
 
 ```json
 {
-  "email": "admin@horarius.com",
+  "email": "admin@schedra.com",
   "password": "123456"
 }
 ```
@@ -158,8 +158,8 @@ Resposta:
   "token": "jwt_token_here",
   "user": {
     "id": 1,
-    "name": "Usuario Horarius",
-    "email": "admin@horarius.com",
+    "name": "Usuario Schedra",
+    "email": "admin@schedra.com",
     "cpf": "52998224725"
   }
 }

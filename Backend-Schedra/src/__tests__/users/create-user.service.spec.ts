@@ -1,4 +1,4 @@
-﻿import { CreateUserService } from "../../modules/users/services/create-user.service";
+import { CreateUserService } from "../../modules/users/services/create-user.service";
 import { isPasswordHashed } from "../../modules/auth/utils/password.util";
 import { InMemoryUserRepository } from "../mocks/in-memory-user.repository";
 
@@ -25,7 +25,7 @@ describe("CreateUserService", () => {
 
     const result = await service.execute({
       name: "Maria",
-      email: "maria@horarius.com",
+      email: "maria@schedra.com",
       cpf: "12345678900",
       password: "Senha123!",
     });
@@ -42,7 +42,7 @@ describe("CreateUserService", () => {
 
     const result = await service.execute({
       name: "Maria",
-      email: "maria@horarius.com",
+      email: "maria@schedra.com",
       cpf: "52998224725",
       password: "senhafraca",
     });
@@ -60,7 +60,7 @@ describe("CreateUserService", () => {
         {
           id: 1,
           name: "Maria",
-          email: "maria@horarius.com",
+          email: "maria@schedra.com",
           cpf: "52998224725",
           password: "hash",
         },
@@ -70,7 +70,7 @@ describe("CreateUserService", () => {
 
     const result = await service.execute({
       name: "Maria 2",
-      email: "MARIA@horarius.com",
+      email: "MARIA@schedra.com",
       cpf: "11144477735",
       password: "Senha123!",
     });
@@ -88,7 +88,7 @@ describe("CreateUserService", () => {
 
     const result = await service.execute({
       name: "  Maria da Silva  ",
-      email: "  MARIA@horarius.com  ",
+      email: "  MARIA@schedra.com  ",
       cpf: "529.982.247-25",
       password: "Senha123!",
     });
@@ -102,7 +102,7 @@ describe("CreateUserService", () => {
     expect(result.data.user).toEqual({
       id: 1,
       name: "Maria da Silva",
-      email: "maria@horarius.com",
+      email: "maria@schedra.com",
       cpf: "52998224725",
     });
     expect(repository.lastCreatedInput).not.toBeNull();

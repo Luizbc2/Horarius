@@ -8,7 +8,7 @@ describe("JWT utils", () => {
     const token = generateAccessToken({
       id: 7,
       name: "Maria",
-      email: "maria@horarius.com",
+      email: "maria@schedra.com",
       cpf: "52998224725",
       password: "hash",
     });
@@ -16,6 +16,6 @@ describe("JWT utils", () => {
     const decoded = jwt.verify(token, env.jwt.secret) as { sub: string; email: string };
 
     expect(decoded.sub).toBe("7");
-    expect(decoded.email).toBe("maria@horarius.com");
+    expect(decoded.email).toBe("maria@schedra.com");
   });
 });
