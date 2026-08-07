@@ -20,7 +20,7 @@ type ClientListItemProps = {
 
 export function ClientListItem({ client, onDelete }: ClientListItemProps) {
   return (
-    <article className="flex flex-col gap-4 rounded-lg border border-border bg-card p-4 shadow-sm transition-[border-color,box-shadow] hover:border-primary/20 hover:shadow-md md:flex-row md:items-start">
+    <article className="interactive-card flex flex-col gap-4 rounded-lg border border-border bg-card p-4 shadow-sm md:flex-row md:items-start">
       <div className="flex h-11 w-11 items-center justify-center rounded-md bg-primary text-sm font-bold text-primary-foreground">
         {client.name.charAt(0).toUpperCase()}
       </div>
