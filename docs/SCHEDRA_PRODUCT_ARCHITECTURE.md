@@ -17,7 +17,7 @@ O Schedra é uma plataforma de operação e agenda para negócios de serviços. 
 | Verde mineral | `#2F8F89` | Categorias e visualizações complementares |
 | Charcoal | `#202126` | Navegação lateral e superfícies de contraste |
 
-Os valores exportados em `Frontend-Horarius/src/app/config/brand.ts` são a fonte compartilhável para uma futura biblioteca de design usada pelo app Expo.
+Os valores exportados em `Frontend-Schedra/src/app/config/brand.ts` são a fonte compartilhável para uma futura biblioteca de design usada pelo app Expo.
 
 Oswald Medium define a hierarquia de títulos e Roboto atende textos, formulários e controles. As fontes são empacotadas localmente no frontend. Os temas claro e escuro usam os mesmos tokens semânticos e a preferência fica persistida no navegador.
 

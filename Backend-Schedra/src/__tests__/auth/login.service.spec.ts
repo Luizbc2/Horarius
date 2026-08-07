@@ -1,4 +1,4 @@
-﻿import jwt from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 
 import { env } from "../../config/env";
 import { LoginService } from "../../modules/auth/services/login.service";
@@ -40,7 +40,7 @@ describe("LoginService", () => {
     const service = new LoginService(new InMemoryUserRepository());
 
     const result = await service.execute({
-      email: "naoexiste@horarius.com",
+      email: "naoexiste@schedra.com",
       password: "Senha123",
     });
 
@@ -57,7 +57,7 @@ describe("LoginService", () => {
         {
           id: 1,
           name: "Admin",
-          email: "admin@horarius.com",
+          email: "admin@schedra.com",
           cpf: "52998224725",
           password: await hashPassword("Senha123"),
         },
@@ -66,7 +66,7 @@ describe("LoginService", () => {
     const service = new LoginService(repository);
 
     const result = await service.execute({
-      email: "admin@horarius.com",
+      email: "admin@schedra.com",
       password: "Senha999",
     });
 
@@ -83,7 +83,7 @@ describe("LoginService", () => {
         {
           id: 1,
           name: "Admin",
-          email: "ADMIN@horarius.com",
+          email: "ADMIN@schedra.com",
           cpf: "52998224725",
           password: await hashPassword("Senha123"),
         },
@@ -92,7 +92,7 @@ describe("LoginService", () => {
     const service = new LoginService(repository);
 
     const result = await service.execute({
-      email: "  admin@horarius.com  ",
+      email: "  admin@schedra.com  ",
       password: "Senha123",
     });
 
@@ -105,14 +105,14 @@ describe("LoginService", () => {
     expect(result.data.user).toEqual({
       id: 1,
       name: "Admin",
-      email: "ADMIN@horarius.com",
+      email: "ADMIN@schedra.com",
       cpf: "52998224725",
     });
 
     const decoded = jwt.verify(result.data.token, env.jwt.secret) as { sub: string; email: string };
 
     expect(decoded.sub).toBe("1");
-    expect(decoded.email).toBe("ADMIN@horarius.com");
+    expect(decoded.email).toBe("ADMIN@schedra.com");
   });
 });
 

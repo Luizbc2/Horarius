@@ -51,7 +51,7 @@ npm run build
 
 ## Deploy no Vercel
 
-- importe este projeto como um projeto separado dentro do monorepo, com `Root Directory` em `Frontend-Horarius`
+- importe este projeto como um projeto separado dentro do monorepo, com `Root Directory` em `Frontend-Schedra`
 - configure `VITE_API_BASE_URL` com a URL publicada do backend, por exemplo `https://seu-backend.vercel.app/api`
 - o arquivo `vercel.json` ja inclui o rewrite necessario para o React Router funcionar ao abrir URLs internas diretamente
 

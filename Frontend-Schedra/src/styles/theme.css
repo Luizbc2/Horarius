@@ -285,7 +285,31 @@
     border: 1px solid var(--border);
     background: var(--card);
     box-shadow: var(--shadow-soft);
+    transform-origin: center;
+    transition:
+      transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      box-shadow 180ms ease,
+      border-color 180ms ease;
     @apply rounded-lg p-5;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .metric-card:hover {
+      z-index: 1;
+      border-color: color-mix(in srgb, var(--primary) 24%, var(--border));
+      box-shadow: 0 18px 34px -22px rgba(18, 19, 24, 0.58);
+      transform: translateY(-3px) scale(1.012);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .metric-card {
+      transition: none;
+    }
+
+    .metric-card:hover {
+      transform: none;
+    }
   }
 
   .metric-card::before {

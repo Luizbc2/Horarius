@@ -1,4 +1,4 @@
-﻿import { UpdateUserProfileService } from "../../modules/users/services/update-user-profile.service";
+import { UpdateUserProfileService } from "../../modules/users/services/update-user-profile.service";
 import { comparePassword } from "../../modules/auth/utils/password.util";
 import { InMemoryUserRepository } from "../mocks/in-memory-user.repository";
 
@@ -28,7 +28,7 @@ describe("UpdateUserProfileService", () => {
         {
           id: 1,
           name: "Maria",
-          email: "maria@horarius.com",
+          email: "maria@schedra.com",
           cpf: "52998224725",
           password: "hash",
         },
@@ -40,7 +40,7 @@ describe("UpdateUserProfileService", () => {
       authenticatedUserId: 2,
       userId: 1,
       name: "Maria Atualizada",
-      email: "maria@horarius.com",
+      email: "maria@schedra.com",
       cpf: "52998224725",
       password: "Senha123!",
     });
@@ -58,7 +58,7 @@ describe("UpdateUserProfileService", () => {
         {
           id: 1,
           name: "Maria",
-          email: "maria@horarius.com",
+          email: "maria@schedra.com",
           cpf: "52998224725",
           password: "hash",
         },
@@ -70,7 +70,7 @@ describe("UpdateUserProfileService", () => {
       authenticatedUserId: 1,
       userId: 1,
       name: "Maria Atualizada",
-      email: "outro@horarius.com",
+      email: "outro@schedra.com",
       cpf: "52998224725",
       password: "Senha123!",
     });
@@ -88,7 +88,7 @@ describe("UpdateUserProfileService", () => {
         {
           id: 1,
           name: "Maria",
-          email: "maria@horarius.com",
+          email: "maria@schedra.com",
           cpf: "52998224725",
           password: "hash",
         },
@@ -100,7 +100,7 @@ describe("UpdateUserProfileService", () => {
       authenticatedUserId: 1,
       userId: 1,
       name: "Maria Atualizada",
-      email: "maria@horarius.com",
+      email: "maria@schedra.com",
       cpf: "12345678900",
       password: "Senha123!",
     });
@@ -118,7 +118,7 @@ describe("UpdateUserProfileService", () => {
         {
           id: 1,
           name: "Maria",
-          email: "maria@horarius.com",
+          email: "maria@schedra.com",
           cpf: "52998224725",
           password: "hash",
         },
@@ -130,7 +130,7 @@ describe("UpdateUserProfileService", () => {
       authenticatedUserId: 1,
       userId: 1,
       name: "  Maria Atualizada  ",
-      email: "maria@horarius.com",
+      email: "maria@schedra.com",
       cpf: "111.444.777-35",
       password: "Senha123!",
     });
@@ -144,7 +144,7 @@ describe("UpdateUserProfileService", () => {
     expect(result.data.user).toEqual({
       id: 1,
       name: "Maria Atualizada",
-      email: "maria@horarius.com",
+      email: "maria@schedra.com",
       cpf: "11144477735",
     });
     await expect(comparePassword("Senha123!", repository.lastUpdatedInput?.password ?? "")).resolves.toBe(true);
