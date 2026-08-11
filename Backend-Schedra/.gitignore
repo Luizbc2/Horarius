@@ -13,6 +13,8 @@ node_modules/
 dist/
 build/
 coverage/
+uploads/*
+!uploads/.gitkeep
 
 # Environment files
 .env

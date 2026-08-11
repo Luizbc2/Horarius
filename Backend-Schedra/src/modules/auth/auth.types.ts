@@ -3,12 +3,16 @@ export type LoginInput = {
   password: string;
 };
 
+export type AccountType = "business" | "personal";
+
 export type AuthenticatedUser = {
   id: number;
   name: string;
   email: string;
   cpf: string;
   password: string;
+  accountType?: AccountType;
+  avatarUrl?: string | null;
 };
 
 export type AccessTokenPayload = {

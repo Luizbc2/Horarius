@@ -95,6 +95,8 @@ export class LoginService {
           name: user.name,
           email: user.email,
           cpf: user.cpf,
+          accountType: user.accountType ?? "business",
+          avatarUrl: user.avatarUrl ?? null,
         },
       },
     };

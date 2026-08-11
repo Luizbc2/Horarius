@@ -107,6 +107,8 @@ describe("LoginService", () => {
       name: "Admin",
       email: "ADMIN@schedra.com",
       cpf: "52998224725",
+      accountType: "business",
+      avatarUrl: null,
     });
 
     const decoded = jwt.verify(result.data.token, env.jwt.secret) as { sub: string; email: string };

@@ -146,6 +146,8 @@ describe("UpdateUserProfileService", () => {
       name: "Maria Atualizada",
       email: "maria@schedra.com",
       cpf: "11144477735",
+      accountType: "business",
+      avatarUrl: null,
     });
     await expect(comparePassword("Senha123!", repository.lastUpdatedInput?.password ?? "")).resolves.toBe(true);
   });

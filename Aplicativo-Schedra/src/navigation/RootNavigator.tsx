@@ -1,11 +1,11 @@
 import { Ionicons } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { useState } from "react";
-import { Platform } from "react-native";
+import { ActivityIndicator, Platform, View } from "react-native";
 
 import { AgendaScreen } from "../features/agenda/screens/AgendaScreen";
-import { WelcomeScreen } from "../features/auth/screens/WelcomeScreen";
+import { AuthScreen } from "../features/auth/screens/AuthScreen";
+import { useAuth } from "../features/auth/AuthProvider";
 import { CatalogScreen } from "../features/catalog/screens/CatalogScreen";
 import { ProfileScreen } from "../features/profile/screens/ProfileScreen";
 import { useAppTheme } from "../theme/ThemeProvider";
@@ -22,8 +22,9 @@ const tabIcons: Record<keyof MainTabParamList, keyof typeof Ionicons.glyphMap> =
   Perfil: "person-outline",
 };
 
-function MainTabs({ onExit }: { onExit: () => void }) {
+function MainTabs() {
   const { colors } = useAppTheme();
+  const { user } = useAuth();
 
   return (
     <Tab.Navigator
@@ -49,32 +50,27 @@ function MainTabs({ onExit }: { onExit: () => void }) {
       })}
     >
       <Tab.Screen name="Agenda" component={AgendaScreen} />
-      <Tab.Screen name="Clientes">
-        {() => <CatalogScreen kind="clients" />}
-      </Tab.Screen>
-      <Tab.Screen name="Servicos">
-        {() => <CatalogScreen kind="services" />}
-      </Tab.Screen>
+      {user.accountType === "business" && <Tab.Screen name="Clientes">{() => <CatalogScreen kind="clients" />}</Tab.Screen>}
+      {user.accountType === "business" && <Tab.Screen name="Servicos">{() => <CatalogScreen kind="services" />}</Tab.Screen>}
       <Tab.Screen name="Perfil">
-        {() => <ProfileScreen onExit={onExit} />}
+        {() => <ProfileScreen />}
       </Tab.Screen>
     </Tab.Navigator>
   );
 }
 
 export function RootNavigator() {
-  const [previewingApp, setPreviewingApp] = useState(false);
+  const { loading, token } = useAuth();
+  const { colors } = useAppTheme();
+
+  if (loading) return <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: colors.background }}><ActivityIndicator color={colors.accent} /></View>;
 
   return (
     <Stack.Navigator screenOptions={{ headerShown: false, animation: "fade" }}>
-      {previewingApp ? (
-        <Stack.Screen name="Main">
-          {() => <MainTabs onExit={() => setPreviewingApp(false)} />}
-        </Stack.Screen>
+      {token ? (
+        <Stack.Screen name="Main" component={MainTabs} />
       ) : (
-        <Stack.Screen name="Welcome">
-          {() => <WelcomeScreen onPreview={() => setPreviewingApp(true)} />}
-        </Stack.Screen>
+        <Stack.Screen name="Welcome" component={AuthScreen} />
       )}
     </Stack.Navigator>
   );

@@ -44,6 +44,7 @@ describe("CreateUserService", () => {
       name: "Maria",
       email: "maria@schedra.com",
       cpf: "52998224725",
+      accountType: "business",
       password: "senhafraca",
     });
 
@@ -91,6 +92,7 @@ describe("CreateUserService", () => {
       email: "  MARIA@schedra.com  ",
       cpf: "529.982.247-25",
       password: "Senha123!",
+      accountType: "personal",
     });
 
     expect(result.success).toBe(true);
@@ -104,6 +106,8 @@ describe("CreateUserService", () => {
       name: "Maria da Silva",
       email: "maria@schedra.com",
       cpf: "52998224725",
+      accountType: "personal",
+      avatarUrl: null,
     });
     expect(repository.lastCreatedInput).not.toBeNull();
     expect(repository.lastCreatedInput?.password).not.toBe("Senha123!");

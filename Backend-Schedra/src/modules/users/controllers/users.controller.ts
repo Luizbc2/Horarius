@@ -3,7 +3,8 @@
 import { CreateUserService } from "../services/create-user.service";
 import { UpdateUserProfileService } from "../services/update-user-profile.service";
 import { getAuthenticatedUserId } from "../../auth/utils/auth-request.util";
-import { asRequestBody, asString } from "../../../shared/http/request-parser";
+import { asRequestBody, asString, type RequestValue } from "../../../shared/http/request-parser";
+import type { AccountType } from "../../auth/auth.types";
 
 export class UsersController {
   constructor(
@@ -55,6 +56,29 @@ export class UsersController {
     }
   }
 
+  public async updateAvatar(request: Request, response: Response): Promise<Response> {
+    const authenticatedUserId = getAuthenticatedUserId(request);
+
+    if (!authenticatedUserId) {
+      return this.sendFailure(response, 401, "Usuario autenticado nao identificado.");
+    }
+
+    if (!request.file) {
+      return this.sendFailure(response, 400, "Selecione uma imagem para o avatar.");
+    }
+
+    const user = await this.updateUserProfileService.updateAvatar(
+      authenticatedUserId,
+      `/uploads/avatars/${request.file.filename}`,
+    );
+
+    if (!user) {
+      return this.sendFailure(response, 404, "Usuário não encontrado.");
+    }
+
+    return response.status(200).json({ message: "Avatar atualizado com sucesso.", user });
+  }
+
   private buildCreatePayload(request: Request) {
     const body = asRequestBody(request.body);
 
@@ -63,7 +87,13 @@ export class UsersController {
       email: asString(body.email),
       cpf: asString(body.cpf),
       password: asString(body.password),
+      accountType: this.parseAccountType(body.accountType),
     };
+  }
+
+  private parseAccountType(value: RequestValue): AccountType | undefined {
+    const accountType = asString(value);
+    return accountType ? accountType as AccountType : undefined;
   }
 
   private buildUpdatePayload(request: Request, authenticatedUserId: number) {

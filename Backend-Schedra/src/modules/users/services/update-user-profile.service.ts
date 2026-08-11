@@ -158,12 +158,20 @@ export class UpdateUserProfileService {
     }
   }
 
+  public async updateAvatar(userId: number, avatarUrl: string): Promise<PublicUserDto | null> {
+    const user = await this.userRepository.updateAvatar(userId, avatarUrl);
+
+    return user ? this.toPublicUser(user) : null;
+  }
+
   private toPublicUser(user: PublicUserDto): PublicUserDto {
     return {
       id: user.id,
       name: user.name,
       email: user.email,
       cpf: user.cpf,
+      accountType: user.accountType ?? "business",
+      avatarUrl: user.avatarUrl ?? null,
     };
   }
 
