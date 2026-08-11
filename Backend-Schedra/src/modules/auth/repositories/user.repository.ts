@@ -13,4 +13,5 @@ export interface UserRepository {
   findByCpf(cpf: string): Promise<AuthenticatedUser | null>;
   create(input: CreateUserInputDto): Promise<AuthenticatedUser>;
   updateProfile(id: number, input: UpdateUserProfileInput): Promise<AuthenticatedUser | null>;
+  updateAvatar(id: number, avatarUrl: string): Promise<AuthenticatedUser | null>;
 }

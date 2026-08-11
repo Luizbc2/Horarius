@@ -52,8 +52,23 @@ export class SequelizeUserRepository implements UserRepository {
       name: input.name,
       email: input.email,
       cpf: input.cpf,
-      password: input.password
+      password: input.password,
+      accountType: input.accountType ?? "business",
     });
+
+    return this.toAuthenticatedUser(user);
+  }
+
+  public async updateAvatar(id: number, avatarUrl: string): Promise<AuthenticatedUser | null> {
+    await this.ensureModelIsInitialized();
+    const user = await UserModel.findByPk(id);
+
+    if (!user) {
+      return null;
+    }
+
+    user.avatarUrl = avatarUrl;
+    await user.save();
 
     return this.toAuthenticatedUser(user);
   }
@@ -81,7 +96,9 @@ export class SequelizeUserRepository implements UserRepository {
       name: user.name,
       email: user.email,
       cpf: user.cpf,
-      password: user.password
+      password: user.password,
+      accountType: user.accountType,
+      avatarUrl: user.avatarUrl,
     };
   }
 

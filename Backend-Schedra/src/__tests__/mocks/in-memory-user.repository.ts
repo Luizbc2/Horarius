@@ -38,12 +38,25 @@ export class InMemoryUserRepository implements UserRepository {
       email: input.email,
       cpf: input.cpf,
       password: input.password,
+      accountType: input.accountType ?? "business",
+      avatarUrl: null,
     };
 
     this.lastCreatedInput = { ...input };
     this.users.push(createdUser);
 
     return createdUser;
+  }
+
+  public async updateAvatar(id: number, avatarUrl: string): Promise<AuthenticatedUser | null> {
+    const user = this.users.find((item) => item.id === id);
+
+    if (!user) {
+      return null;
+    }
+
+    user.avatarUrl = avatarUrl;
+    return user;
   }
 
   public async updateProfile(id: number, input: UpdateUserProfileInput): Promise<AuthenticatedUser | null> {

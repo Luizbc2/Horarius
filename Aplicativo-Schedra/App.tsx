@@ -16,6 +16,7 @@ import { ActivityIndicator, View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { RootNavigator } from "./src/navigation/RootNavigator";
+import { AuthProvider } from "./src/features/auth/AuthProvider";
 import { ThemeProvider, useAppTheme } from "./src/theme/ThemeProvider";
 
 function Application() {
@@ -51,7 +52,9 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <ThemeProvider>
-        <Application />
+        <AuthProvider>
+          <Application />
+        </AuthProvider>
       </ThemeProvider>
     </SafeAreaProvider>
   );

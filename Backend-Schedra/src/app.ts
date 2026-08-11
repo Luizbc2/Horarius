@@ -1,5 +1,6 @@
 import cors from "cors";
 import express, { Express } from "express";
+import path from "node:path";
 
 import { env } from "./config/env";
 import { HealthController } from "./controllers/health.controller";
@@ -110,6 +111,7 @@ export class App {
       })
     );
     this.server.use(express.json());
+    this.server.use("/uploads", express.static(path.resolve(process.cwd(), "uploads")));
   }
 
   private routes(): void {

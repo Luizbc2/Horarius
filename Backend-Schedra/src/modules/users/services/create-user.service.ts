@@ -30,11 +30,20 @@ export class CreateUserService {
     const email = input.email.trim().toLowerCase();
     const cpf = normalizeCpf(input.cpf);
     const password = input.password.trim();
+    const accountType = input.accountType ?? "business";
 
     if (!name || !email || !cpf || !password) {
       return {
         success: false,
         message: "Nome, e-mail, CPF e senha são obrigatórios.",
+        statusCode: 400,
+      };
+    }
+
+    if (accountType !== "business" && accountType !== "personal") {
+      return {
+        success: false,
+        message: "Tipo de conta inválido.",
         statusCode: 400,
       };
     }
@@ -115,6 +124,7 @@ export class CreateUserService {
         email,
         cpf,
         password: await hashPassword(password),
+        accountType,
       });
 
       return {
@@ -151,6 +161,8 @@ export class CreateUserService {
       name: user.name,
       email: user.email,
       cpf: user.cpf,
+      accountType: user.accountType ?? "business",
+      avatarUrl: user.avatarUrl ?? null,
     };
   }
 
