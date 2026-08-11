@@ -137,7 +137,7 @@ function AnimatedTabItem({
   }, [focusProgress, focused]);
 
   const scale = focusProgress.interpolate({ inputRange: [0, 1], outputRange: [1, 1.1] });
-  const translateY = focusProgress.interpolate({ inputRange: [0, 1], outputRange: [0, -1] });
+  const translateY = focusProgress.interpolate({ inputRange: [0, 1], outputRange: [3, 2] });
   const color = focused ? colors.accent : colors.textMuted;
 
   return (
