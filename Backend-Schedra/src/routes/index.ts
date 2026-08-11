@@ -7,6 +7,7 @@ import { clientsRoutes } from "../modules/clients/routes/clients.routes";
 import { professionalsRoutes } from "../modules/professionals/routes/professionals.routes";
 import { servicesRoutes } from "../modules/services/routes/services.routes";
 import { usersRoutes } from "../modules/users/routes/users.routes";
+import { personalEventsRoutes } from "../modules/personal-events/routes/personal-events.routes";
 
 const router = Router();
 const healthController = new HealthController();
@@ -18,5 +19,6 @@ router.use("/clients", clientsRoutes);
 router.use("/professionals", professionalsRoutes);
 router.use("/services", servicesRoutes);
 router.use("/users", usersRoutes);
+router.use("/personal-events", personalEventsRoutes);
 
 export { router };
