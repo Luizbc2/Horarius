@@ -9,5 +9,5 @@ export type AuthUser = {
   avatarUrl: string | null;
 };
 
-export type LoginInput = { email: string; password: string };
+export type LoginInput = { email: string; password: string; accountType?: AccountType };
 export type SignupInput = LoginInput & { name: string; cpf: string; accountType: AccountType };

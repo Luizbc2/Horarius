@@ -32,8 +32,10 @@ export function AuthScreen() {
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [switchWidth, setSwitchWidth] = useState(0);
+  const [accountSwitchWidth, setAccountSwitchWidth] = useState(0);
   const transitionLocked = useRef(false);
   const selectorProgress = useRef(new Animated.Value(0)).current;
+  const accountSelectorProgress = useRef(new Animated.Value(0)).current;
   const contentOffset = useRef(new Animated.Value(0)).current;
   const contentOpacity = useRef(new Animated.Value(1)).current;
   const contentScale = useRef(new Animated.Value(1)).current;
@@ -100,12 +102,26 @@ export function AuthScreen() {
     });
   };
 
+  const changeAccountType = (nextType: AccountType) => {
+    if (nextType === accountType) return;
+
+    setAccountType(nextType);
+    setError("");
+    Animated.spring(accountSelectorProgress, {
+      toValue: nextType === "personal" ? 1 : 0,
+      damping: 18,
+      stiffness: 180,
+      mass: 0.8,
+      useNativeDriver: true,
+    }).start();
+  };
+
   const submit = async () => {
     setError("");
     setSubmitting(true);
     try {
       if (screen === "login") {
-        await signIn({ email: form.email, password: form.password });
+        await signIn({ email: form.email, password: form.password, accountType });
       } else {
         await signUp({ ...form, accountType });
       }
@@ -121,6 +137,12 @@ export function AuthScreen() {
     inputRange: [0, 1],
     outputRange: [0, selectorWidth],
   });
+  const accountSelectorWidth = Math.max(0, (accountSwitchWidth - 8) / 2);
+  const accountSelectorTranslate = accountSelectorProgress.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, accountSelectorWidth],
+  });
+  const isBusiness = accountType === "business";
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
@@ -174,27 +196,44 @@ export function AuthScreen() {
           >
             <View style={styles.heading}>
               <Text style={[styles.eyebrow, { color: colors.accent }]}>
-                {screen === "login" ? "ÁREA DA EQUIPE" : "COMECE AGORA"}
+                {screen === "signup" ? "COMECE AGORA" : isBusiness ? "ÁREA DA EQUIPE" : "ÁREA PESSOAL"}
               </Text>
               <Text style={[styles.title, { color: colors.text }]}>
                 {screen === "login" ? "Entrar no Schedra" : "Crie sua rotina"}
               </Text>
               <Text style={[styles.description, { color: colors.textMuted }]}>
                 {screen === "login"
-                  ? "Continue de onde sua operação parou."
+                  ? isBusiness
+                    ? "Continue de onde sua operação parou."
+                    : "Acesse seus compromissos e mantenha sua rotina em dia."
                   : "Escolha a experiência que combina com o seu dia."}
               </Text>
             </View>
 
-            {screen === "signup" && (
-              <View style={[styles.segment, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <View
+              onLayout={(event) => setAccountSwitchWidth(event.nativeEvent.layout.width)}
+              style={[styles.segment, { backgroundColor: colors.surface, borderColor: colors.border }]}
+            >
+              {accountSelectorWidth > 0 && (
+                <Animated.View
+                  style={[
+                    styles.accountSwitchSelector,
+                    {
+                      width: accountSelectorWidth,
+                      backgroundColor: colors.accentSoft,
+                      transform: [{ translateX: accountSelectorTranslate }],
+                    },
+                  ]}
+                />
+              )}
                 {(["business", "personal"] as AccountType[]).map((type) => (
                   <Pressable
                     key={type}
-                    onPress={() => setAccountType(type)}
+                    accessibilityRole="tab"
+                    accessibilityState={{ selected: accountType === type }}
+                    onPress={() => changeAccountType(type)}
                     style={({ pressed }) => [
                       styles.segmentOption,
-                      accountType === type && { backgroundColor: colors.accentSoft },
                       pressed && styles.pressed,
                     ]}
                   >
@@ -208,8 +247,7 @@ export function AuthScreen() {
                     </Text>
                   </Pressable>
                 ))}
-              </View>
-            )}
+            </View>
 
             <View style={styles.form}>
               {screen === "signup" && (
@@ -327,8 +365,9 @@ const styles = StyleSheet.create({
   eyebrow: { fontFamily: fonts.bodyBold, fontSize: 11 },
   title: { fontFamily: fonts.displayBold, fontSize: 42 },
   description: { fontFamily: fonts.body, fontSize: 15, lineHeight: 22 },
-  segment: { flexDirection: "row", padding: 4, borderRadius: 8, borderWidth: 1 },
-  segmentOption: { flex: 1, minHeight: 48, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 7, borderRadius: 6 },
+  segment: { flexDirection: "row", padding: 4, borderRadius: 8, borderWidth: 1, position: "relative" },
+  accountSwitchSelector: { position: "absolute", left: 4, top: 4, bottom: 4, borderRadius: 6 },
+  segmentOption: { flex: 1, minHeight: 48, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 7, borderRadius: 6, zIndex: 1 },
   segmentText: { fontFamily: fonts.bodyBold, fontSize: 13 },
   form: { gap: 18 },
   field: { gap: 7 },

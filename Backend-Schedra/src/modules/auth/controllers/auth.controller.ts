@@ -7,12 +7,13 @@ export class AuthController {
 
   public async login(request: Request, response: Response): Promise<Response> {
     try {
-      const { email = "", password = "" } = request.body as {
+      const { email = "", password = "", accountType } = request.body as {
         email?: string;
         password?: string;
+        accountType?: "business" | "personal";
       };
 
-      const result = await this.loginService.execute({ email, password });
+      const result = await this.loginService.execute({ email, password, accountType });
 
       if (!result.success) {
         return response.status(result.statusCode).json({

@@ -55,6 +55,14 @@ export class LoginService {
       };
     }
 
+    if (input.accountType && input.accountType !== "business" && input.accountType !== "personal") {
+      return {
+        success: false,
+        message: "Tipo de conta inválido.",
+        statusCode: 400,
+      };
+    }
+
     let user;
 
     try {
@@ -85,6 +93,18 @@ export class LoginService {
       };
     }
 
+    const userAccountType = user.accountType ?? "business";
+
+    if (input.accountType && input.accountType !== userAccountType) {
+      return {
+        success: false,
+        message: input.accountType === "business"
+          ? "Esta é uma conta pessoal. Selecione Pessoal para entrar."
+          : "Esta é uma conta empresarial. Selecione Empresarial para entrar.",
+        statusCode: 403,
+      };
+    }
+
     return {
       success: true,
       data: {
@@ -95,7 +115,7 @@ export class LoginService {
           name: user.name,
           email: user.email,
           cpf: user.cpf,
-          accountType: user.accountType ?? "business",
+          accountType: userAccountType,
           avatarUrl: user.avatarUrl ?? null,
         },
       },

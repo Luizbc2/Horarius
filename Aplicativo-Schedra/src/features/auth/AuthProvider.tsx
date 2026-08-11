@@ -49,7 +49,11 @@ export function AuthProvider({ children }: PropsWithChildren) {
     },
     signUp: async (input) => {
       await authApi.signup(input);
-      const response = await authApi.login({ email: input.email, password: input.password });
+      const response = await authApi.login({
+        email: input.email,
+        password: input.password,
+        accountType: input.accountType,
+      });
       await persist({ token: response.token, user: response.user });
     },
     signOut: async () => {
