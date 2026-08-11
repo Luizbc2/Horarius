@@ -1,104 +1,103 @@
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { Ionicons } from "@expo/vector-icons";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import * as Notifications from "expo-notifications";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { ActivityIndicator, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import { AppHeader } from "../../../shared/components/AppHeader";
 import { Screen } from "../../../shared/components/Screen";
 import { useAppTheme } from "../../../theme/ThemeProvider";
 import { fonts } from "../../../theme/tokens";
+import { useAuth } from "../../auth/AuthProvider";
+import { agendaApi, type Appointment, type EntityOption, type PersonalEvent } from "../api/agenda-api";
 
-const metrics = [
-  { label: "HOJE", value: "08", detail: "atendimentos", color: "accent" as const },
-  { label: "CONFIRMADOS", value: "06", detail: "clientes", color: "amber" as const },
-  { label: "OCUPAÇÃO", value: "82%", detail: "da equipe", color: "coral" as const },
-];
-
-const appointments = [
-  { time: "09:30", name: "Camila Rocha", service: "Corte + finalização", status: "Confirmado", color: "lime" as const },
-  { time: "10:45", name: "Lucas Martins", service: "Barba completa", status: "Em atendimento", color: "coral" as const },
-  { time: "13:00", name: "Marina Alves", service: "Coloração", status: "Confirmado", color: "teal" as const },
-];
+type AgendaItem = { id: number; title: string; detail: string; at: string; status: string; raw: Appointment | PersonalEvent };
+const addHour = (date: Date) => new Date(date.getTime() + 60 * 60 * 1000);
 
 export function AgendaScreen() {
   const { colors } = useAppTheme();
+  const { token, user } = useAuth();
+  const personal = user.accountType === "personal";
+  const [items, setItems] = useState<AgendaItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [editorOpen, setEditorOpen] = useState(false);
+  const [editing, setEditing] = useState<AgendaItem | null>(null);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      if (personal) {
+        const response = await agendaApi.listPersonal(token);
+        setItems(response.items.map((event) => ({ id: event.id, title: event.title, detail: event.location || event.notes || "Compromisso pessoal", at: event.startsAt, status: event.completed ? "Concluído" : "Programado", raw: event })));
+      } else {
+        const response = await agendaApi.listAppointments(token);
+        setItems(response.data.map((appointment) => ({ id: appointment.id, title: appointment.clientName, detail: `${appointment.serviceName} · ${appointment.professionalName}`, at: appointment.scheduledAt, status: appointment.status, raw: appointment })));
+      }
+    } finally { setLoading(false); }
+  }, [personal, token]);
+
+  useEffect(() => { void load(); }, [load]);
+  const todayCount = items.filter((item) => new Date(item.at).toDateString() === new Date().toDateString()).length;
+
+  const openEditor = (item: AgendaItem | null = null) => { setEditing(item); setEditorOpen(true); };
 
   return (
-    <Screen
-      header={<AppHeader eyebrow="TERÇA-FEIRA, 11 DE AGOSTO" title="Bom dia, Luiz" />}
-      floatingAction={
-        <Pressable style={({ pressed }) => [styles.fab, { backgroundColor: colors.accent, opacity: pressed ? 0.8 : 1 }]}>
-          <Ionicons name="add" color="#FFFFFF" size={28} />
-        </Pressable>
-      }
-    >
-      <View>
-        <Text style={[styles.kicker, { color: colors.accent }]}>VISÃO DO DIA</Text>
-        <Text style={[styles.pageTitle, { color: colors.text }]}>Agenda de hoje</Text>
-        <Text style={[styles.pageDescription, { color: colors.textMuted }]}>Acompanhe o ritmo da operação e encontre rapidamente o próximo espaço livre.</Text>
+    <Screen header={<AppHeader eyebrow={personal ? "AGENDA PESSOAL" : "GESTÃO DIÁRIA"} title={`Olá, ${user.name.split(" ")[0]}`} />} floatingAction={<Pressable accessibilityLabel="Novo compromisso" onPress={() => openEditor()} style={[styles.fab, { backgroundColor: colors.accent }]}><Ionicons name="add" color="#FFF" size={28} /></Pressable>}>
+      <View><Text style={[styles.kicker, { color: colors.accent }]}>{personal ? "MINHA ROTINA" : "VISÃO DO DIA"}</Text><Text style={[styles.pageTitle, { color: colors.text }]}>{personal ? "Seus compromissos" : "Agenda da equipe"}</Text><Text style={[styles.description, { color: colors.textMuted }]}>{personal ? "Organize trabalho, saúde e vida pessoal em um só lugar." : "Atendimentos e horários da operação em tempo real."}</Text></View>
+      <View style={styles.metrics}><Metric label="HOJE" value={String(todayCount).padStart(2, "0")} color={colors.accent} /><Metric label="PRÓXIMOS" value={String(items.length).padStart(2, "0")} color={colors.amber} /></View>
+      <View style={[styles.list, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+        <View style={styles.listHeader}><Text style={[styles.listTitle, { color: colors.text }]}>Próximos horários</Text><Pressable accessibilityLabel="Recarregar" onPress={load}><Ionicons name="refresh" size={20} color={colors.textMuted} /></Pressable></View>
+        {loading ? <ActivityIndicator style={styles.loader} color={colors.accent} /> : items.length === 0 ? <View style={styles.empty}><Ionicons name="calendar-outline" size={28} color={colors.textMuted} /><Text style={[styles.emptyText, { color: colors.textMuted }]}>Nenhum compromisso por aqui.</Text></View> : items.map((item, index) => <Pressable key={item.id} onPress={() => openEditor(item)} style={[styles.row, index > 0 && { borderTopColor: colors.border, borderTopWidth: 1 }]}><Text style={[styles.time, { color: colors.textMuted }]}>{new Date(item.at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</Text><View style={[styles.accent, { backgroundColor: colors.accent }]} /><View style={styles.rowBody}><Text style={[styles.itemTitle, { color: colors.text }]}>{item.title}</Text><Text numberOfLines={1} style={[styles.itemDetail, { color: colors.textMuted }]}>{item.detail}</Text><Text style={[styles.status, { color: colors.accent }]}>{item.status}</Text></View><Ionicons name="chevron-forward" size={18} color={colors.textMuted} /></Pressable>)}
       </View>
-
-      <View style={styles.metricsGrid}>
-        {metrics.map((metric) => (
-          <View key={metric.label} style={[styles.metricCard, { backgroundColor: colors.surface, borderColor: colors.border, borderLeftColor: colors[metric.color] }]}>
-            <Text style={[styles.metricLabel, { color: colors.textMuted }]}>{metric.label}</Text>
-            <Text style={[styles.metricValue, { color: colors.text }]}>{metric.value}</Text>
-            <Text style={[styles.metricDetail, { color: colors.textMuted }]}>{metric.detail}</Text>
-          </View>
-        ))}
-      </View>
-
-      <View style={[styles.agendaCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-        <View style={styles.sectionHeader}>
-          <View>
-            <Text style={[styles.sectionEyebrow, { color: colors.textMuted }]}>TIMELINE</Text>
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>Próximos horários</Text>
-          </View>
-          <Ionicons name="ellipsis-horizontal" size={22} color={colors.textMuted} />
-        </View>
-        {appointments.map((appointment, index) => (
-          <View key={`${appointment.time}-${appointment.name}`} style={[styles.appointment, index > 0 && { borderTopColor: colors.border, borderTopWidth: 1 }]}>
-            <Text style={[styles.time, { color: colors.textMuted }]}>{appointment.time}</Text>
-            <View style={[styles.appointmentAccent, { backgroundColor: colors.accent }]} />
-            <View style={styles.appointmentBody}>
-              <Text style={[styles.appointmentName, { color: colors.text }]}>{appointment.name}</Text>
-              <Text style={[styles.appointmentService, { color: colors.textMuted }]}>{appointment.service}</Text>
-              <Text style={[styles.appointmentStatus, { color: colors.accent }]}>{appointment.status}</Text>
-            </View>
-            <View style={[styles.statusDot, { backgroundColor: colors[appointment.color] }]} />
-          </View>
-        ))}
-        <View style={[styles.availableSlot, { borderColor: colors.accent, backgroundColor: colors.accentSoft }]}>
-          <Text style={[styles.availableTime, { color: colors.textMuted }]}>14:30</Text>
-          <Text style={[styles.availableLabel, { color: colors.accent }]}>Horário disponível</Text>
-        </View>
-      </View>
-
+      <AgendaEditor visible={editorOpen} item={editing} personal={personal} onClose={() => setEditorOpen(false)} onSaved={async () => { setEditorOpen(false); await load(); }} />
     </Screen>
   );
+
+  function Metric({ label, value, color }: { label: string; value: string; color: string }) { return <View style={[styles.metric, { backgroundColor: colors.surface, borderColor: colors.border, borderLeftColor: color }]}><Text style={[styles.metricLabel, { color: colors.textMuted }]}>{label}</Text><Text style={[styles.metricValue, { color: colors.text }]}>{value}</Text></View>; }
 }
 
-const styles = StyleSheet.create({
-  kicker: { fontFamily: fonts.bodyBold, fontSize: 11, marginBottom: 6 },
-  pageTitle: { fontFamily: fonts.displayBold, fontSize: 34 },
-  pageDescription: { fontFamily: fonts.body, fontSize: 14, lineHeight: 21, marginTop: 8 },
-  metricsGrid: { flexDirection: "row", gap: 8 },
-  metricCard: { flex: 1, minHeight: 120, padding: 12, borderRadius: 8, borderWidth: 1, borderLeftWidth: 3 },
-  metricLabel: { fontFamily: fonts.bodyBold, fontSize: 9 },
-  metricValue: { fontFamily: fonts.displayBold, fontSize: 31, marginTop: 8 },
-  metricDetail: { fontFamily: fonts.body, fontSize: 11, marginTop: 2 },
-  agendaCard: { borderRadius: 12, borderWidth: 1, padding: 16 },
-  sectionHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingBottom: 8 },
-  sectionEyebrow: { fontFamily: fonts.bodyBold, fontSize: 10 },
-  sectionTitle: { fontFamily: fonts.display, fontSize: 23, marginTop: 4 },
-  appointment: { minHeight: 100, flexDirection: "row", alignItems: "flex-start", paddingVertical: 16 },
-  time: { width: 52, fontFamily: fonts.bodyBold, fontSize: 13, paddingTop: 2 },
-  appointmentAccent: { width: 2, alignSelf: "stretch", marginRight: 14 },
-  appointmentBody: { flex: 1, gap: 4 },
-  appointmentName: { fontFamily: fonts.bodyBold, fontSize: 15 },
-  appointmentService: { fontFamily: fonts.body, fontSize: 13 },
-  appointmentStatus: { fontFamily: fonts.bodyBold, fontSize: 12, marginTop: 3 },
-  statusDot: { width: 10, height: 10, borderRadius: 5, marginTop: 4 },
-  availableSlot: { flexDirection: "row", alignItems: "center", minHeight: 52, borderWidth: 1, borderStyle: "dashed", borderRadius: 8, paddingHorizontal: 12 },
-  availableTime: { width: 66, fontFamily: fonts.bodyBold, fontSize: 13 },
-  availableLabel: { fontFamily: fonts.bodyBold, fontSize: 13 },
-  fab: { position: "absolute", right: 22, bottom: 18, width: 56, height: 56, borderRadius: 28, alignItems: "center", justifyContent: "center", elevation: 6, shadowColor: "#000", shadowOpacity: 0.22, shadowRadius: 8, shadowOffset: { width: 0, height: 4 } },
-});
+function AgendaEditor({ visible, item, personal, onClose, onSaved }: { visible: boolean; item: AgendaItem | null; personal: boolean; onClose: () => void; onSaved: () => void }) {
+  const { colors } = useAppTheme();
+  const { token } = useAuth();
+  const initialDate = useMemo(() => item ? new Date(item.at) : addHour(new Date()), [item, visible]);
+  const [date, setDate] = useState(initialDate);
+  const [title, setTitle] = useState("");
+  const [location, setLocation] = useState("");
+  const [notes, setNotes] = useState("");
+  const [options, setOptions] = useState<{ clients: EntityOption[]; professionals: EntityOption[]; services: EntityOption[] }>({ clients: [], professionals: [], services: [] });
+  const [selected, setSelected] = useState({ clientId: 0, professionalId: 0, serviceId: 0 });
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    setDate(initialDate);
+    if (personal && item) { const event = item.raw as PersonalEvent; setTitle(event.title); setLocation(event.location); setNotes(event.notes); }
+    else if (!personal && item) { const appointment = item.raw as Appointment; setSelected({ clientId: appointment.clientId, professionalId: appointment.professionalId, serviceId: appointment.serviceId }); setNotes(appointment.notes); }
+    else { setTitle(""); setLocation(""); setNotes(""); setSelected({ clientId: 0, professionalId: 0, serviceId: 0 }); }
+    if (visible && !personal) void agendaApi.listOptions(token).then(setOptions);
+  }, [initialDate, item, personal, token, visible]);
+
+  const save = async () => {
+    setSaving(true);
+    try {
+      if (personal) {
+        await agendaApi.savePersonal(token, { title, startsAt: date.toISOString(), endsAt: addHour(date).toISOString(), location, notes, reminderMinutes: 30, completed: false }, item?.id);
+        if (!item && Platform.OS !== "web") {
+          const permission = await Notifications.requestPermissionsAsync();
+          const triggerDate = new Date(date.getTime() - 30 * 60 * 1000);
+          if (permission.granted && triggerDate > new Date()) await Notifications.scheduleNotificationAsync({ content: { title, body: location || "Seu compromisso começa em 30 minutos." }, trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date: triggerDate } });
+        }
+      } else {
+        await agendaApi.saveAppointment(token, { ...selected, scheduledAt: date.toISOString(), status: "pendente", notes }, item?.id);
+      }
+      onSaved();
+    } finally { setSaving(false); }
+  };
+
+  return <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}><SafeAreaView style={[styles.modal, { backgroundColor: colors.background }]}><View style={styles.modalHeader}><View><Text style={[styles.modalEyebrow, { color: colors.accent }]}>{item ? "EDITAR" : "NOVO"}</Text><Text style={[styles.modalTitle, { color: colors.text }]}>{personal ? "Compromisso" : "Agendamento"}</Text></View><Pressable accessibilityLabel="Fechar" onPress={onClose}><Ionicons name="close" size={25} color={colors.text} /></Pressable></View><ScrollView contentContainerStyle={styles.form}>{personal ? <><Field label="Título" value={title} onChangeText={setTitle} /><Field label="Local" value={location} onChangeText={setLocation} /></> : <>{(["clients", "professionals", "services"] as const).map((group) => <OptionSelector key={group} title={group === "clients" ? "Cliente" : group === "professionals" ? "Profissional" : "Serviço"} options={options[group]} value={selected[group === "clients" ? "clientId" : group === "professionals" ? "professionalId" : "serviceId"]} onChange={(value) => setSelected((current) => ({ ...current, [group === "clients" ? "clientId" : group === "professionals" ? "professionalId" : "serviceId"]: value }))} />)}</>}<Text style={[styles.fieldLabel, { color: colors.text }]}>Data e horário</Text><DateTimePicker value={date} mode="datetime" minimumDate={new Date()} onChange={(_event, value) => value && setDate(value)} themeVariant={colors.background === "#121115" ? "dark" : "light"} /><Field label="Observações" value={notes} onChangeText={setNotes} multiline /><Pressable disabled={saving} onPress={save} style={[styles.saveButton, { backgroundColor: colors.accent, opacity: saving ? 0.6 : 1 }]}>{saving ? <ActivityIndicator color="#FFF" /> : <Text style={styles.saveText}>Salvar compromisso</Text>}</Pressable></ScrollView></SafeAreaView></Modal>;
+
+  function Field({ label, ...props }: { label: string } & React.ComponentProps<typeof TextInput>) { return <View style={styles.field}><Text style={[styles.fieldLabel, { color: colors.text }]}>{label}</Text><TextInput placeholderTextColor={colors.textMuted} style={[styles.input, { color: colors.text, backgroundColor: colors.surface, borderColor: colors.border }]} {...props} /></View>; }
+  function OptionSelector({ title, options: values, value, onChange }: { title: string; options: EntityOption[]; value: number; onChange: (id: number) => void }) { return <View style={styles.field}><Text style={[styles.fieldLabel, { color: colors.text }]}>{title}</Text><ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>{values.map((option) => <Pressable key={option.id} onPress={() => onChange(option.id)} style={[styles.chip, { borderColor: value === option.id ? colors.accent : colors.border, backgroundColor: value === option.id ? colors.accentSoft : colors.surface }]}><Text style={[styles.chipText, { color: value === option.id ? colors.accent : colors.text }]}>{option.name}</Text></Pressable>)}</ScrollView></View>; }
+}
+
+const styles = StyleSheet.create({ kicker: { fontFamily: fonts.bodyBold, fontSize: 11, marginBottom: 6 }, pageTitle: { fontFamily: fonts.displayBold, fontSize: 34 }, description: { fontFamily: fonts.body, fontSize: 14, lineHeight: 21, marginTop: 8 }, metrics: { flexDirection: "row", gap: 10 }, metric: { flex: 1, minHeight: 92, padding: 14, borderRadius: 8, borderWidth: 1, borderLeftWidth: 3 }, metricLabel: { fontFamily: fonts.bodyBold, fontSize: 10 }, metricValue: { fontFamily: fonts.displayBold, fontSize: 31, marginTop: 7 }, list: { borderRadius: 12, borderWidth: 1, paddingHorizontal: 16 }, listHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingVertical: 18 }, listTitle: { fontFamily: fonts.display, fontSize: 23 }, loader: { margin: 36 }, empty: { alignItems: "center", gap: 10, padding: 34 }, emptyText: { fontFamily: fonts.body, fontSize: 13 }, row: { minHeight: 98, flexDirection: "row", alignItems: "center", paddingVertical: 14 }, time: { width: 52, fontFamily: fonts.bodyBold, fontSize: 12 }, accent: { width: 2, alignSelf: "stretch", marginRight: 13 }, rowBody: { flex: 1, gap: 4 }, itemTitle: { fontFamily: fonts.bodyBold, fontSize: 15 }, itemDetail: { fontFamily: fonts.body, fontSize: 12 }, status: { fontFamily: fonts.bodyBold, fontSize: 11, textTransform: "capitalize" }, fab: { position: "absolute", right: 22, bottom: 18, width: 56, height: 56, borderRadius: 28, alignItems: "center", justifyContent: "center", elevation: 7 }, modal: { flex: 1 }, modalHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", padding: 22 }, modalEyebrow: { fontFamily: fonts.bodyBold, fontSize: 10 }, modalTitle: { fontFamily: fonts.displayBold, fontSize: 32 }, form: { gap: 19, paddingHorizontal: 22, paddingBottom: 40 }, field: { gap: 7 }, fieldLabel: { fontFamily: fonts.bodyBold, fontSize: 13 }, input: { minHeight: 52, borderWidth: 1, borderRadius: 8, padding: 14, fontFamily: fonts.body, fontSize: 14 }, chips: { gap: 8 }, chip: { minHeight: 42, borderWidth: 1, borderRadius: 8, paddingHorizontal: 14, justifyContent: "center" }, chipText: { fontFamily: fonts.bodyMedium, fontSize: 13 }, saveButton: { minHeight: 54, borderRadius: 8, alignItems: "center", justifyContent: "center", marginTop: 10 }, saveText: { color: "#FFF", fontFamily: fonts.bodyBold, fontSize: 15 } });

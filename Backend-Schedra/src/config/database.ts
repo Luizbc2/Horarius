@@ -11,6 +11,7 @@ import { ServiceModel } from "../modules/services/models/service.model";
 import { ProfessionalModel } from "../modules/professionals/models/professional.model";
 import { ProfessionalWorkDayModel } from "../modules/professionals/models/professional-work-day.model";
 import { initializePlatformModels } from "../platform/models/platform-models";
+import { PersonalEventModel } from "../modules/personal-events/models/personal-event.model";
 
 class Database {
   private sequelize: Sequelize | null = null;
@@ -63,6 +64,7 @@ class Database {
     ProfessionalModel.initialize(this.getConnection());
     ProfessionalWorkDayModel.initialize(this.getConnection());
     AppointmentModel.initialize(this.getConnection());
+    PersonalEventModel.initialize(this.getConnection());
     initializePlatformModels(this.getConnection());
 
     UserModel.hasMany(ClientModel, {
@@ -81,6 +83,7 @@ class Database {
       foreignKey: "userId",
       as: "appointments",
     });
+    UserModel.hasMany(PersonalEventModel, { foreignKey: "userId", as: "personalEvents" });
     ClientModel.hasMany(AppointmentModel, {
       foreignKey: "clientId",
       as: "appointments",
@@ -114,6 +117,7 @@ class Database {
       foreignKey: "userId",
       as: "user",
     });
+    PersonalEventModel.belongsTo(UserModel, { foreignKey: "userId", as: "user" });
     AppointmentModel.belongsTo(ClientModel, {
       foreignKey: "clientId",
       as: "client",
