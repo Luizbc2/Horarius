@@ -41,6 +41,8 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
+    ports:
+      - "${BACKEND_PORT}:3333"
     networks:
       - app
       - data
