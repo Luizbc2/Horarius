@@ -12,6 +12,7 @@ export const darkColors = {
   amber: "#F8B84E",
   coral: "#FF6F5A",
   teal: "#42AAA5",
+  success: "#55C98C",
   danger: "#F06A73",
   overlay: "rgba(12, 10, 14, 0.72)",
 } as const;
@@ -30,6 +31,7 @@ export const lightColors = {
   amber: "#D38A12",
   coral: "#E95542",
   teal: "#238E88",
+  success: "#218A5B",
   danger: "#C8424D",
   overlay: "rgba(32, 28, 34, 0.42)",
 } as const;

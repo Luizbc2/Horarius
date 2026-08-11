@@ -23,6 +23,14 @@ import type { AccountType } from "../types";
 
 type AuthMode = "login" | "signup";
 
+const getPasswordRequirements = (password: string) => [
+  { id: "length", label: "Pelo menos 8 caracteres", met: password.length >= 8 },
+  { id: "uppercase", label: "Uma letra maiúscula", met: /[A-Z]/.test(password) },
+  { id: "lowercase", label: "Uma letra minúscula", met: /[a-z]/.test(password) },
+  { id: "number", label: "Um número", met: /\d/.test(password) },
+  { id: "special", label: "Um caractere especial", met: /[^A-Za-z0-9]/.test(password) },
+];
+
 export function AuthScreen() {
   const { colors, mode, toggleTheme } = useAppTheme();
   const { signIn, signUp } = useAuth();
@@ -143,6 +151,9 @@ export function AuthScreen() {
     outputRange: [0, accountSelectorWidth],
   });
   const isBusiness = accountType === "business";
+  const passwordRequirements = getPasswordRequirements(form.password);
+  const passwordIsStrong = passwordRequirements.every((requirement) => requirement.met);
+  const submitDisabled = submitting || (screen === "signup" && !passwordIsStrong);
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
@@ -275,15 +286,17 @@ export function AuthScreen() {
                 value={form.password}
                 onChangeText={(value) => update("password", value)}
                 secureTextEntry
+                maxLength={72}
                 colors={colors}
               />
+              {screen === "signup" && <PasswordChecklist requirements={passwordRequirements} colors={colors} />}
               {!!error && <Text style={[styles.error, { color: colors.danger }]}>{error}</Text>}
               <Pressable
-                disabled={submitting}
+                disabled={submitDisabled}
                 onPress={submit}
                 style={({ pressed }) => [
                   styles.submit,
-                  { backgroundColor: colors.accent, opacity: submitting ? 0.65 : pressed ? 0.88 : 1 },
+                  { backgroundColor: colors.accent, opacity: submitDisabled ? 0.5 : pressed ? 0.88 : 1 },
                 ]}
               >
                 {submitting ? (
@@ -323,6 +336,39 @@ function AuthSwitchOption({
     >
       <Text style={[styles.authSwitchText, { color: selected ? "#FFF" : colors.textMuted }]}>{label}</Text>
     </Pressable>
+  );
+}
+
+function PasswordChecklist({
+  requirements,
+  colors,
+}: {
+  requirements: ReturnType<typeof getPasswordRequirements>;
+  colors: ReturnType<typeof useAppTheme>["colors"];
+}) {
+  return (
+    <View
+      accessibilityLabel="Requisitos da senha"
+      style={[styles.passwordChecklist, { backgroundColor: colors.surfaceRaised, borderColor: colors.border }]}
+    >
+      <Text style={[styles.passwordChecklistTitle, { color: colors.text }]}>Sua senha precisa ter</Text>
+      <View style={styles.passwordRequirements}>
+        {requirements.map((requirement) => {
+          const color = requirement.met ? colors.success : colors.danger;
+
+          return (
+            <View key={requirement.id} style={styles.passwordRequirement}>
+              <Ionicons
+                name={requirement.met ? "checkmark-circle" : "close-circle-outline"}
+                size={18}
+                color={color}
+              />
+              <Text style={[styles.passwordRequirementText, { color }]}>{requirement.label}</Text>
+            </View>
+          );
+        })}
+      </View>
+    </View>
   );
 }
 
@@ -369,6 +415,11 @@ const styles = StyleSheet.create({
   label: { fontFamily: fonts.bodyBold, fontSize: 13 },
   input: { minHeight: 54, borderWidth: 1, borderRadius: 8, paddingHorizontal: 15, fontFamily: fonts.body, fontSize: 15 },
   error: { fontFamily: fonts.bodyMedium, fontSize: 13 },
+  passwordChecklist: { borderWidth: 1, borderRadius: 8, padding: 14, gap: 11 },
+  passwordChecklistTitle: { fontFamily: fonts.bodyBold, fontSize: 12 },
+  passwordRequirements: { gap: 8 },
+  passwordRequirement: { flexDirection: "row", alignItems: "center", gap: 8 },
+  passwordRequirementText: { flex: 1, fontFamily: fonts.bodyMedium, fontSize: 12 },
   submit: { minHeight: 56, borderRadius: 8, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10 },
   submitText: { color: "#FFF", fontFamily: fonts.bodyBold, fontSize: 15 },
   pressed: { opacity: 0.72 },
