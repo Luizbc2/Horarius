@@ -1,6 +1,6 @@
 import pg from "pg";
 import mysql2 from "mysql2";
-import { Op, Sequelize, type Options } from "sequelize";
+import { DataTypes, Op, Sequelize, type Options } from "sequelize";
 
 import { env } from "./env";
 import { AppointmentModel } from "../modules/appointments/models/appointment.model";
@@ -191,9 +191,31 @@ class Database {
 
   public async synchronize(): Promise<void> {
     await this.getConnection().sync();
+    await this.ensureUserProfileColumns();
     await this.seedAuthUser();
 
     console.log("Database tables synchronized.");
+  }
+
+  private async ensureUserProfileColumns(): Promise<void> {
+    const queryInterface = this.getConnection().getQueryInterface();
+    const columns = await queryInterface.describeTable("users");
+
+    if (!columns.accountType) {
+      await queryInterface.addColumn("users", "accountType", {
+        type: DataTypes.ENUM("business", "personal"),
+        allowNull: false,
+        defaultValue: "business",
+      });
+    }
+
+    if (!columns.avatarUrl) {
+      await queryInterface.addColumn("users", "avatarUrl", {
+        type: DataTypes.STRING,
+        allowNull: true,
+        defaultValue: null,
+      });
+    }
   }
 }
 
