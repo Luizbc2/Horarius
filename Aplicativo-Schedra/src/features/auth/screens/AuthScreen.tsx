@@ -295,11 +295,6 @@ export function AuthScreen() {
                   </>
                 )}
               </Pressable>
-              <Pressable onPress={() => changeScreen(screen === "login" ? "signup" : "login")}>
-                <Text style={[styles.switchText, { color: colors.text }]}>
-                  {screen === "login" ? "Ainda não tem acesso? Criar conta" : "Já possui uma conta? Entrar"}
-                </Text>
-              </Pressable>
             </View>
           </Animated.View>
         </ScrollView>
@@ -376,6 +371,5 @@ const styles = StyleSheet.create({
   error: { fontFamily: fonts.bodyMedium, fontSize: 13 },
   submit: { minHeight: 56, borderRadius: 8, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10 },
   submitText: { color: "#FFF", fontFamily: fonts.bodyBold, fontSize: 15 },
-  switchText: { fontFamily: fonts.bodyBold, fontSize: 13, textAlign: "center" },
   pressed: { opacity: 0.72 },
 });
