@@ -116,5 +116,33 @@ describe("LoginService", () => {
     expect(decoded.sub).toBe("1");
     expect(decoded.email).toBe("ADMIN@schedra.com");
   });
+
+  it("impede login quando o perfil selecionado nao corresponde a conta", async () => {
+    const repository = new InMemoryUserRepository({
+      users: [
+        {
+          id: 1,
+          name: "Agenda pessoal",
+          email: "pessoal@schedra.com",
+          cpf: "52998224725",
+          password: await hashPassword("Senha123"),
+          accountType: "personal",
+        },
+      ],
+    });
+    const service = new LoginService(repository);
+
+    const result = await service.execute({
+      email: "pessoal@schedra.com",
+      password: "Senha123",
+      accountType: "business",
+    });
+
+    expect(result).toEqual({
+      success: false,
+      message: "Esta é uma conta pessoal. Selecione Pessoal para entrar.",
+      statusCode: 403,
+    });
+  });
 });
 

@@ -1,8 +1,7 @@
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Ionicons } from "@expo/vector-icons";
-import * as Notifications from "expo-notifications";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { AppHeader } from "../../../shared/components/AppHeader";
@@ -82,11 +81,6 @@ function AgendaEditor({ visible, item, personal, onClose, onSaved }: { visible: 
     try {
       if (personal) {
         await agendaApi.savePersonal(token, { title, startsAt: date.toISOString(), endsAt: addHour(date).toISOString(), location, notes, reminderMinutes: 30, completed: false }, item?.id);
-        if (!item && Platform.OS !== "web") {
-          const permission = await Notifications.requestPermissionsAsync();
-          const triggerDate = new Date(date.getTime() - 30 * 60 * 1000);
-          if (permission.granted && triggerDate > new Date()) await Notifications.scheduleNotificationAsync({ content: { title, body: location || "Seu compromisso começa em 30 minutos." }, trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date: triggerDate } });
-        }
       } else {
         await agendaApi.saveAppointment(token, { ...selected, scheduledAt: date.toISOString(), status: "pendente", notes }, item?.id);
       }
