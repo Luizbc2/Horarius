@@ -7,6 +7,7 @@ import { AuthScreen } from "../features/auth/screens/AuthScreen";
 import { useAuth } from "../features/auth/AuthProvider";
 import { CatalogScreen } from "../features/catalog/screens/CatalogScreen";
 import { ProfileScreen } from "../features/profile/screens/ProfileScreen";
+import { AdminUsersScreen } from "../features/admin/screens/AdminUsersScreen";
 import { useAppTheme } from "../theme/ThemeProvider";
 import { AnimatedTabBar } from "./AnimatedTabBar";
 import type { MainTabParamList, RootStackParamList } from "./types";
@@ -29,6 +30,7 @@ function MainTabs() {
       <Tab.Screen name="Agenda" component={AgendaScreen} />
       {user.accountType === "business" && <Tab.Screen name="Clientes">{() => <CatalogScreen kind="clients" />}</Tab.Screen>}
       {user.accountType === "business" && <Tab.Screen name="Servicos">{() => <CatalogScreen kind="services" />}</Tab.Screen>}
+      {user.role === "admin" && <Tab.Screen name="Admin" component={AdminUsersScreen} />}
       <Tab.Screen name="Perfil">
         {() => <ProfileScreen />}
       </Tab.Screen>

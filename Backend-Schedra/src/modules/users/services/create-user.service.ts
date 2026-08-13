@@ -162,6 +162,8 @@ export class CreateUserService {
       email: user.email,
       cpf: user.cpf,
       accountType: user.accountType ?? "business",
+      role: user.role ?? "user",
+      active: user.active ?? true,
       avatarUrl: user.avatarUrl ?? null,
     };
   }

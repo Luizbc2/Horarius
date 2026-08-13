@@ -83,6 +83,14 @@ export class LoginService {
       };
     }
 
+    if (user.active === false) {
+      return {
+        success: false,
+        message: "Esta conta esta desativada. Procure um administrador.",
+        statusCode: 403,
+      };
+    }
+
     const passwordMatches = await comparePassword(password, user.password);
 
     if (!passwordMatches) {
@@ -116,6 +124,8 @@ export class LoginService {
           email: user.email,
           cpf: user.cpf,
           accountType: userAccountType,
+          role: user.role ?? "user",
+          active: user.active ?? true,
           avatarUrl: user.avatarUrl ?? null,
         },
       },

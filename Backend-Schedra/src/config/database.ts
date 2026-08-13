@@ -152,15 +152,19 @@ class Database {
         name: env.authSeedUser.name.trim(),
         email,
         cpf: env.authSeedUser.cpf,
-        password: hashedPassword
+        password: hashedPassword,
+        role: "admin",
+        active: true,
       });
 
       return;
     }
 
-    const updates: Partial<{ name: string; email: string; password: string }> = {
+    const updates: Partial<{ name: string; email: string; password: string; role: "admin"; active: boolean }> = {
       name: env.authSeedUser.name.trim(),
       email,
+      role: "admin",
+      active: true,
     };
 
     if (!isPasswordHashed(existingUser.password)) {
@@ -214,6 +218,22 @@ class Database {
         type: DataTypes.STRING,
         allowNull: true,
         defaultValue: null,
+      });
+    }
+
+    if (!columns.role) {
+      await queryInterface.addColumn("users", "role", {
+        type: DataTypes.ENUM("admin", "user"),
+        allowNull: false,
+        defaultValue: "user",
+      });
+    }
+
+    if (!columns.active) {
+      await queryInterface.addColumn("users", "active", {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: true,
       });
     }
   }

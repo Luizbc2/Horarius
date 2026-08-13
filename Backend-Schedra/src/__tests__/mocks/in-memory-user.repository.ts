@@ -39,6 +39,8 @@ export class InMemoryUserRepository implements UserRepository {
       cpf: input.cpf,
       password: input.password,
       accountType: input.accountType ?? "business",
+      role: "user",
+      active: true,
       avatarUrl: null,
     };
 

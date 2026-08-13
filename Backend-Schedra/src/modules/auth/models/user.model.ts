@@ -6,7 +6,7 @@ import {
   Model,
   Sequelize
 } from "sequelize";
-import type { AccountType } from "../auth.types";
+import type { AccountType, UserRole } from "../auth.types";
 
 export class UserModel extends Model<InferAttributes<UserModel>, InferCreationAttributes<UserModel>> {
   declare id: CreationOptional<number>;
@@ -15,6 +15,8 @@ export class UserModel extends Model<InferAttributes<UserModel>, InferCreationAt
   declare cpf: string;
   declare password: string;
   declare accountType: CreationOptional<AccountType>;
+  declare role: CreationOptional<UserRole>;
+  declare active: CreationOptional<boolean>;
   declare avatarUrl: CreationOptional<string | null>;
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
@@ -58,6 +60,16 @@ export class UserModel extends Model<InferAttributes<UserModel>, InferCreationAt
           type: DataTypes.ENUM("business", "personal"),
           allowNull: false,
           defaultValue: "business",
+        },
+        role: {
+          type: DataTypes.ENUM("admin", "user"),
+          allowNull: false,
+          defaultValue: "user",
+        },
+        active: {
+          type: DataTypes.BOOLEAN,
+          allowNull: false,
+          defaultValue: true,
         },
         avatarUrl: {
           type: DataTypes.STRING,

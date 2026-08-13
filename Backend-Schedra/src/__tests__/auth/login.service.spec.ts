@@ -108,6 +108,8 @@ describe("LoginService", () => {
       email: "ADMIN@schedra.com",
       cpf: "52998224725",
       accountType: "business",
+      role: "user",
+      active: true,
       avatarUrl: null,
     });
 
@@ -115,6 +117,12 @@ describe("LoginService", () => {
 
     expect(decoded.sub).toBe("1");
     expect(decoded.email).toBe("ADMIN@schedra.com");
+  });
+
+  it("impede login de usuario desativado", async () => {
+    const repository = new InMemoryUserRepository({ users: [{ id: 2, name: "Bloqueado", email: "bloqueado@schedra.com", cpf: "11144477735", password: await hashPassword("Senha123!"), active: false }] });
+    const result = await new LoginService(repository).execute({ email: "bloqueado@schedra.com", password: "Senha123!" });
+    expect(result).toEqual({ success: false, message: "Esta conta esta desativada. Procure um administrador.", statusCode: 403 });
   });
 
   it("impede login quando o perfil selecionado nao corresponde a conta", async () => {

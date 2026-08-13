@@ -6,12 +6,14 @@ import { AuthenticatedUser } from "../auth.types";
 type JwtPayload = {
   sub: string;
   email: string;
+  role: "admin" | "user";
 };
 
 export const generateAccessToken = (user: AuthenticatedUser): string => {
   const payload: JwtPayload = {
     sub: String(user.id),
-    email: user.email
+    email: user.email,
+    role: user.role ?? "user",
   };
 
   const signOptions: SignOptions = {

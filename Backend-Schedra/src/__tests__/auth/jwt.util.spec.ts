@@ -13,9 +13,10 @@ describe("JWT utils", () => {
       password: "hash",
     });
 
-    const decoded = jwt.verify(token, env.jwt.secret) as { sub: string; email: string };
+    const decoded = jwt.verify(token, env.jwt.secret) as { sub: string; email: string; role: string };
 
     expect(decoded.sub).toBe("7");
     expect(decoded.email).toBe("maria@schedra.com");
+    expect(decoded.role).toBe("user");
   });
 });

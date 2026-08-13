@@ -98,6 +98,8 @@ export class SequelizeUserRepository implements UserRepository {
       cpf: user.cpf,
       password: user.password,
       accountType: user.accountType,
+      role: user.role,
+      active: user.active,
       avatarUrl: user.avatarUrl,
     };
   }

@@ -8,11 +8,13 @@ import { professionalsRoutes } from "../modules/professionals/routes/professiona
 import { servicesRoutes } from "../modules/services/routes/services.routes";
 import { usersRoutes } from "../modules/users/routes/users.routes";
 import { personalEventsRoutes } from "../modules/personal-events/routes/personal-events.routes";
+import { adminRoutes } from "../modules/admin/routes/admin.routes";
 
 const router = Router();
 const healthController = new HealthController();
 
 router.get("/health", (request, response) => healthController.check(request, response));
+router.use("/admin", adminRoutes);
 router.use("/appointments", appointmentsRoutes);
 router.use("/auth", authRoutes);
 router.use("/clients", clientsRoutes);
