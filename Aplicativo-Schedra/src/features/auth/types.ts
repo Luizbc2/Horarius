@@ -1,4 +1,5 @@
 export type AccountType = "business" | "personal";
+export type UserRole = "admin" | "user";
 
 export type AuthUser = {
   id: number;
@@ -6,6 +7,8 @@ export type AuthUser = {
   email: string;
   cpf: string;
   accountType: AccountType;
+  role: UserRole;
+  active: boolean;
   avatarUrl: string | null;
 };
 

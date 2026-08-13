@@ -5,6 +5,7 @@ export type LoginInput = {
 };
 
 export type AccountType = "business" | "personal";
+export type UserRole = "admin" | "user";
 
 export type AuthenticatedUser = {
   id: number;
@@ -13,12 +14,15 @@ export type AuthenticatedUser = {
   cpf: string;
   password: string;
   accountType?: AccountType;
+  role?: UserRole;
+  active?: boolean;
   avatarUrl?: string | null;
 };
 
 export type AccessTokenPayload = {
   sub: string;
   email: string;
+  role: UserRole;
   iat?: number;
   exp?: number;
 };

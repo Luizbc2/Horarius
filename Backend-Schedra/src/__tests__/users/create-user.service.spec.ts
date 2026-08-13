@@ -107,6 +107,8 @@ describe("CreateUserService", () => {
       email: "maria@schedra.com",
       cpf: "52998224725",
       accountType: "personal",
+      role: "user",
+      active: true,
       avatarUrl: null,
     });
     expect(repository.lastCreatedInput).not.toBeNull();

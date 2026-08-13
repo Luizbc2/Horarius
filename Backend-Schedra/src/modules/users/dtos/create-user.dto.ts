@@ -1,4 +1,5 @@
 import type { AccountType } from "../../auth/auth.types";
+import type { UserRole } from "../../auth/auth.types";
 
 export type PublicUserDto = {
   id: number;
@@ -6,6 +7,8 @@ export type PublicUserDto = {
   email: string;
   cpf: string;
   accountType?: AccountType;
+  role?: UserRole;
+  active?: boolean;
   avatarUrl?: string | null;
 };
 

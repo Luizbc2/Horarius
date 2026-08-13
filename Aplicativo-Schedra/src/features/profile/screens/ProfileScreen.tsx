@@ -29,7 +29,7 @@ export function ProfileScreen() {
         <View style={styles.profileCopy}>
           <Text style={[styles.name, { color: colors.text }]}>{user.name}</Text>
           <Text style={[styles.email, { color: colors.textMuted }]}>{user.email}</Text>
-          <Text style={[styles.accountType, { color: colors.accent }]}>{user.accountType === "personal" ? "CONTA PESSOAL" : "CONTA EMPRESARIAL"}</Text>
+          <Text style={[styles.accountType, { color: colors.accent }]}>{user.accountType === "personal" ? "CONTA PESSOAL" : `CONTA EMPRESARIAL${user.role === "admin" ? " · ADMINISTRADOR" : ""}`}</Text>
         </View>
       </View>
 

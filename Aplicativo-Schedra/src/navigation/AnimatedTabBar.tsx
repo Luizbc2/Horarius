@@ -12,6 +12,7 @@ const tabIcons: Record<keyof MainTabParamList, keyof typeof Ionicons.glyphMap> =
   Agenda: "time-outline",
   Clientes: "people-outline",
   Servicos: "cut-outline",
+  Admin: "shield-checkmark-outline",
   Perfil: "person-outline",
 };
 
@@ -19,6 +20,7 @@ const tabLabels: Record<keyof MainTabParamList, string> = {
   Agenda: "Agenda",
   Clientes: "Clientes",
   Servicos: "Serviços",
+  Admin: "Admin",
   Perfil: "Perfil",
 };
 
