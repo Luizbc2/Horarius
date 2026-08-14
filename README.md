@@ -1,5 +1,7 @@
 # Schedra
 
+Documentação acadêmica e rastreabilidade da rubrica: [`docs/README.md`](docs/README.md).
+
 [![Site](https://img.shields.io/badge/Link-Projeto-7dffb7?style=for-the-badge&logo=vercel&logoColor=0b1510&labelColor=0b1510)](https://schedra.app/login)
 
 Sistema full stack de agenda com autenticação, painel interno e gerenciamento de clientes, profissionais e serviços. O projeto foi pensado como produto real para organizar a operação do dia a dia.
