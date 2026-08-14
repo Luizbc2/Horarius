@@ -1,14 +1,16 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as SecureStore from "expo-secure-store";
-import { createContext, type PropsWithChildren, useContext, useEffect, useMemo, useState } from "react";
-import { Platform } from "react-native";
+import { createContext, type PropsWithChildren, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { Animated, Easing, Platform } from "react-native";
 
 import * as authApi from "./api/auth-api";
-import type { AuthUser, LoginInput, SignupInput } from "./types";
+import type { AccountType, AuthUser, LoginInput, SignupInput } from "./types";
 
-type StoredSession = { token: string; user: AuthUser };
+type StoredSession = { token: string; user: AuthUser; workspaceMode: AccountType };
 type AuthContextValue = StoredSession & {
   loading: boolean;
+  modeTransition: Animated.Value;
+  setWorkspaceMode: (mode: AccountType) => Promise<void>;
   signIn: (input: LoginInput) => Promise<void>;
   signOut: () => Promise<void>;
   signUp: (input: SignupInput) => Promise<void>;
@@ -16,7 +18,7 @@ type AuthContextValue = StoredSession & {
 };
 
 const STORAGE_KEY = "schedra.session";
-const emptySession: StoredSession = { token: "", user: null as unknown as AuthUser };
+const emptySession: StoredSession = { token: "", user: null as unknown as AuthUser, workspaceMode: "business" };
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 const sessionStorage = {
@@ -28,10 +30,15 @@ const sessionStorage = {
 export function AuthProvider({ children }: PropsWithChildren) {
   const [session, setSession] = useState<StoredSession>(emptySession);
   const [loading, setLoading] = useState(true);
+  const modeTransition = useRef(new Animated.Value(1)).current;
+  const modeTransitionLocked = useRef(false);
 
   useEffect(() => {
     sessionStorage.get().then((stored) => {
-      if (stored) setSession(JSON.parse(stored) as StoredSession);
+      if (stored) {
+        const restored = JSON.parse(stored) as Partial<StoredSession> & Pick<StoredSession, "token" | "user">;
+        setSession({ ...restored, workspaceMode: restored.workspaceMode ?? restored.user.accountType ?? "business" });
+      }
     }).finally(() => setLoading(false));
   }, []);
 
@@ -43,25 +50,53 @@ export function AuthProvider({ children }: PropsWithChildren) {
   const value = useMemo<AuthContextValue>(() => ({
     ...session,
     loading,
+    modeTransition,
+    setWorkspaceMode: async (workspaceMode) => {
+      if (workspaceMode === session.workspaceMode || modeTransitionLocked.current) return;
+      modeTransitionLocked.current = true;
+
+      await new Promise<void>((resolve) => {
+        Animated.timing(modeTransition, {
+          toValue: 0,
+          duration: 150,
+          easing: Easing.in(Easing.cubic),
+          useNativeDriver: true,
+        }).start(async () => {
+          try {
+            await persist({ ...session, workspaceMode });
+          } catch {
+            setSession({ ...session, workspaceMode });
+          }
+          Animated.timing(modeTransition, {
+            toValue: 1,
+            duration: 320,
+            easing: Easing.out(Easing.cubic),
+            useNativeDriver: true,
+          }).start(() => {
+            modeTransitionLocked.current = false;
+            resolve();
+          });
+        });
+      });
+    },
     signIn: async (input) => {
       const response = await authApi.login(input);
-      await persist({ token: response.token, user: response.user });
+      await persist({ token: response.token, user: response.user, workspaceMode: "business" });
     },
     signUp: async (input) => {
       await authApi.signup(input);
       const response = await authApi.login({
         email: input.email,
         password: input.password,
-        accountType: input.accountType,
       });
-      await persist({ token: response.token, user: response.user });
+      await persist({ token: response.token, user: response.user, workspaceMode: "business" });
     },
     signOut: async () => {
       setSession(emptySession);
       await sessionStorage.remove();
     },
     setUser: async (user) => persist({ ...session, user }),
-  }), [loading, session]);
+  }), [loading, modeTransition, session]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

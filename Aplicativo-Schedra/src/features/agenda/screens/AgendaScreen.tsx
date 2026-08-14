@@ -16,8 +16,8 @@ const addHour = (date: Date) => new Date(date.getTime() + 60 * 60 * 1000);
 
 export function AgendaScreen() {
   const { colors } = useAppTheme();
-  const { token, user } = useAuth();
-  const personal = user.accountType === "personal";
+  const { token, user, workspaceMode } = useAuth();
+  const personal = workspaceMode === "personal";
   const [items, setItems] = useState<AgendaItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [editorOpen, setEditorOpen] = useState(false);

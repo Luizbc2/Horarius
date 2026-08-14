@@ -19,7 +19,6 @@ import { ApiError } from "../../../shared/api/client";
 import { useAppTheme } from "../../../theme/ThemeProvider";
 import { fonts } from "../../../theme/tokens";
 import { useAuth } from "../AuthProvider";
-import type { AccountType } from "../types";
 
 type AuthMode = "login" | "signup";
 
@@ -35,15 +34,12 @@ export function AuthScreen() {
   const { colors, mode, toggleTheme } = useAppTheme();
   const { signIn, signUp } = useAuth();
   const [screen, setScreen] = useState<AuthMode>("login");
-  const [accountType, setAccountType] = useState<AccountType>("business");
   const [form, setForm] = useState({ name: "", cpf: "", email: "", password: "" });
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [switchWidth, setSwitchWidth] = useState(0);
-  const [accountSwitchWidth, setAccountSwitchWidth] = useState(0);
   const transitionLocked = useRef(false);
   const selectorProgress = useRef(new Animated.Value(0)).current;
-  const accountSelectorProgress = useRef(new Animated.Value(0)).current;
   const contentOffset = useRef(new Animated.Value(0)).current;
   const contentOpacity = useRef(new Animated.Value(1)).current;
   const contentScale = useRef(new Animated.Value(1)).current;
@@ -110,28 +106,14 @@ export function AuthScreen() {
     });
   };
 
-  const changeAccountType = (nextType: AccountType) => {
-    if (nextType === accountType) return;
-
-    setAccountType(nextType);
-    setError("");
-    Animated.spring(accountSelectorProgress, {
-      toValue: nextType === "personal" ? 1 : 0,
-      damping: 18,
-      stiffness: 180,
-      mass: 0.8,
-      useNativeDriver: true,
-    }).start();
-  };
-
   const submit = async () => {
     setError("");
     setSubmitting(true);
     try {
       if (screen === "login") {
-        await signIn({ email: form.email, password: form.password, accountType });
+        await signIn({ email: form.email, password: form.password });
       } else {
-        await signUp({ ...form, accountType });
+        await signUp(form);
       }
     } catch (caught) {
       setError(caught instanceof ApiError ? caught.message : "Não foi possível acessar sua conta.");
@@ -145,12 +127,6 @@ export function AuthScreen() {
     inputRange: [0, 1],
     outputRange: [0, selectorWidth],
   });
-  const accountSelectorWidth = Math.max(0, (accountSwitchWidth - 8) / 2);
-  const accountSelectorTranslate = accountSelectorProgress.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0, accountSelectorWidth],
-  });
-  const isBusiness = accountType === "business";
   const passwordRequirements = getPasswordRequirements(form.password);
   const passwordIsStrong = passwordRequirements.every((requirement) => requirement.met);
   const submitDisabled = submitting || (screen === "signup" && !passwordIsStrong);
@@ -207,57 +183,16 @@ export function AuthScreen() {
           >
             <View style={styles.heading}>
               <Text style={[styles.eyebrow, { color: colors.accent }]}>
-                {screen === "signup" ? "COMECE AGORA" : isBusiness ? "ÁREA DA EQUIPE" : "ÁREA PESSOAL"}
+                {screen === "signup" ? "COMECE AGORA" : "ACESSO SEGURO"}
               </Text>
               <Text style={[styles.title, { color: colors.text }]}>
                 {screen === "login" ? "Entrar no Schedra" : "Crie sua rotina"}
               </Text>
               <Text style={[styles.description, { color: colors.textMuted }]}>
                 {screen === "login"
-                  ? isBusiness
-                    ? "Continue de onde sua operação parou."
-                    : "Acesse seus compromissos e mantenha sua rotina em dia."
-                  : "Escolha a experiência que combina com o seu dia."}
+                  ? "Continue de onde sua rotina parou."
+                  : "Uma conta, dois jeitos de organizar o seu dia."}
               </Text>
-            </View>
-
-            <View
-              onLayout={(event) => setAccountSwitchWidth(event.nativeEvent.layout.width)}
-              style={[styles.segment, { backgroundColor: colors.surface, borderColor: colors.border }]}
-            >
-              {accountSelectorWidth > 0 && (
-                <Animated.View
-                  style={[
-                    styles.accountSwitchSelector,
-                    {
-                      width: accountSelectorWidth,
-                      backgroundColor: colors.accentSoft,
-                      transform: [{ translateX: accountSelectorTranslate }],
-                    },
-                  ]}
-                />
-              )}
-                {(["business", "personal"] as AccountType[]).map((type) => (
-                  <Pressable
-                    key={type}
-                    accessibilityRole="tab"
-                    accessibilityState={{ selected: accountType === type }}
-                    onPress={() => changeAccountType(type)}
-                    style={({ pressed }) => [
-                      styles.segmentOption,
-                      pressed && styles.pressed,
-                    ]}
-                  >
-                    <Ionicons
-                      name={type === "business" ? "briefcase-outline" : "person-outline"}
-                      size={18}
-                      color={accountType === type ? colors.accent : colors.textMuted}
-                    />
-                    <Text style={[styles.segmentText, { color: accountType === type ? colors.accent : colors.textMuted }]}>
-                      {type === "business" ? "Empresarial" : "Pessoal"}
-                    </Text>
-                  </Pressable>
-                ))}
             </View>
 
             <View style={styles.form}>
@@ -406,10 +341,6 @@ const styles = StyleSheet.create({
   eyebrow: { fontFamily: fonts.bodyBold, fontSize: 11 },
   title: { fontFamily: fonts.displayBold, fontSize: 42 },
   description: { fontFamily: fonts.body, fontSize: 15, lineHeight: 22 },
-  segment: { flexDirection: "row", padding: 4, borderRadius: 8, borderWidth: 1, position: "relative" },
-  accountSwitchSelector: { position: "absolute", left: 4, top: 4, bottom: 4, borderRadius: 6 },
-  segmentOption: { flex: 1, minHeight: 48, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 7, borderRadius: 6, zIndex: 1 },
-  segmentText: { fontFamily: fonts.bodyBold, fontSize: 13 },
   form: { gap: 18 },
   field: { gap: 7 },
   label: { fontFamily: fonts.bodyBold, fontSize: 13 },

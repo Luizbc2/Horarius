@@ -3,8 +3,7 @@
 import { CreateUserService } from "../services/create-user.service";
 import { UpdateUserProfileService } from "../services/update-user-profile.service";
 import { getAuthenticatedUserId } from "../../auth/utils/auth-request.util";
-import { asRequestBody, asString, type RequestValue } from "../../../shared/http/request-parser";
-import type { AccountType } from "../../auth/auth.types";
+import { asRequestBody, asString } from "../../../shared/http/request-parser";
 
 export class UsersController {
   constructor(
@@ -87,13 +86,7 @@ export class UsersController {
       email: asString(body.email),
       cpf: asString(body.cpf),
       password: asString(body.password),
-      accountType: this.parseAccountType(body.accountType),
     };
-  }
-
-  private parseAccountType(value: RequestValue): AccountType | undefined {
-    const accountType = asString(value);
-    return accountType ? accountType as AccountType : undefined;
   }
 
   private buildUpdatePayload(request: Request, authenticatedUserId: number) {

@@ -30,20 +30,12 @@ export class CreateUserService {
     const email = input.email.trim().toLowerCase();
     const cpf = normalizeCpf(input.cpf);
     const password = input.password.trim();
-    const accountType = input.accountType ?? "business";
+    const accountType = "business" as const;
 
     if (!name || !email || !cpf || !password) {
       return {
         success: false,
         message: "Nome, e-mail, CPF e senha são obrigatórios.",
-        statusCode: 400,
-      };
-    }
-
-    if (accountType !== "business" && accountType !== "personal") {
-      return {
-        success: false,
-        message: "Tipo de conta inválido.",
         statusCode: 400,
       };
     }
