@@ -8,8 +8,8 @@ Para uma pessoa que administra apenas os próprios compromissos, ferramentas emp
 
 O Schedra resolve esses dois contextos com uma única plataforma de agenda:
 
-- perfil empresarial para clientes, profissionais, serviços e atendimentos;
-- perfil pessoal para compromissos individuais;
+- modo empresarial para clientes, profissionais, serviços e atendimentos;
+- modo pessoal para compromissos individuais;
 - experiência web e aplicativo móvel consumindo a mesma API;
 - controle administrativo de usuários, papéis e contas bloqueadas.
 
@@ -47,7 +47,7 @@ Necessidades atendidas:
 
 Necessidades atendidas:
 
-- conta do tipo pessoal;
+- modo pessoal acessível pela mesma conta;
 - compromissos com título, local, data, horário e observações;
 - interface sem profissionais e serviços;
 - isolamento entre agenda pessoal e empresarial.
@@ -61,7 +61,7 @@ Necessidades atendidas:
 | 3. Identidade | Horarius foi reposicionado como Schedra | Nova marca, tema claro/escuro e interface responsiva |
 | 4. Modelo de plataforma | Expansão para 30 tabelas | Estrutura preparada para organizações, financeiro e auditoria |
 | 5. Aplicativo móvel | Expo, React Native e navegação própria | Aplicativo compartilhando contratos com a API |
-| 6. Perfis de uso | Cadastro e login pessoal/empresarial | Experiência adaptada ao contexto do usuário |
+| 6. Modos de uso | Alternância pessoal/empresarial após o login | Experiência adaptada ao contexto do usuário |
 | 7. Funcionalidades móveis | Agenda, CRUD de clientes, perfil e avatar | Fluxos principais executáveis no celular |
 | 8. Segurança funcional | Papéis admin/usuário e bloqueio de contas | Rotas administrativas protegidas no backend e na interface |
 | 9. Qualidade | Testes, documentação e rastreabilidade | Evidências diretamente ligadas à rubrica acadêmica |
@@ -69,7 +69,7 @@ Necessidades atendidas:
 ## 5. Decisões de produto
 
 1. A API REST é a fonte única de regras e dados para web e aplicativo.
-2. O tipo de conta é escolhido no cadastro e conferido no login.
+2. A conta é única e o usuário escolhe o modo pessoal ou empresarial no menu principal.
 3. Usuários comuns não recebem controles administrativos.
 4. Uma conta bloqueada perde acesso mesmo que possua um token antigo.
 5. O aplicativo prioriza navegação inferior e ações rápidas em telas pequenas.

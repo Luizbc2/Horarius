@@ -1,7 +1,6 @@
 export type LoginInput = {
   email: string;
   password: string;
-  accountType?: AccountType;
 };
 
 export type AccountType = "business" | "personal";

@@ -17,7 +17,6 @@ export type CreateUserRequestDto = {
   email: string;
   cpf: string;
   password: string;
-  accountType?: AccountType;
 };
 
 export type CreateUserInputDto = {

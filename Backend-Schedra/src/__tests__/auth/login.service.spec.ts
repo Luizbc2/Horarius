@@ -125,7 +125,7 @@ describe("LoginService", () => {
     expect(result).toEqual({ success: false, message: "Esta conta esta desativada. Procure um administrador.", statusCode: 403 });
   });
 
-  it("impede login quando o perfil selecionado nao corresponde a conta", async () => {
+  it("autentica contas legadas sem exigir selecao de perfil", async () => {
     const repository = new InMemoryUserRepository({
       users: [
         {
@@ -143,14 +143,13 @@ describe("LoginService", () => {
     const result = await service.execute({
       email: "pessoal@schedra.com",
       password: "Senha123",
-      accountType: "business",
     });
 
-    expect(result).toEqual({
-      success: false,
-      message: "Esta é uma conta pessoal. Selecione Pessoal para entrar.",
-      statusCode: 403,
-    });
+    expect(result.success).toBe(true);
+
+    if (result.success) {
+      expect(result.data.user.accountType).toBe("personal");
+    }
   });
 });
 

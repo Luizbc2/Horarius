@@ -4,10 +4,10 @@
 
 | Código | Requisito | Perfil | Evidência principal |
 | --- | --- | --- | --- |
-| RF01 | Permitir cadastro com nome, CPF, e-mail, senha e tipo de conta | Público | Tela de cadastro e `POST /api/users` |
-| RF02 | Autenticar por e-mail, senha e tipo de conta | Público | Tela de login e `POST /api/auth/login` |
+| RF01 | Permitir cadastro único com nome, CPF, e-mail e senha | Público | Tela de cadastro e `POST /api/users` |
+| RF02 | Autenticar por e-mail e senha | Público | Tela de login e `POST /api/auth/login` |
 | RF03 | Manter a sessão autenticada no aplicativo | Todos | `AuthProvider` e Expo SecureStore |
-| RF04 | Exibir agenda correspondente ao tipo da conta | Todos | Agenda empresarial ou pessoal |
+| RF04 | Exibir agenda correspondente ao modo de trabalho ativo | Todos | Agenda empresarial ou pessoal |
 | RF05 | Criar, listar, editar e excluir clientes | Empresarial | CRUD mobile de clientes |
 | RF06 | Pesquisar clientes por dados cadastrais | Empresarial | Campo de busca de clientes |
 | RF07 | Criar, listar, editar e excluir agendamentos | Empresarial | Agenda e API de appointments |
@@ -20,6 +20,7 @@
 | RF14 | Promover ou rebaixar outro usuário | Admin | Controle de papel e rota protegida |
 | RF15 | Bloquear, reativar ou excluir outro usuário | Admin | Controles administrativos |
 | RF16 | Encerrar a sessão do usuário | Todos | Ação Sair da conta |
+| RF17 | Alternar entre os modos pessoal e empresarial na mesma conta | Todos | Switch animado no cabeçalho |
 
 ## 2. Requisitos não funcionais
 
@@ -44,9 +45,9 @@
 | --- | --- |
 | RN01 | E-mail e CPF devem ser únicos entre os usuários. |
 | RN02 | A senha deve ter no mínimo oito caracteres, maiúscula, minúscula, número e caractere especial. |
-| RN03 | O tipo selecionado no login deve corresponder ao tipo cadastrado na conta. |
-| RN04 | Conta pessoal acessa compromissos pessoais e não depende de profissionais ou serviços. |
-| RN05 | Conta empresarial pode gerenciar clientes e agendamentos operacionais. |
+| RN03 | A mesma conta pode alternar entre os modos pessoal e empresarial após a autenticação. |
+| RN04 | O modo pessoal acessa compromissos pessoais e não depende de profissionais ou serviços. |
+| RN05 | O modo empresarial pode gerenciar clientes e agendamentos operacionais. |
 | RN06 | Apenas administradores acessam e alteram usuários. |
 | RN07 | Um administrador não pode rebaixar, bloquear ou excluir a própria conta. |
 | RN08 | Usuário bloqueado não pode autenticar nem reutilizar privilégios antigos. |

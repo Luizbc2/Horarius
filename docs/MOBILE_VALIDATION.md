@@ -20,7 +20,7 @@ Este documento registra como validar usabilidade, funcionalidade principal, comp
 
 ### CRUD de clientes
 
-- [ ] Entrar com uma conta empresarial.
+- [ ] Entrar e ativar o modo empresarial pelo switch do cabeçalho.
 - [ ] Abrir a aba Clientes.
 - [ ] Cadastrar cliente com nome, e-mail e telefone válidos.
 - [ ] Confirmar que o cliente aparece imediatamente.
@@ -32,9 +32,9 @@ Este documento registra como validar usabilidade, funcionalidade principal, comp
 
 ### Agenda pessoal e empresarial
 
-- [ ] Criar compromisso em conta pessoal.
+- [ ] Ativar o modo pessoal e criar um compromisso.
 - [ ] Editar e excluir o compromisso.
-- [ ] Criar agendamento em conta empresarial selecionando cliente, profissional e serviço.
+- [ ] Ativar o modo empresarial e criar um agendamento selecionando cliente, profissional e serviço.
 - [ ] Confirmar que o formulário preserva o foco durante a digitação.
 
 ### Perfil e imagem

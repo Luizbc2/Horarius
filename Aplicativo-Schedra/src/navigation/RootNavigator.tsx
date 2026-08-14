@@ -1,6 +1,6 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { ActivityIndicator, View } from "react-native";
+import { ActivityIndicator, Animated, View } from "react-native";
 
 import { AgendaScreen } from "../features/agenda/screens/AgendaScreen";
 import { AuthScreen } from "../features/auth/screens/AuthScreen";
@@ -16,7 +16,7 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
 function MainTabs() {
-  const { user } = useAuth();
+  const { user, workspaceMode } = useAuth();
 
   return (
     <Tab.Navigator
@@ -28,8 +28,8 @@ function MainTabs() {
       }}
     >
       <Tab.Screen name="Agenda" component={AgendaScreen} />
-      {user.accountType === "business" && <Tab.Screen name="Clientes">{() => <CatalogScreen kind="clients" />}</Tab.Screen>}
-      {user.accountType === "business" && <Tab.Screen name="Servicos">{() => <CatalogScreen kind="services" />}</Tab.Screen>}
+      {workspaceMode === "business" && <Tab.Screen name="Clientes">{() => <CatalogScreen kind="clients" />}</Tab.Screen>}
+      {workspaceMode === "business" && <Tab.Screen name="Servicos">{() => <CatalogScreen kind="services" />}</Tab.Screen>}
       {user.role === "admin" && <Tab.Screen name="Admin" component={AdminUsersScreen} />}
       <Tab.Screen name="Perfil">
         {() => <ProfileScreen />}
@@ -39,18 +39,17 @@ function MainTabs() {
 }
 
 export function RootNavigator() {
-  const { loading, token } = useAuth();
+  const { loading, modeTransition, token } = useAuth();
   const { colors } = useAppTheme();
 
   if (loading) return <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: colors.background }}><ActivityIndicator color={colors.accent} /></View>;
 
-  return (
+  const translateX = modeTransition.interpolate({ inputRange: [0, 1], outputRange: [18, 0] });
+  const scale = modeTransition.interpolate({ inputRange: [0, 1], outputRange: [0.985, 1] });
+
+  return <Animated.View style={{ flex: 1, opacity: modeTransition, transform: [{ translateX }, { scale }] }}>
     <Stack.Navigator screenOptions={{ headerShown: false, animation: "fade" }}>
-      {token ? (
-        <Stack.Screen name="Main" component={MainTabs} />
-      ) : (
-        <Stack.Screen name="Welcome" component={AuthScreen} />
-      )}
+      {token ? <Stack.Screen name="Main" component={MainTabs} /> : <Stack.Screen name="Welcome" component={AuthScreen} />}
     </Stack.Navigator>
-  );
+  </Animated.View>;
 }

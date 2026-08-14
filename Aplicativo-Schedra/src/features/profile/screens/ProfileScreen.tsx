@@ -13,7 +13,7 @@ import { useAuth } from "../../auth/AuthProvider";
 
 export function ProfileScreen() {
   const { colors } = useAppTheme();
-  const { signOut, setUser, token, user } = useAuth();
+  const { signOut, setUser, token, user, workspaceMode } = useAuth();
   const avatarUri = resolveApiAsset(user.avatarUrl);
   const chooseAvatar = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ["images"], allowsEditing: true, aspect: [1, 1], quality: 0.8 });
@@ -29,7 +29,7 @@ export function ProfileScreen() {
         <View style={styles.profileCopy}>
           <Text style={[styles.name, { color: colors.text }]}>{user.name}</Text>
           <Text style={[styles.email, { color: colors.textMuted }]}>{user.email}</Text>
-          <Text style={[styles.accountType, { color: colors.accent }]}>{user.accountType === "personal" ? "CONTA PESSOAL" : `CONTA EMPRESARIAL${user.role === "admin" ? " · ADMINISTRADOR" : ""}`}</Text>
+          <Text style={[styles.accountType, { color: colors.accent }]}>{workspaceMode === "personal" ? "MODO PESSOAL" : `MODO EMPRESARIAL${user.role === "admin" ? " · ADMINISTRADOR" : ""}`}</Text>
         </View>
       </View>
 

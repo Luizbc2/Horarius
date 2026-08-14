@@ -170,13 +170,13 @@ flowchart LR
     UC3 -. inclui .-> UC5
 ```
 
-## 3. Caso de uso - conta pessoal e administração
+## 3. Caso de uso - modo pessoal e administração
 
 ```mermaid
 flowchart LR
     Pessoal([Usuário pessoal])
     Admin([Administrador])
-    UC1((Cadastrar conta pessoal))
+    UC1((Alternar para modo pessoal))
     UC2((Autenticar))
     UC3((Gerenciar compromissos))
     UC4((Alternar tema))
@@ -256,18 +256,18 @@ sequenceDiagram
     participant API as API Express
     participant DB as Banco de dados
 
-    U->>A: Informa e-mail, senha e tipo de conta
+    U->>A: Informa e-mail e senha
     A->>API: POST /api/auth/login
     API->>DB: Buscar usuário por e-mail
-    DB-->>API: Usuário, hash, tipo, papel e status
-    API->>API: Validar senha, tipo e conta ativa
+    DB-->>API: Usuário, hash, papel e status
+    API->>API: Validar senha e conta ativa
     alt credenciais inválidas
         API-->>A: 401 ou 403 + mensagem
         A-->>U: Exibe erro
     else credenciais válidas
         API->>API: Gerar JWT com papel
         API-->>A: Token e usuário
-        A->>A: Salvar token no SecureStore
+        A->>A: Salvar token e modo de trabalho no SecureStore
         A-->>U: Abrir agenda
         opt acesso ao painel Admin
             A->>API: GET /api/admin/users + Bearer token
