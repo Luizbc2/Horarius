@@ -83,7 +83,7 @@ export class SequelizeUserRepository implements UserRepository {
 
     user.name = input.name;
     user.cpf = input.cpf;
-    user.password = input.password;
+    if (input.password) user.password = input.password;
 
     await user.save();
 

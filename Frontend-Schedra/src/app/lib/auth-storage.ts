@@ -5,10 +5,23 @@ export type AuthUser = {
   name: string;
   email: string;
   cpf: string;
+  accountType?: "business" | "personal";
+  role?: "admin" | "user";
+  active?: boolean;
+  avatarUrl?: string | null;
+};
+
+export type AuthOrganization = {
+  id: number;
+  name: string;
+  slug: string;
+  role: string;
+  permissions: string[];
 };
 
 export type AuthSession = {
   token: string;
+  organization?: AuthOrganization;
   user: AuthUser;
 };
 
@@ -17,6 +30,7 @@ export const normalizeCpf = (value: string): string => value.replace(/\D/g, "").
 const canUseLocalStorage = (): boolean => typeof window !== "undefined";
 
 const normalizeAuthUser = (user: AuthUser): AuthUser => ({
+  ...user,
   id: user.id,
   name: user.name.trim(),
   email: user.email.trim().toLowerCase(),
@@ -46,15 +60,25 @@ export function readStoredSession(): AuthSession | null {
       return null;
     }
 
-    return {
+    const normalizedSession: AuthSession = {
       token: parsedSession.token,
+      ...(parsedSession.organization && typeof parsedSession.organization.id === "number"
+        ? { organization: parsedSession.organization }
+        : {}),
       user: {
+        ...parsedSession.user,
         id: parsedSession.user.id,
         email: parsedSession.user.email,
         name: parsedSession.user.name,
         cpf: typeof parsedSession.user.cpf === "string" ? normalizeCpf(parsedSession.user.cpf) : "",
       },
     };
+
+    if ("refreshToken" in parsedSession) {
+      window.localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(normalizedSession));
+    }
+
+    return normalizedSession;
   } catch {
     return null;
   }
@@ -69,9 +93,11 @@ export function persistSession(session: AuthSession): void {
     AUTH_STORAGE_KEY,
     JSON.stringify({
       token: session.token,
+      ...(session.organization ? { organization: session.organization } : {}),
       user: normalizeAuthUser(session.user),
     } satisfies AuthSession),
   );
+  window.dispatchEvent(new CustomEvent("schedra:session-updated"));
 }
 
 export function clearStoredSession(): void {
@@ -80,6 +106,7 @@ export function clearStoredSession(): void {
   }
 
   window.localStorage.removeItem(AUTH_STORAGE_KEY);
+  window.dispatchEvent(new CustomEvent("schedra:session-updated"));
 }
 
 export function getStoredToken(): string | null {

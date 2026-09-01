@@ -14,6 +14,7 @@ import {
   asRequiredNumber,
   asString,
 } from "../../../shared/http/request-parser";
+import { recordRequestAudit } from "../../../shared/http/request-audit";
 
 const serviceRepository = new SequelizeServiceRepository();
 
@@ -69,6 +70,7 @@ export class ServicesController {
       return this.sendFailure(response, result.statusCode, result.message);
     }
 
+    await recordRequestAudit(request, "service.created", "service", result.data.service.id);
     return response.status(201).json(result.data);
   }
 
@@ -87,6 +89,7 @@ export class ServicesController {
       return this.sendFailure(response, result.statusCode, result.message);
     }
 
+    await recordRequestAudit(request, "service.updated", "service", result.data.service.id);
     return response.status(200).json(result.data);
   }
 
@@ -105,6 +108,7 @@ export class ServicesController {
       return this.sendFailure(response, result.statusCode, result.message);
     }
 
+    await recordRequestAudit(request, "service.deleted", "service", id);
     return response.status(200).json(result.data);
   }
 

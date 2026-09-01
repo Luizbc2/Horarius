@@ -28,6 +28,7 @@ describe("auth storage", () => {
       AUTH_STORAGE_KEY,
       JSON.stringify({
         token: "token-front",
+        refreshToken: "legacy-refresh-token",
         user: {
           id: 5,
           name: "Luiz",
@@ -46,6 +47,7 @@ describe("auth storage", () => {
         cpf: "52998224725",
       },
     });
+    expect(window.localStorage.getItem(AUTH_STORAGE_KEY)).not.toContain("legacy-refresh-token");
     expect(getStoredToken()).toBe("token-front");
   });
 

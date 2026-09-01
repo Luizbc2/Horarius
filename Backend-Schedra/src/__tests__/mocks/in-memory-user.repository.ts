@@ -78,7 +78,7 @@ export class InMemoryUserRepository implements UserRepository {
       ...currentUser,
       name: input.name,
       cpf: input.cpf,
-      password: input.password,
+      password: input.password ?? currentUser.password,
     };
 
     this.lastUpdatedInput = { ...input };

@@ -1,5 +1,6 @@
 import { createEntityService, type ListQueryParams, type PaginatedResponse } from "./entity-service";
 import type { ProfessionalEntity, ProfessionalWorkDayEntity } from "../types/entities";
+import type { ProfessionalStatus } from "../data/professionals";
 
 export type ProfessionalApiItem = ProfessionalEntity;
 
@@ -8,7 +9,7 @@ export type CreateProfessionalRequest = {
   email: string;
   phone: string;
   specialty: string;
-  status: string;
+  status: ProfessionalStatus;
 };
 
 export type ProfessionalWorkDayApiItem = ProfessionalWorkDayEntity;

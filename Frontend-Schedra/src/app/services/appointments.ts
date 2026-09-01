@@ -2,6 +2,8 @@ import { api } from "../lib/api";
 import type { PaginatedResponse } from "./entity-service";
 import type { AppointmentEntity, AppointmentStatus } from "../types/entities";
 
+export type { AppointmentStatus } from "../types/entities";
+
 export type AppointmentApiItem = AppointmentEntity;
 
 export type ListAppointmentsQuery = {
@@ -21,7 +23,9 @@ export type CreateAppointmentRequest = {
   notes: string;
 };
 
-export type UpdateAppointmentRequest = CreateAppointmentRequest;
+export type UpdateAppointmentRequest = CreateAppointmentRequest & {
+  version: number;
+};
 
 export type CreateAppointmentResponse = {
   appointment: AppointmentApiItem;
@@ -71,6 +75,16 @@ export const createAppointmentsService = (token: string) => ({
 
   update: (id: number, body: UpdateAppointmentRequest) =>
     api.put<UpdateAppointmentResponse>(`/appointments/${id}`, body, {
+      headers: createAuthHeaders(token),
+    }),
+
+  swap: (first: Pick<AppointmentEntity, "id" | "version">, second: Pick<AppointmentEntity, "id" | "version">) =>
+    api.post<{ appointments: AppointmentApiItem[]; message: string }>("/appointments/swap", {
+      firstId: first.id,
+      firstVersion: first.version,
+      secondId: second.id,
+      secondVersion: second.version,
+    }, {
       headers: createAuthHeaders(token),
     }),
 

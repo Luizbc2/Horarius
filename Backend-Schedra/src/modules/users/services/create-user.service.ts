@@ -10,6 +10,7 @@ import { isValidCpf, normalizeCpf } from "../../../shared/utils/cpf.util";
 import { hasTextLengthBetween, INPUT_LIMITS, normalizeSingleLineText } from "../../../shared/utils/input-validation.util";
 import { validatePasswordStrength } from "../../../shared/utils/password-strength.util";
 import { hashPassword } from "../../auth/utils/password.util";
+import type { TenantService } from "../../../platform/tenancy/tenant.service";
 
 type CreateUserServiceResult =
   | {
@@ -23,7 +24,10 @@ type CreateUserServiceResult =
     };
 
 export class CreateUserService {
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(
+    private readonly userRepository: UserRepository,
+    private readonly tenancy?: TenantService,
+  ) {}
 
   public async execute(input: CreateUserInputDto): Promise<CreateUserServiceResult> {
     const name = normalizeSingleLineText(input.name, INPUT_LIMITS.name);
@@ -118,6 +122,14 @@ export class CreateUserService {
         password: await hashPassword(password),
         accountType,
       });
+
+      if (this.tenancy) {
+        await this.tenancy.ensureDefaultWorkspace({
+          id: createdUser.id,
+          name: createdUser.name,
+          email: createdUser.email,
+        });
+      }
 
       return {
         success: true,

@@ -8,6 +8,7 @@ import {
 } from "../dtos/service.dto";
 import { ServiceModel } from "../models/service.model";
 import { ListServicesRepositoryResult, ServiceRepository } from "./service.repository";
+import { buildTenantOwnership, buildTenantWhere } from "../../../shared/data/tenant-scope";
 
 type ListServicesInput = {
   page: number;
@@ -20,7 +21,7 @@ export class SequelizeServiceRepository implements ServiceRepository {
     const service = await ServiceModel.findOne({
       where: {
         id,
-        userId,
+        ...buildTenantWhere(userId),
       },
     });
 
@@ -39,7 +40,7 @@ export class SequelizeServiceRepository implements ServiceRepository {
 
     const { rows, count } = await ServiceModel.findAndCountAll({
       where: {
-        userId,
+        ...buildTenantWhere(userId),
         ...(search
           ? {
               [Op.or]: [
@@ -75,7 +76,7 @@ export class SequelizeServiceRepository implements ServiceRepository {
 
   public async create(userId: number, input: CreateServiceRequestDto): Promise<ServiceDto> {
     const service = await ServiceModel.create({
-      userId,
+      ...buildTenantOwnership(userId),
       name: input.name,
       category: input.category,
       durationMinutes: input.durationMinutes,
@@ -90,7 +91,7 @@ export class SequelizeServiceRepository implements ServiceRepository {
     const service = await ServiceModel.findOne({
       where: {
         id,
-        userId,
+        ...buildTenantWhere(userId),
       },
     });
 
@@ -113,7 +114,7 @@ export class SequelizeServiceRepository implements ServiceRepository {
     const deletedCount = await ServiceModel.destroy({
       where: {
         id,
-        userId,
+        ...buildTenantWhere(userId),
       },
     });
 

@@ -2,6 +2,9 @@ import { defineConfig } from 'vite'
 import path from 'path'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
+import { fileURLToPath } from 'node:url'
+
+const rootDirectory = path.dirname(fileURLToPath(import.meta.url))
 
 export default defineConfig({
   server: {
@@ -17,7 +20,7 @@ export default defineConfig({
   resolve: {
     alias: {
       // Alias @ to the src directory
-      '@': path.resolve(__dirname, './src'),
+      '@': path.resolve(rootDirectory, './src'),
     },
   },
 

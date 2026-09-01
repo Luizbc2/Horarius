@@ -10,6 +10,7 @@ import { useAppTheme } from "../../../theme/ThemeProvider";
 import { fonts, type AppColors } from "../../../theme/tokens";
 import { useAuth } from "../../auth/AuthProvider";
 import { agendaApi, type Appointment, type EntityOption, type PersonalEvent } from "../api/agenda-api";
+import { ApiError } from "../../../shared/api/client";
 
 type AgendaItem = { id: number; title: string; detail: string; at: string; status: string; raw: Appointment | PersonalEvent };
 const addHour = (date: Date) => new Date(date.getTime() + 60 * 60 * 1000);
@@ -82,9 +83,14 @@ function AgendaEditor({ visible, item, personal, onClose, onSaved }: { visible: 
       if (personal) {
         await agendaApi.savePersonal(token, { title, startsAt: date.toISOString(), endsAt: addHour(date).toISOString(), location, notes, reminderMinutes: 30, completed: false }, item?.id);
       } else {
-        await agendaApi.saveAppointment(token, { ...selected, scheduledAt: date.toISOString(), status: "pendente", notes }, item?.id);
+        const version = item ? (item.raw as Appointment).version : undefined;
+        await agendaApi.saveAppointment(token, { ...selected, scheduledAt: date.toISOString(), status: "pendente", notes, version }, item?.id);
       }
       onSaved();
+    } catch (error) {
+      const message = error instanceof ApiError ? error.message : "Não foi possível salvar o compromisso.";
+      if (Platform.OS === "web") window.alert(message);
+      else Alert.alert("Não foi possível salvar", message);
     } finally { setSaving(false); }
   };
 

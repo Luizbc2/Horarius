@@ -1,7 +1,13 @@
 import { apiRequest } from "../../../shared/api/client";
-import type { AuthUser, LoginInput, SignupInput } from "../types";
+import type { AuthOrganization, AuthUser, LoginInput, SignupInput } from "../types";
 
-export type AuthResponse = { message: string; token: string; user: AuthUser };
+export type AuthResponse = {
+  message: string;
+  token: string;
+  refreshToken?: string;
+  organization?: AuthOrganization;
+  user: AuthUser;
+};
 export type SignupResponse = { message: string; user: AuthUser };
 
 export const login = (input: LoginInput) =>
@@ -9,6 +15,11 @@ export const login = (input: LoginInput) =>
 
 export const signup = (input: SignupInput) =>
   apiRequest<SignupResponse>("/users", { method: "POST", body: JSON.stringify(input) });
+
+export const logout = (token: string) => apiRequest<void>("/auth/logout", {
+  method: "POST",
+  headers: { Authorization: `Bearer ${token}` },
+});
 
 export const uploadAvatar = (token: string, uri: string, mimeType = "image/jpeg") => {
   const body = new FormData();

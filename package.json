@@ -10,6 +10,9 @@
     "mobile:start": "npm --prefix Aplicativo-Schedra start",
     "mobile:tunnel": "npm --prefix Aplicativo-Schedra run start:tunnel",
     "mobile:typecheck": "npm --prefix Aplicativo-Schedra run typecheck",
+    "quality:backend": "npm --prefix Backend-Schedra run typecheck && npm --prefix Backend-Schedra test",
+    "quality:web": "npm --prefix Frontend-Schedra run typecheck && npm --prefix Frontend-Schedra test && npm --prefix Frontend-Schedra run build",
+    "quality": "npm run quality:backend && npm run mobile:typecheck && npm run quality:web",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui"
   },

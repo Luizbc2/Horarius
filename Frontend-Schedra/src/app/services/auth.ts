@@ -5,6 +5,18 @@ type AuthUserResponse = {
   name: string;
   email: string;
   cpf: string;
+  accountType?: "business" | "personal";
+  role?: "admin" | "user";
+  active?: boolean;
+  avatarUrl?: string | null;
+};
+
+type AuthOrganizationResponse = {
+  id: number;
+  name: string;
+  slug: string;
+  role: string;
+  permissions: string[];
 };
 
 type LoginRequest = {
@@ -29,6 +41,8 @@ export type UpdateProfileRequest = {
 export type LoginResponse = {
   message: string;
   token: string;
+  refreshToken?: string;
+  organization?: AuthOrganizationResponse;
   user: AuthUserResponse;
 };
 
@@ -43,7 +57,9 @@ export type UpdateProfileResponse = {
 };
 
 export function loginWithApi(input: LoginRequest) {
-  return api.post<LoginResponse>("/auth/login", input);
+  return api.post<LoginResponse>("/auth/login", input, {
+    headers: { "x-auth-client": "web" },
+  });
 }
 
 export function signupWithApi(input: SignupRequest) {
@@ -55,5 +71,11 @@ export function updateProfileWithApi(input: UpdateProfileRequest, token: string)
     headers: {
       Authorization: `Bearer ${token}`,
     },
+  });
+}
+
+export function logoutWithApi(token: string) {
+  return api.post<void>("/auth/logout", null, {
+    headers: { Authorization: `Bearer ${token}` },
   });
 }

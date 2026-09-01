@@ -12,5 +12,13 @@ export type AuthUser = {
   avatarUrl: string | null;
 };
 
+export type AuthOrganization = {
+  id: number;
+  name: string;
+  slug: string;
+  role: string;
+  permissions: string[];
+};
+
 export type LoginInput = { email: string; password: string };
 export type SignupInput = LoginInput & { name: string; cpf: string };

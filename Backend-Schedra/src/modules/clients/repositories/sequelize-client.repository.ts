@@ -8,6 +8,7 @@ import {
 } from "../dtos/client.dto";
 import { ClientModel } from "../models/client.model";
 import { ClientRepository, ListClientsRepositoryResult } from "./client.repository";
+import { buildTenantOwnership, buildTenantWhere } from "../../../shared/data/tenant-scope";
 
 type ListClientsInput = {
   page: number;
@@ -20,7 +21,7 @@ export class SequelizeClientRepository implements ClientRepository {
     const client = await ClientModel.findOne({
       where: {
         id,
-        userId
+        ...buildTenantWhere(userId)
       }
     });
 
@@ -39,7 +40,7 @@ export class SequelizeClientRepository implements ClientRepository {
 
     const { rows, count } = await ClientModel.findAndCountAll({
       where: {
-        userId,
+        ...buildTenantWhere(userId),
         ...(search
           ? {
               [Op.or]: [
@@ -80,7 +81,7 @@ export class SequelizeClientRepository implements ClientRepository {
 
   public async create(userId: number, input: CreateClientRequestDto): Promise<ClientDto> {
     const client = await ClientModel.create({
-      userId,
+      ...buildTenantOwnership(userId),
       name: input.name,
       email: input.email,
       phone: input.phone,
@@ -95,7 +96,7 @@ export class SequelizeClientRepository implements ClientRepository {
     const client = await ClientModel.findOne({
       where: {
         id,
-        userId
+        ...buildTenantWhere(userId)
       }
     });
 
@@ -118,7 +119,7 @@ export class SequelizeClientRepository implements ClientRepository {
     const deletedCount = await ClientModel.destroy({
       where: {
         id,
-        userId
+        ...buildTenantWhere(userId)
       }
     });
 

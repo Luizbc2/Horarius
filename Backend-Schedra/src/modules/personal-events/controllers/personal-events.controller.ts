@@ -3,6 +3,7 @@ import { getAuthenticatedUserId } from "../../auth/utils/auth-request.util";
 import { asNumber, asRequestBody, asString } from "../../../shared/http/request-parser";
 import { SequelizePersonalEventRepository } from "../repositories/personal-event.repository";
 import { PersonalEventService } from "../services/personal-event.service";
+import { recordRequestAudit } from "../../../shared/http/request-audit";
 
 const service = new PersonalEventService(new SequelizePersonalEventRepository());
 
@@ -20,7 +21,9 @@ export class PersonalEventsController {
     const userId = getAuthenticatedUserId(request);
     if (!userId) return response.status(401).json({ message: "Usuário não autenticado." });
     const result = await service.delete(userId, Number(request.params.id));
-    return result.success ? response.json({ message: "Compromisso removido." }) : response.status(result.status).json({ message: result.message });
+    if (!result.success) return response.status(result.status).json({ message: result.message });
+    await recordRequestAudit(request, "personal_event.deleted", "personal_event", Number(request.params.id), undefined, null);
+    return response.json({ message: "Compromisso removido." });
   }
 
   private async save(request: Request, response: Response, id?: number) {
@@ -29,6 +32,8 @@ export class PersonalEventsController {
     const body = asRequestBody(request.body);
     const input = { title: asString(body.title), startsAt: asString(body.startsAt), endsAt: asString(body.endsAt), location: asString(body.location), notes: asString(body.notes), reminderMinutes: asNumber(body.reminderMinutes) ?? 30, completed: body.completed === true };
     const result = id ? await service.update(userId, id, input) : await service.create(userId, input);
-    return result.success ? response.status(id ? 200 : 201).json({ message: "Compromisso salvo.", event: result.data }) : response.status(result.status).json({ message: result.message });
+    if (!result.success) return response.status(result.status).json({ message: result.message });
+    await recordRequestAudit(request, id ? "personal_event.updated" : "personal_event.created", "personal_event", result.data.id, undefined, null);
+    return response.status(id ? 200 : 201).json({ message: "Compromisso salvo.", event: result.data });
   }
 }

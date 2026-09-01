@@ -1,0 +1,80 @@
+name: Quality
+
+on:
+  pull_request:
+    branches: [dev, main]
+  push:
+    branches: [dev, main]
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: schedra_test
+          POSTGRES_USER: schedra
+          POSTGRES_PASSWORD: schedra_test_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U schedra -d schedra_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgres://schedra:schedra_test_password@localhost:5432/schedra_test
+      TEST_DATABASE_URL: postgres://schedra:schedra_test_password@localhost:5432/schedra_test
+      DB_DIALECT: postgres
+      DB_AUTO_SYNC: "true"
+      JWT_SECRET: ci_only_schedra_secret_with_more_than_32_characters
+      AUTH_USER_PASSWORD: IntegrationSeed!123
+    defaults:
+      run:
+        working-directory: Backend-Schedra
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: Backend-Schedra/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm audit --omit=dev --audit-level=high
+
+  web:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Frontend-Schedra
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: Frontend-Schedra/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - run: npm audit --audit-level=high
+
+  mobile:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Aplicativo-Schedra
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: Aplicativo-Schedra/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm audit --audit-level=critical

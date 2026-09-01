@@ -3,6 +3,7 @@ import type { AppointmentStatus } from "../../types/entities";
 
 export type TimelineAppointment = {
   id: number;
+  version: number;
   clientId: number;
   time: string;
   client: string;
@@ -167,12 +168,13 @@ export function createNewAppointmentDraft(selectedProfessional = ""): NewAppoint
 export function mapTimelineAppointment(appointment: AppointmentApiItem): TimelineAppointment {
   return {
     id: appointment.id,
+    version: appointment.version,
     clientId: appointment.clientId,
     time: formatAppointmentTime(appointment.scheduledAt),
     client: appointment.clientName,
     serviceId: appointment.serviceId,
     service: appointment.serviceName,
-    durationMinutes: APPOINTMENT_DURATION_IN_MINUTES,
+    durationMinutes: appointment.durationMinutes,
     professionalId: String(appointment.professionalId),
     status: appointment.status,
     notes: appointment.notes,

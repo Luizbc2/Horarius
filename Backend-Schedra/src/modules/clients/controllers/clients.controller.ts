@@ -9,6 +9,7 @@ import { ListClientsService } from "../services/list-clients.service";
 import { UpdateClientService } from "../services/update-client.service";
 import { getAuthenticatedUserId } from "../../auth/utils/auth-request.util";
 import { asNumber, asRequestBody, asString } from "../../../shared/http/request-parser";
+import { recordRequestAudit } from "../../../shared/http/request-audit";
 
 const clientRepository = new SequelizeClientRepository();
 
@@ -64,6 +65,8 @@ export class ClientsController {
       return this.sendFailure(response, result.statusCode, result.message);
     }
 
+    await recordRequestAudit(request, "client.created", "client", result.data.client.id);
+
     return response.status(201).json(result.data);
   }
 
@@ -82,6 +85,8 @@ export class ClientsController {
       return this.sendFailure(response, result.statusCode, result.message);
     }
 
+    await recordRequestAudit(request, "client.updated", "client", result.data.client.id);
+
     return response.status(200).json(result.data);
   }
 
@@ -99,6 +104,8 @@ export class ClientsController {
     if (!result.success) {
       return this.sendFailure(response, result.statusCode, result.message);
     }
+
+    await recordRequestAudit(request, "client.deleted", "client", id);
 
     return response.status(200).json(result.data);
   }

@@ -10,11 +10,13 @@ import {
 export class ServiceModel extends Model<InferAttributes<ServiceModel>, InferCreationAttributes<ServiceModel>> {
   declare id: CreationOptional<number>;
   declare userId: number | null;
+  declare organizationId: CreationOptional<number | null>;
   declare name: string;
   declare category: string;
   declare durationMinutes: number;
   declare price: number;
   declare description: string;
+  declare deletedAt: CreationOptional<Date | null>;
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
 
@@ -35,6 +37,14 @@ export class ServiceModel extends Model<InferAttributes<ServiceModel>, InferCrea
           },
           onUpdate: "CASCADE",
           onDelete: "SET NULL",
+        },
+        organizationId: {
+          type: DataTypes.INTEGER,
+          allowNull: true,
+          defaultValue: null,
+          references: { model: "organizations", key: "id" },
+          onUpdate: "CASCADE",
+          onDelete: "CASCADE",
         },
         name: {
           type: DataTypes.STRING,
@@ -63,6 +73,11 @@ export class ServiceModel extends Model<InferAttributes<ServiceModel>, InferCrea
           allowNull: false,
           defaultValue: "",
         },
+        deletedAt: {
+          type: DataTypes.DATE,
+          allowNull: true,
+          defaultValue: null,
+        },
         createdAt: {
           type: DataTypes.DATE,
           allowNull: false,
@@ -77,9 +92,13 @@ export class ServiceModel extends Model<InferAttributes<ServiceModel>, InferCrea
         modelName: "Service",
         tableName: "services",
         timestamps: true,
+        paranoid: true,
         indexes: [
           {
             fields: ["userId"],
+          },
+          {
+            fields: ["organizationId"],
           },
         ],
         hooks: {

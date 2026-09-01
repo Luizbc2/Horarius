@@ -305,10 +305,13 @@ function ChartLegendContent({
 }
 
 // Helper to extract item config from a payload.
-type ChartPayloadValue = string | number | boolean | null | undefined | ChartPayloadRecord;
-type ChartPayloadRecord = {
-  [key: string]: ChartPayloadValue;
-};
+type ChartPayloadRecord = Record<string, unknown>;
+
+function asPayloadRecord(payload: unknown): ChartPayloadRecord | undefined {
+  return typeof payload === "object" && payload !== null
+    ? payload as ChartPayloadRecord
+    : undefined;
+}
 
 function readPayloadString(payload: ChartPayloadRecord | undefined, key: string) {
   if (!payload) {
@@ -321,20 +324,20 @@ function readPayloadString(payload: ChartPayloadRecord | undefined, key: string)
 
 function getPayloadConfigFromPayload(
   config: ChartConfig,
-  payload: ChartPayloadRecord | null | undefined,
+  payload: unknown,
   key: string,
 ) {
-  if (!payload) {
+  const payloadRecord = asPayloadRecord(payload);
+
+  if (!payloadRecord) {
     return undefined;
   }
 
-  const payloadPayload = payload.payload;
-  const nestedPayload =
-    typeof payloadPayload === "object" && payloadPayload !== null ? payloadPayload : undefined;
+  const nestedPayload = asPayloadRecord(payloadRecord.payload);
 
   let configLabelKey: string = key;
 
-  const directValue = readPayloadString(payload, key);
+  const directValue = readPayloadString(payloadRecord, key);
   const nestedValue = readPayloadString(nestedPayload, key);
 
   if (directValue) {

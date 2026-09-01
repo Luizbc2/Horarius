@@ -15,6 +15,9 @@ import { AppointmentRepository } from "../repositories/appointment.repository";
 import { ClientRepository } from "../../clients/repositories/client.repository";
 import { ProfessionalRepository } from "../../professionals/repositories/professional.repository";
 import { ServiceRepository } from "../../services/repositories/service.repository";
+import { AppointmentConflictError } from "../errors/appointment-conflict.error";
+import { AppointmentAccessError } from "../errors/appointment-access.error";
+import { SchedulingPolicyService } from "./scheduling-policy.service";
 
 type CreateAppointmentResponseDto = {
   appointment: AppointmentDto;
@@ -40,6 +43,7 @@ export class CreateAppointmentService {
     private readonly clientRepository: ClientRepository,
     private readonly professionalRepository: ProfessionalRepository,
     private readonly serviceRepository: ServiceRepository,
+    private readonly schedulingPolicy = new SchedulingPolicyService(),
   ) {}
 
   public async execute(
@@ -93,16 +97,24 @@ export class CreateAppointmentService {
       };
     }
 
-    const relatedEntityValidation = await this.validateRelatedEntities(
-      userId,
-      clientId,
-      professionalId,
-      serviceId,
-    );
+    const [client, professional, service] = await Promise.all([
+      this.clientRepository.findById(userId, clientId),
+      this.professionalRepository.findById(userId, professionalId),
+      this.serviceRepository.findById(userId, serviceId),
+    ]);
 
-    if (relatedEntityValidation) {
-      return relatedEntityValidation;
+    if (!client || !professional || !service) {
+      return {
+        success: false,
+        message: "Cliente, profissional ou serviço não encontrado para a organização ativa.",
+        statusCode: 400,
+      };
     }
+
+    const startsAt = new Date(scheduledAt);
+    const endsAt = new Date(startsAt.getTime() + service.durationMinutes * 60_000);
+    const policy = await this.schedulingPolicy.validate(professionalId, serviceId, startsAt, endsAt);
+    if (!policy.valid) return { success: false, message: policy.message, statusCode: 409 };
 
     try {
       const appointment = await this.appointmentRepository.create(userId, {
@@ -110,6 +122,12 @@ export class CreateAppointmentService {
         professionalId,
         serviceId,
         scheduledAt,
+        endsAt: endsAt.toISOString(),
+        durationMinutes: service.durationMinutes,
+        clientNameSnapshot: client.name,
+        professionalNameSnapshot: professional.name,
+        serviceNameSnapshot: service.name,
+        priceSnapshot: service.price,
         status,
         notes,
       });
@@ -122,6 +140,14 @@ export class CreateAppointmentService {
         },
       };
     } catch (error) {
+      if (error instanceof AppointmentAccessError) {
+        return { success: false, message: error.message, statusCode: 403 };
+      }
+
+      if (error instanceof AppointmentConflictError) {
+        return { success: false, message: error.message, statusCode: 409 };
+      }
+
       if (error instanceof ForeignKeyConstraintError) {
         return {
           success: false,
@@ -146,26 +172,4 @@ export class CreateAppointmentService {
     return VALID_STATUSES.includes(status);
   }
 
-  private async validateRelatedEntities(
-    userId: number,
-    clientId: number,
-    professionalId: number,
-    serviceId: number,
-  ): Promise<CreateAppointmentServiceResult | null> {
-    const [client, professional, service] = await Promise.all([
-      this.clientRepository.findById(userId, clientId),
-      this.professionalRepository.findById(userId, professionalId),
-      this.serviceRepository.findById(userId, serviceId),
-    ]);
-
-    if (!client || !professional || !service) {
-      return {
-        success: false,
-        message: "Cliente, profissional ou serviço não encontrado para a conta autenticada.",
-        statusCode: 400,
-      };
-    }
-
-    return null;
-  }
 }
