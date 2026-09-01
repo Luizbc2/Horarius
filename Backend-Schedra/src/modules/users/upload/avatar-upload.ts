@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import type { RequestHandler } from "express";
 import multer, { type FileFilterCallback, type Multer, type StorageEngine } from "multer";
@@ -65,8 +66,10 @@ export const createAvatarUpload = (
   },
 });
 
-export const avatarDirectory = path.resolve(process.cwd(), "uploads", "avatars");
-fs.mkdirSync(avatarDirectory, { recursive: true });
+const avatarUploadRoot = process.env.AVATAR_UPLOAD_ROOT?.trim()
+  || (process.env.VERCEL ? path.join(os.tmpdir(), "schedra-uploads") : path.resolve(process.cwd(), "uploads"));
+
+export const avatarDirectory = path.join(avatarUploadRoot, "avatars");
 
 export const avatarUpload = createAvatarUpload(multer.memoryStorage());
 
