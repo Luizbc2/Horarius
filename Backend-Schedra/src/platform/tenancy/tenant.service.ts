@@ -298,7 +298,11 @@ export class TenantService {
       if (model?.rawAttributes.organizationId) {
         await model.update(
           { organizationId },
-          { where: { userId, organizationId: null } },
+          {
+            where: { userId, organizationId: null },
+            hooks: false,
+            validate: false,
+          },
         );
       }
     }
