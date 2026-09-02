@@ -107,12 +107,49 @@ describe("LoginService", () => {
       name: "Admin",
       email: "ADMIN@schedra.com",
       cpf: "52998224725",
+      accountType: "business",
+      role: "user",
+      active: true,
+      avatarUrl: null,
     });
 
     const decoded = jwt.verify(result.data.token, env.jwt.secret) as { sub: string; email: string };
 
     expect(decoded.sub).toBe("1");
     expect(decoded.email).toBe("ADMIN@schedra.com");
+  });
+
+  it("impede login de usuario desativado", async () => {
+    const repository = new InMemoryUserRepository({ users: [{ id: 2, name: "Bloqueado", email: "bloqueado@schedra.com", cpf: "11144477735", password: await hashPassword("Senha123!"), active: false }] });
+    const result = await new LoginService(repository).execute({ email: "bloqueado@schedra.com", password: "Senha123!" });
+    expect(result).toEqual({ success: false, message: "Esta conta esta desativada. Procure um administrador.", statusCode: 403 });
+  });
+
+  it("autentica contas legadas sem exigir selecao de perfil", async () => {
+    const repository = new InMemoryUserRepository({
+      users: [
+        {
+          id: 1,
+          name: "Agenda pessoal",
+          email: "pessoal@schedra.com",
+          cpf: "52998224725",
+          password: await hashPassword("Senha123"),
+          accountType: "personal",
+        },
+      ],
+    });
+    const service = new LoginService(repository);
+
+    const result = await service.execute({
+      email: "pessoal@schedra.com",
+      password: "Senha123",
+    });
+
+    expect(result.success).toBe(true);
+
+    if (result.success) {
+      expect(result.data.user.accountType).toBe("personal");
+    }
   });
 });
 

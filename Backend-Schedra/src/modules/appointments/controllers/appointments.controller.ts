@@ -6,6 +6,7 @@ import { CreateAppointmentService } from "../services/create-appointment.service
 import { DeleteAppointmentService } from "../services/delete-appointment.service";
 import { ListAppointmentsService } from "../services/list-appointments.service";
 import { UpdateAppointmentService } from "../services/update-appointment.service";
+import { SwapAppointmentsService } from "../services/swap-appointments.service";
 import { SequelizeClientRepository } from "../../clients/repositories/sequelize-client.repository";
 import { SequelizeProfessionalRepository } from "../../professionals/repositories/sequelize-professional.repository";
 import { SequelizeServiceRepository } from "../../services/repositories/sequelize-service.repository";
@@ -16,6 +17,8 @@ import {
   asString,
   type RequestValue,
 } from "../../../shared/http/request-parser";
+import { auditService } from "../../../platform/audit/audit.service";
+import { getAuthenticatedOrganizationId } from "../../auth/utils/auth-request.util";
 
 const appointmentRepository = new SequelizeAppointmentRepository();
 const clientRepository = new SequelizeClientRepository();
@@ -58,6 +61,11 @@ export class AppointmentsController {
       return this.sendFailure(response, result.statusCode, result.message);
     }
 
+    await this.audit(request, "appointment.created", result.data.appointment.id, {
+      status: result.data.appointment.status,
+      scheduledAt: result.data.appointment.scheduledAt,
+    });
+
     return response.status(201).json(result.data);
   }
 
@@ -85,6 +93,40 @@ export class AppointmentsController {
       return this.sendFailure(response, result.statusCode, result.message);
     }
 
+    await this.audit(request, "appointment.updated", result.data.appointment.id, {
+      status: result.data.appointment.status,
+      scheduledAt: result.data.appointment.scheduledAt,
+    });
+
+    return response.status(200).json(result.data);
+  }
+
+  public async swap(request: Request, response: Response): Promise<Response> {
+    const authenticatedUserId = getAuthenticatedUserId(request);
+
+    if (!authenticatedUserId) {
+      return this.sendFailure(response, 401, "Usuário autenticado é obrigatório.");
+    }
+
+    const body = asRequestBody(request.body);
+    const result = await new SwapAppointmentsService(appointmentRepository).execute(authenticatedUserId, {
+      firstId: asNumber(body.firstId) ?? 0,
+      firstVersion: asNumber(body.firstVersion) ?? -1,
+      secondId: asNumber(body.secondId) ?? 0,
+      secondVersion: asNumber(body.secondVersion) ?? -1,
+    });
+
+    if (!result.success) {
+      return this.sendFailure(response, result.statusCode, result.message);
+    }
+
+    await Promise.all(result.data.appointments.map((appointment) =>
+      this.audit(request, "appointment.swapped", appointment.id, {
+        professionalId: appointment.professionalId,
+        scheduledAt: appointment.scheduledAt,
+      }),
+    ));
+
     return response.status(200).json(result.data);
   }
 
@@ -102,6 +144,8 @@ export class AppointmentsController {
     if (!result.success) {
       return this.sendFailure(response, result.statusCode, result.message);
     }
+
+    await this.audit(request, "appointment.deleted", id);
 
     return response.status(200).json(result.data);
   }
@@ -126,6 +170,7 @@ export class AppointmentsController {
       scheduledAt: asString(body.scheduledAt),
       status: this.parseBodyStatus(body.status),
       notes: asString(body.notes),
+      version: asNumber(body.version) ?? -1,
     };
   }
 
@@ -153,5 +198,22 @@ export class AppointmentsController {
 
   private parseBodyStatus(value: RequestValue): AppointmentStatus {
     return asString(value).trim().toLowerCase() as AppointmentStatus;
+  }
+
+  private async audit(
+    request: Request,
+    action: string,
+    entityId: number,
+    metadata?: Record<string, unknown>,
+  ): Promise<void> {
+    await auditService.record({
+      organizationId: getAuthenticatedOrganizationId(request),
+      userId: getAuthenticatedUserId(request),
+      action,
+      entityType: "appointment",
+      entityId,
+      metadata,
+      ipAddress: request.ip,
+    }).catch((error) => console.error("Appointment audit write failed.", error));
   }
 }

@@ -15,11 +15,14 @@ export class ProfessionalModel extends Model<
 > {
   declare id: CreationOptional<number>;
   declare userId: number | null;
+  declare organizationId: CreationOptional<number | null>;
+  declare membershipId: CreationOptional<number | null>;
   declare name: string;
   declare email: string;
   declare phone: string;
   declare specialty: string;
   declare status: string;
+  declare deletedAt: CreationOptional<Date | null>;
   declare workDays?: NonAttribute<ProfessionalWorkDayModel[]>;
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
@@ -39,6 +42,22 @@ export class ProfessionalModel extends Model<
             model: "users",
             key: "id",
           },
+          onUpdate: "CASCADE",
+          onDelete: "SET NULL",
+        },
+        organizationId: {
+          type: DataTypes.INTEGER,
+          allowNull: true,
+          defaultValue: null,
+          references: { model: "organizations", key: "id" },
+          onUpdate: "CASCADE",
+          onDelete: "CASCADE",
+        },
+        membershipId: {
+          type: DataTypes.INTEGER,
+          allowNull: true,
+          defaultValue: null,
+          references: { model: "memberships", key: "id" },
           onUpdate: "CASCADE",
           onDelete: "SET NULL",
         },
@@ -66,6 +85,11 @@ export class ProfessionalModel extends Model<
           allowNull: false,
           defaultValue: "ativo",
         },
+        deletedAt: {
+          type: DataTypes.DATE,
+          allowNull: true,
+          defaultValue: null,
+        },
         createdAt: {
           type: DataTypes.DATE,
           allowNull: false,
@@ -80,6 +104,7 @@ export class ProfessionalModel extends Model<
         modelName: "Professional",
         tableName: "professionals",
         timestamps: true,
+        paranoid: true,
         indexes: [
           {
             fields: ["userId"],

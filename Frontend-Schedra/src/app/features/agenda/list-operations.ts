@@ -37,6 +37,7 @@ export function buildAgendaEditPayload(
     scheduledAt: buildScheduledAt(appointment.scheduledAt, draft.time),
     status: draft.status,
     notes: appointment.notes,
+    version: appointment.version,
   };
 }
 
@@ -51,6 +52,7 @@ export function buildAgendaStatusPayload(
     scheduledAt: appointment.scheduledAt,
     status,
     notes: appointment.notes,
+    version: appointment.version,
   };
 }
 

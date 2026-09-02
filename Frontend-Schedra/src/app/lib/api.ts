@@ -3,9 +3,10 @@ export const API_BASE_URL =
 
 type QueryValue = string | number | boolean | null | undefined;
 import type { JsonValue } from "../types/http";
+import { clearStoredSession, persistSession, readStoredSession } from "./auth-storage";
 
 type ApiRequestOptions = Omit<RequestInit, "body"> & {
-  body?: JsonValue;
+  body?: unknown;
   query?: Record<string, QueryValue>;
 };
 
@@ -59,7 +60,7 @@ const parseResponseBody = async (response: Response): Promise<JsonValue | null> 
   return text || null;
 };
 
-const createHeaders = (initHeaders?: HeadersInit, body?: JsonValue): Headers => {
+const createHeaders = (initHeaders?: HeadersInit, body?: unknown): Headers => {
   const headers = new Headers(initHeaders);
 
   if (body !== undefined && body !== null && !headers.has("Content-Type")) {
@@ -72,11 +73,30 @@ const createHeaders = (initHeaders?: HeadersInit, body?: JsonValue): Headers => 
 export async function apiRequest<T>(path: string, options: ApiRequestOptions = {}): Promise<T> {
   const { body, query, headers: initHeaders, ...init } = options;
   const headers = createHeaders(initHeaders, body);
-  const response = await fetch(buildUrl(path, query), {
+  let response = await fetch(buildUrl(path, query), {
     ...init,
+    credentials: "include",
     headers,
     body: body === undefined || body === null ? undefined : JSON.stringify(body),
   });
+
+  if (
+    response.status === 401 &&
+    headers.has("Authorization") &&
+    path !== "/auth/login" &&
+    path !== "/auth/refresh"
+  ) {
+    const renewedToken = await renewAccessToken();
+    if (renewedToken) {
+      headers.set("Authorization", `Bearer ${renewedToken}`);
+      response = await fetch(buildUrl(path, query), {
+        ...init,
+        credentials: "include",
+        headers,
+        body: body === undefined || body === null ? undefined : JSON.stringify(body),
+      });
+    }
+  }
 
   const data = await parseResponseBody(response);
 
@@ -92,14 +112,48 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
   return data as T;
 }
 
+let refreshPromise: Promise<string | null> | null = null;
+
+const renewAccessToken = (): Promise<string | null> => {
+  if (refreshPromise) return refreshPromise;
+  refreshPromise = (async () => {
+    const storedSession = readStoredSession();
+    if (!storedSession) return null;
+    const response = await fetch(buildUrl("/auth/refresh"), {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json", "x-auth-client": "web" },
+      body: JSON.stringify({}),
+    });
+    if (!response.ok) {
+      clearStoredSession();
+      return null;
+    }
+    const data = await response.json() as {
+      token: string;
+      user?: typeof storedSession.user;
+      organization?: typeof storedSession.organization;
+    };
+    persistSession({
+      token: data.token,
+      user: data.user ?? storedSession.user,
+      organization: data.organization ?? storedSession.organization,
+    });
+    return data.token;
+  })().finally(() => {
+    refreshPromise = null;
+  });
+  return refreshPromise;
+};
+
 export const api = {
   get: <T>(path: string, options?: Omit<ApiRequestOptions, "body" | "method">) =>
     apiRequest<T>(path, { ...options, method: "GET" }),
-  post: <T>(path: string, body?: JsonValue, options?: Omit<ApiRequestOptions, "body" | "method">) =>
+  post: <T>(path: string, body?: unknown, options?: Omit<ApiRequestOptions, "body" | "method">) =>
     apiRequest<T>(path, { ...options, method: "POST", body }),
-  put: <T>(path: string, body?: JsonValue, options?: Omit<ApiRequestOptions, "body" | "method">) =>
+  put: <T>(path: string, body?: unknown, options?: Omit<ApiRequestOptions, "body" | "method">) =>
     apiRequest<T>(path, { ...options, method: "PUT", body }),
-  patch: <T>(path: string, body?: JsonValue, options?: Omit<ApiRequestOptions, "body" | "method">) =>
+  patch: <T>(path: string, body?: unknown, options?: Omit<ApiRequestOptions, "body" | "method">) =>
     apiRequest<T>(path, { ...options, method: "PATCH", body }),
   delete: <T>(path: string, options?: Omit<ApiRequestOptions, "body" | "method">) =>
     apiRequest<T>(path, { ...options, method: "DELETE" }),

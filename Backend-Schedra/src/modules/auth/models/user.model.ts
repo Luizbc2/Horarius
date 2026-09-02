@@ -6,6 +6,7 @@ import {
   Model,
   Sequelize
 } from "sequelize";
+import type { AccountType, UserRole } from "../auth.types";
 
 export class UserModel extends Model<InferAttributes<UserModel>, InferCreationAttributes<UserModel>> {
   declare id: CreationOptional<number>;
@@ -13,6 +14,11 @@ export class UserModel extends Model<InferAttributes<UserModel>, InferCreationAt
   declare email: string;
   declare cpf: string;
   declare password: string;
+  declare accountType: CreationOptional<AccountType>;
+  declare role: CreationOptional<UserRole>;
+  declare active: CreationOptional<boolean>;
+  declare avatarUrl: CreationOptional<string | null>;
+  declare deletedAt: CreationOptional<Date | null>;
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
 
@@ -51,6 +57,31 @@ export class UserModel extends Model<InferAttributes<UserModel>, InferCreationAt
             notEmpty: true
           }
         },
+        accountType: {
+          type: DataTypes.ENUM("business", "personal"),
+          allowNull: false,
+          defaultValue: "business",
+        },
+        role: {
+          type: DataTypes.ENUM("admin", "user"),
+          allowNull: false,
+          defaultValue: "user",
+        },
+        active: {
+          type: DataTypes.BOOLEAN,
+          allowNull: false,
+          defaultValue: true,
+        },
+        avatarUrl: {
+          type: DataTypes.STRING,
+          allowNull: true,
+          defaultValue: null,
+        },
+        deletedAt: {
+          type: DataTypes.DATE,
+          allowNull: true,
+          defaultValue: null,
+        },
         createdAt: {
           type: DataTypes.DATE,
           allowNull: false
@@ -65,6 +96,7 @@ export class UserModel extends Model<InferAttributes<UserModel>, InferCreationAt
         modelName: "User",
         tableName: "users",
         timestamps: true,
+        paranoid: true,
         hooks: {
           beforeValidate: (user) => {
             user.name = user.name.trim();

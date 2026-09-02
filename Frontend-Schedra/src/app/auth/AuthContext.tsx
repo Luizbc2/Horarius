@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 
 import {
   clearStoredSession,
@@ -9,7 +9,7 @@ import {
   readStoredSession,
 } from "../lib/auth-storage";
 import { getApiErrorMessage, isApiErrorWithStatus } from "../lib/api-error";
-import { loginWithApi, updateProfileWithApi } from "../services/auth";
+import { loginWithApi, logoutWithApi, updateProfileWithApi } from "../services/auth";
 import type { ApiErrorInput } from "../types/http";
 
 type UpdateUserProfileInput = {
@@ -24,13 +24,19 @@ type AuthContextValue = {
   user: AuthUser | null;
   login: (email: string, password: string) => Promise<void>;
   updateUserProfile: (input: UpdateUserProfileInput) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<AuthSession | null>(readStoredSession);
+
+  useEffect(() => {
+    const syncSession = () => setSession(readStoredSession());
+    window.addEventListener("schedra:session-updated", syncSession);
+    return () => window.removeEventListener("schedra:session-updated", syncSession);
+  }, []);
 
   const clearSession = () => {
     clearStoredSession();
@@ -58,6 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const nextSession: AuthSession = {
       token: response.token,
+      organization: response.organization,
       user: response.user,
     };
 
@@ -70,10 +77,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       throw new Error("Nenhum usuário autenticado.");
     }
 
-    let response;
-
-    try {
-      response = await updateProfileWithApi(
+    const response = await updateProfileWithApi(
         {
           name: input.name.trim(),
           email: session.user.email,
@@ -81,10 +85,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           password: input.password,
         },
         session.token,
-      );
-    } catch (error) {
-      handleProtectedRequestError(error);
-    }
+      ).catch(handleProtectedRequestError);
 
     const nextSession: AuthSession = {
       ...session,
@@ -95,7 +96,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setSession(nextSession);
   };
 
-  const logout = () => {
+  const logout = async () => {
+    if (session?.token) {
+      await logoutWithApi(session.token).catch(() => undefined);
+    }
     clearSession();
   };
 

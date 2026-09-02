@@ -148,6 +148,7 @@ export function buildTimelineUpdatePayload(
     scheduledAt: buildScheduledAt(selectedDate, slot.time),
     status: appointment.status,
     notes: appointment.notes,
+    version: appointment.version,
   };
 }
 
@@ -163,6 +164,7 @@ export function buildTimelineEditPayload(
     scheduledAt: buildScheduledAt(selectedDate, draft.time),
     status: draft.status,
     notes: appointment.notes,
+    version: appointment.version,
   };
 }
 

@@ -52,4 +52,14 @@ describe("profile form helpers", () => {
       submit: "Revise os campos destacados antes de salvar.",
     });
   });
+
+  test("allows updating personal data without changing the password", () => {
+    expect(validateProfileForm({
+      name: "Luiz Campos",
+      email: "luiz@email.com",
+      cpf: "529.982.247-25",
+      password: "",
+      confirmPassword: "",
+    })).toEqual({});
+  });
 });

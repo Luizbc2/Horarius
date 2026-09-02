@@ -22,6 +22,7 @@ type UpdateUserProfileServiceResult =
   | {
       success: true;
       data: UpdateUserProfileResponseDto;
+      passwordChanged: boolean;
     }
   | {
       success: false;
@@ -35,12 +36,12 @@ export class UpdateUserProfileService {
   public async execute(input: UpdateUserProfileServiceInput): Promise<UpdateUserProfileServiceResult> {
     const name = normalizeSingleLineText(input.name, INPUT_LIMITS.name);
     const cpf = normalizeCpf(input.cpf);
-    const password = input.password.trim();
+    const password = input.password?.trim() ?? "";
 
-    if (!input.authenticatedUserId || !input.userId || !name || !cpf || !password) {
+    if (!input.authenticatedUserId || !input.userId || !name || !cpf) {
       return {
         success: false,
-        message: "Id do usuário autenticado, id do usuário, nome, CPF e senha são obrigatórios.",
+        message: "Id do usuário autenticado, id do usuário, nome e CPF são obrigatórios.",
         statusCode: 400,
       };
     }
@@ -87,7 +88,7 @@ export class UpdateUserProfileService {
       };
     }
 
-    if (password.length > INPUT_LIMITS.password) {
+    if (password && password.length > INPUT_LIMITS.password) {
       return {
         success: false,
         message: `A senha deve ter no maximo ${INPUT_LIMITS.password} caracteres.`,
@@ -95,7 +96,7 @@ export class UpdateUserProfileService {
       };
     }
 
-    const passwordValidationMessage = validatePasswordStrength(password);
+    const passwordValidationMessage = password ? validatePasswordStrength(password) : null;
 
     if (passwordValidationMessage) {
       return {
@@ -119,7 +120,7 @@ export class UpdateUserProfileService {
       const updatedUser = await this.userRepository.updateProfile(input.userId, {
         name,
         cpf,
-        password: await hashPassword(password),
+        ...(password ? { password: await hashPassword(password) } : {}),
       });
 
       if (!updatedUser) {
@@ -136,6 +137,7 @@ export class UpdateUserProfileService {
           message: "Perfil atualizado com sucesso.",
           user: this.toPublicUser(updatedUser),
         },
+        passwordChanged: Boolean(password),
       };
     } catch (error) {
       if (error instanceof UniqueConstraintError) {
@@ -158,12 +160,25 @@ export class UpdateUserProfileService {
     }
   }
 
+  public async updateAvatar(userId: number, avatarUrl: string): Promise<PublicUserDto | null> {
+    const user = await this.userRepository.updateAvatar(userId, avatarUrl);
+
+    return user ? this.toPublicUser(user) : null;
+  }
+
+  public async findById(userId: number): Promise<PublicUserDto | null> {
+    const user = await this.userRepository.findById(userId);
+    return user ? this.toPublicUser(user) : null;
+  }
+
   private toPublicUser(user: PublicUserDto): PublicUserDto {
     return {
       id: user.id,
       name: user.name,
       email: user.email,
       cpf: user.cpf,
+      accountType: user.accountType ?? "business",
+      avatarUrl: user.avatarUrl ?? null,
     };
   }
 

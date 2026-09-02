@@ -1,8 +1,8 @@
 import {
   AppointmentDto,
-  CreateAppointmentRequestDto,
   ListAppointmentsQueryDto,
-  UpdateAppointmentRequestDto,
+  PersistAppointmentRequestDto,
+  SwapAppointmentsRequestDto,
 } from "../dtos/appointment.dto";
 
 export type ListAppointmentsRepositoryResult = {
@@ -17,7 +17,8 @@ export interface AppointmentRepository {
     query: Required<Pick<ListAppointmentsQueryDto, "page" | "limit">> &
       Omit<ListAppointmentsQueryDto, "page" | "limit">,
   ): Promise<ListAppointmentsRepositoryResult>;
-  create(userId: number, input: CreateAppointmentRequestDto): Promise<AppointmentDto>;
-  update(userId: number, id: number, input: UpdateAppointmentRequestDto): Promise<AppointmentDto | null>;
+  create(userId: number, input: PersistAppointmentRequestDto): Promise<AppointmentDto>;
+  update(userId: number, id: number, input: PersistAppointmentRequestDto): Promise<AppointmentDto | null>;
+  swap(userId: number, input: SwapAppointmentsRequestDto): Promise<AppointmentDto[] | null>;
   delete(userId: number, id: number): Promise<boolean>;
 }

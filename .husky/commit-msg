@@ -1,2 +1,17 @@
-#!/usr/bin/env sh
-npx --no -- commitlint --edit "$1"
+#!/usr/bin/env node
+const { spawnSync } = require("node:child_process");
+const path = require("node:path");
+
+const commitlint = path.join(
+  process.cwd(),
+  "node_modules",
+  ".bin",
+  process.platform === "win32" ? "commitlint.cmd" : "commitlint",
+);
+const messageFile = process.argv[2];
+const result = spawnSync(commitlint, ["--edit", messageFile], {
+  shell: process.platform === "win32",
+  stdio: "inherit",
+});
+
+process.exit(result.status ?? 1);

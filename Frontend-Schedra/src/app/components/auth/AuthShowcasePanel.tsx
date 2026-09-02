@@ -18,27 +18,28 @@ export function AuthShowcasePanel({ eyebrow, title, description }: AuthShowcaseP
   const hasLongTitle = title.length > 46;
 
   return (
-    <section className="relative hidden min-h-[calc(100vh-2.5rem)] overflow-hidden rounded-lg bg-[#96244c] p-10 text-white xl:block 2xl:p-12">
+    <section className="auth-showcase relative hidden h-full min-h-0 overflow-hidden rounded-lg bg-[#96244c] p-10 text-white xl:block">
       <div aria-hidden="true" className="pointer-events-none absolute -right-28 -top-52 h-[34rem] w-[34rem] rounded-full border border-[#d5a64d]/55" />
       <div aria-hidden="true" className="pointer-events-none absolute -right-6 -top-44 h-[30rem] w-[30rem] rounded-full border-[3rem] border-white/[0.025]" />
       <div aria-hidden="true" className="pointer-events-none absolute -bottom-28 -left-24 h-72 w-72 rotate-45 border border-white/15" />
 
       <BrandLockup inverse className="relative z-10" />
 
-      <div className="relative z-10 mt-16 grid grid-cols-[minmax(14rem,0.68fr)_minmax(28rem,1.32fr)] items-start gap-8 2xl:mt-20 2xl:grid-cols-[minmax(18rem,0.66fr)_minmax(38rem,1.34fr)] 2xl:gap-10">
-        <div className="max-w-[25rem] pb-2">
+      <div className="auth-showcase-layout relative z-10 mt-16 grid grid-cols-[minmax(14rem,0.68fr)_minmax(28rem,1.32fr)] items-start gap-8">
+        <div className="auth-showcase-copy max-w-[25rem] pb-2">
           <p className="text-xs font-bold uppercase text-[#d7f75b]">{eyebrow}</p>
           <h1
-            className={
+            data-long-title={hasLongTitle || undefined}
+            className={`auth-showcase-title ${
               hasLongTitle
-                ? "mt-5 max-w-[12ch] text-5xl font-medium leading-[1.03] text-white 2xl:text-6xl"
-                : "mt-5 max-w-[8ch] text-6xl font-medium leading-[1.01] text-white 2xl:text-7xl"
-            }
+                ? "mt-5 max-w-[12ch] text-5xl font-medium leading-[1.03] text-white"
+                : "mt-5 max-w-[8ch] text-6xl font-medium leading-[1.01] text-white"
+            }`}
           >
             {title}
           </h1>
-          <p className="mt-6 max-w-[24rem] text-base leading-8 text-white/74">{description}</p>
-          <div className="mt-10 flex items-center gap-7 border-t border-white/20 pt-6">
+          <p className="auth-showcase-description mt-6 max-w-[24rem] text-base leading-8 text-white/74">{description}</p>
+          <div className="auth-showcase-stats mt-10 flex items-center gap-7 border-t border-white/20 pt-6">
             <div>
               <p className="font-[var(--font-display)] text-4xl font-medium">08</p>
               <p className="mt-1 text-xs text-white/62">atendimentos hoje</p>
@@ -51,11 +52,11 @@ export function AuthShowcasePanel({ eyebrow, title, description }: AuthShowcaseP
           </div>
         </div>
 
-        <div className="w-full translate-y-5 overflow-hidden rounded-lg border border-black/15 bg-[#f8f9fb] text-[#181a20] shadow-[0_32px_80px_-30px_rgba(18,10,15,0.72)] dark:border-white/10 dark:bg-[#17161a] dark:text-[#f6f6f8] 2xl:translate-y-7">
-          <header className="flex items-center justify-between border-b border-black/8 px-6 py-5 dark:border-white/10">
+        <div className="auth-agenda-preview w-full translate-y-5 overflow-hidden rounded-lg border border-black/15 bg-[#f8f9fb] text-[#181a20] shadow-[0_32px_80px_-30px_rgba(18,10,15,0.72)] dark:border-white/10 dark:bg-[#17161a] dark:text-[#f6f6f8]">
+          <header className="auth-agenda-header flex items-center justify-between border-b border-black/8 px-6 py-5 dark:border-white/10">
             <div>
               <p className="text-xs font-semibold text-[#6b6f7b] dark:text-[#a9acb5]">QUINTA-FEIRA · VISÃO DO DIA</p>
-              <h2 className="mt-2 text-3xl font-medium">Agenda inteligente</h2>
+              <h2 className="auth-agenda-title mt-2 text-3xl font-medium">Agenda inteligente</h2>
             </div>
             <button type="button" aria-label="Mais opções" className="flex h-11 w-11 items-center justify-center rounded-md border border-black/10 bg-white text-[#6b6f7b] dark:border-white/10 dark:bg-[#211f24] dark:text-[#a9acb5]">
               <MoreHorizontal className="h-4 w-4" />
@@ -65,7 +66,7 @@ export function AuthShowcasePanel({ eyebrow, title, description }: AuthShowcaseP
           <div className="grid grid-cols-[minmax(0,1fr)_9.5rem]">
             <div className="divide-y divide-black/[0.07] px-6 dark:divide-white/[0.08]">
               {appointments.map((appointment) => (
-                <div key={appointment.time} className="grid grid-cols-[3.5rem_1fr] gap-4 py-5">
+                <div key={appointment.time} className="auth-agenda-row grid grid-cols-[3.5rem_1fr] gap-4 py-5">
                   <p className="pt-1 text-sm font-bold text-[#6b6f7b] dark:text-[#a9acb5]">{appointment.time}</p>
                   <div className="border-l-2 border-[#a72c53] pl-4 dark:border-[#df5c86]">
                     <div className="flex items-start justify-between gap-2">
@@ -81,7 +82,7 @@ export function AuthShowcasePanel({ eyebrow, title, description }: AuthShowcaseP
                   </div>
                 </div>
               ))}
-              <div className="grid grid-cols-[3.5rem_1fr] gap-4 py-5">
+              <div className="auth-agenda-row grid grid-cols-[3.5rem_1fr] gap-4 py-5">
                 <p className="pt-1 text-sm font-bold text-[#6b6f7b] dark:text-[#a9acb5]">14:30</p>
                 <div className="rounded-md border border-dashed border-[#a72c53]/35 bg-[#a72c53]/5 px-4 py-2.5 text-sm font-semibold text-[#a72c53] dark:border-[#df5c86]/40 dark:bg-[#df5c86]/10 dark:text-[#ef82a5]">
                   Horário disponível
@@ -89,7 +90,7 @@ export function AuthShowcasePanel({ eyebrow, title, description }: AuthShowcaseP
               </div>
             </div>
 
-            <aside className="border-l border-black/[0.07] bg-white px-5 py-6 dark:border-white/[0.08] dark:bg-[#1d1b1f]">
+            <aside className="auth-agenda-summary border-l border-black/[0.07] bg-white px-5 py-6 dark:border-white/[0.08] dark:bg-[#1d1b1f]">
               <p className="text-[0.68rem] font-bold uppercase text-[#6b6f7b] dark:text-[#a9acb5]">Resumo</p>
               <div className="mt-6 space-y-6">
                 <div>

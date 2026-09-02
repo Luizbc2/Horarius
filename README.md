@@ -1,5 +1,7 @@
 # Schedra
 
+Documentação acadêmica e rastreabilidade da rubrica: [`docs/README.md`](docs/README.md).
+
 [![Site](https://img.shields.io/badge/Link-Projeto-7dffb7?style=for-the-badge&logo=vercel&logoColor=0b1510&labelColor=0b1510)](https://schedra.app/login)
 
 Sistema full stack de agenda com autenticação, painel interno e gerenciamento de clientes, profissionais e serviços. O projeto foi pensado como produto real para organizar a operação do dia a dia.
@@ -8,20 +10,19 @@ Sistema full stack de agenda com autenticação, painel interno e gerenciamento 
 
 - Frontend: React, Vite, Tailwind CSS, Radix UI
 - Backend: Node.js, TypeScript, Express, Sequelize
-- Banco de dados: PostgreSQL
+- Banco de dados: PostgreSQL ou MySQL via Sequelize
+- Mobile: React Native com Expo
 
-## Acesso de teste
+## Acesso local
 
-- E-mail: `admin@schedra.com`
-- Senha: `123456`
-
-Também é possível criar uma conta nova pelo fluxo do sistema.
+Defina `AUTH_USER_EMAIL`, `AUTH_USER_PASSWORD` e `AUTH_SEED_ENABLED=true` somente no ambiente local. Em produção, o seed permanece desabilitado e as contas são criadas pelo fluxo controlado do sistema.
 
 ## Estrutura
 
 ```bash
 Frontend-Schedra/
 Backend-Schedra/
+Aplicativo-Schedra/
 ```
 
 ## O que o projeto entrega
@@ -30,6 +31,9 @@ Backend-Schedra/
 - Painel com visão da agenda
 - Cadastro de clientes, profissionais e serviços
 - Estrutura separada entre frontend e backend
+- Multiempresa com papéis, permissões e isolamento por organização
+- Sessões revogáveis, auditoria e agendamento protegido contra concorrência
+- Aplicativo Expo consumindo a mesma API
 
 ## Como rodar localmente
 

@@ -55,7 +55,7 @@ export type ProfessionalBaseData = {
   email: string;
   phone: string;
   specialty: string;
-  status: string;
+  status: ProfessionalStatus;
 };
 
 export const PROFESSIONALS_STORAGE_KEY = "schedra:profissionais";

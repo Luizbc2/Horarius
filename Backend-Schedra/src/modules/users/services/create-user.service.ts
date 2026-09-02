@@ -10,6 +10,7 @@ import { isValidCpf, normalizeCpf } from "../../../shared/utils/cpf.util";
 import { hasTextLengthBetween, INPUT_LIMITS, normalizeSingleLineText } from "../../../shared/utils/input-validation.util";
 import { validatePasswordStrength } from "../../../shared/utils/password-strength.util";
 import { hashPassword } from "../../auth/utils/password.util";
+import type { TenantService } from "../../../platform/tenancy/tenant.service";
 
 type CreateUserServiceResult =
   | {
@@ -23,13 +24,17 @@ type CreateUserServiceResult =
     };
 
 export class CreateUserService {
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(
+    private readonly userRepository: UserRepository,
+    private readonly tenancy?: TenantService,
+  ) {}
 
   public async execute(input: CreateUserInputDto): Promise<CreateUserServiceResult> {
     const name = normalizeSingleLineText(input.name, INPUT_LIMITS.name);
     const email = input.email.trim().toLowerCase();
     const cpf = normalizeCpf(input.cpf);
     const password = input.password.trim();
+    const accountType = "business" as const;
 
     if (!name || !email || !cpf || !password) {
       return {
@@ -115,7 +120,16 @@ export class CreateUserService {
         email,
         cpf,
         password: await hashPassword(password),
+        accountType,
       });
+
+      if (this.tenancy) {
+        await this.tenancy.ensureDefaultWorkspace({
+          id: createdUser.id,
+          name: createdUser.name,
+          email: createdUser.email,
+        });
+      }
 
       return {
         success: true,
@@ -151,6 +165,10 @@ export class CreateUserService {
       name: user.name,
       email: user.email,
       cpf: user.cpf,
+      accountType: user.accountType ?? "business",
+      role: user.role ?? "user",
+      active: user.active ?? true,
+      avatarUrl: user.avatarUrl ?? null,
     };
   }
 
