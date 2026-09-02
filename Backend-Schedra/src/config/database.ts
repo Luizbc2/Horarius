@@ -223,9 +223,27 @@ class Database {
 
   public async migrate(): Promise<void> {
     this.initializeModels();
-    // `sync` only creates tables that do not exist; versioned migrations own every alteration.
-    await this.getConnection().sync();
-    await new MigrationRunner(this.getConnection()).run();
+    const connection = this.getConnection();
+
+    if (env.database.dialect === "mysql") {
+      await connection.sync();
+      await new MigrationRunner(connection).run();
+      return;
+    }
+
+    // Keep concurrent serverless cold starts from racing on table and index creation.
+    const migrationLock = await connection.transaction();
+    try {
+      await connection.query("SELECT pg_advisory_xact_lock(1396918340)", {
+        transaction: migrationLock,
+      });
+      await connection.sync();
+      await new MigrationRunner(connection).run();
+      await migrationLock.commit();
+    } catch (error) {
+      await migrationLock.rollback();
+      throw error;
+    }
   }
 
   public async close(): Promise<void> {
