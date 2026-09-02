@@ -37,4 +37,13 @@ describe("AdminUsersService", () => {
     expect(result).toEqual({ success: true, data: { message: "Usuario excluido com sucesso." } });
     expect(repository.users).toHaveLength(1);
   });
+
+  it("protege o ultimo administrador ativo", async () => {
+    const repository = new MemoryAdminRepository();
+    repository.users = [makeUser(1), makeUser(2, "admin")];
+    const service = new AdminUsersService(repository);
+    expect(await service.changeRole(1, 2, "user")).toMatchObject({ success: false, statusCode: 409 });
+    expect(await service.changeStatus(1, 2, false)).toMatchObject({ success: false, statusCode: 409 });
+    expect(await service.remove(1, 2)).toMatchObject({ success: false, statusCode: 409 });
+  });
 });

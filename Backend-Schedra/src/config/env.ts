@@ -44,6 +44,7 @@ export const env = {
   nodeEnv: process.env.NODE_ENV || "development",
   port: toNumber(process.env.PORT, 3333),
   frontendUrl: normalizeString(process.env.FRONTEND_URL, "http://localhost:5173"),
+  timeZone: normalizeString(process.env.APP_TIMEZONE, "America/Sao_Paulo"),
   database: {
     dialect: normalizeString(process.env.DB_DIALECT, "postgres"),
     url: normalizeString(process.env.DATABASE_URL, ""),
@@ -61,8 +62,50 @@ export const env = {
     cpf: normalizeString(process.env.AUTH_USER_CPF, "52998224725"),
     password: normalizeString(process.env.AUTH_USER_PASSWORD, "123456"),
   },
+  authSeedEnabled: toBoolean(process.env.AUTH_SEED_ENABLED, process.env.NODE_ENV !== "production"),
   jwt: {
     secret: normalizeString(process.env.JWT_SECRET, "schedra_jwt_secret"),
-    expiresIn: normalizeString(process.env.JWT_EXPIRES_IN, "1d"),
+    expiresIn: normalizeString(process.env.JWT_EXPIRES_IN, "15m"),
+    refreshDays: toNumber(process.env.JWT_REFRESH_DAYS, 30),
   },
+  rateLimit: {
+    windowMs: toNumber(process.env.RATE_LIMIT_WINDOW_MS, 60_000),
+    maxRequests: toNumber(process.env.RATE_LIMIT_MAX_REQUESTS, 240),
+    authMaxRequests: toNumber(process.env.AUTH_RATE_LIMIT_MAX_REQUESTS, 20),
+  },
+  metricsToken: normalizeString(process.env.METRICS_TOKEN, ""),
+};
+
+export const assertProductionEnvironment = (): void => {
+  if (env.nodeEnv !== "production") {
+    return;
+  }
+
+  const unsafeValues = [
+    "schedra_jwt_secret",
+    "123456",
+    "change_this_long_random_jwt_secret",
+    "change_seed_password",
+    "change_this_private_metrics_token",
+  ];
+
+  if (env.jwt.secret.length < 32 || unsafeValues.includes(env.jwt.secret)) {
+    throw new Error("JWT_SECRET must be a unique secret with at least 32 characters in production.");
+  }
+
+  if (env.authSeedEnabled && (unsafeValues.includes(env.authSeedUser.password) || env.authSeedUser.password.length < 10)) {
+    throw new Error("AUTH_USER_PASSWORD must be changed before running in production.");
+  }
+
+  if (!env.database.url && !(env.database.host && env.database.name && env.database.user && env.database.password)) {
+    throw new Error("A database connection is required in production.");
+  }
+
+  if (!env.frontendUrl.startsWith("https://")) {
+    throw new Error("FRONTEND_URL must use HTTPS in production.");
+  }
+
+  if (env.metricsToken.length < 24 || unsafeValues.includes(env.metricsToken)) {
+    throw new Error("METRICS_TOKEN must contain at least 24 characters in production.");
+  }
 };

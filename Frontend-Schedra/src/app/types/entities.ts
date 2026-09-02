@@ -22,7 +22,7 @@ export type ProfessionalEntity = {
   email: string;
   phone: string;
   specialty: string;
-  status: string;
+  status: "ativo" | "ferias";
 };
 
 export type ProfessionalWorkDayEntity = {
@@ -47,6 +47,10 @@ export type AppointmentEntity = {
   serviceId: number;
   serviceName: string;
   scheduledAt: string;
+  endsAt: string;
+  durationMinutes: number;
+  priceSnapshot: number;
+  version: number;
   status: AppointmentStatus;
   notes: string;
 };

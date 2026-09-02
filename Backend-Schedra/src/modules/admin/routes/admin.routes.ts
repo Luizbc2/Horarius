@@ -5,9 +5,13 @@ import { authorize } from "../../auth/middlewares/authorize.middleware";
 import { AdminUsersController } from "../controllers/admin-users.controller";
 import { SequelizeAdminUserRepository } from "../repositories/admin-user.repository";
 import { AdminUsersService } from "../services/admin-users.service";
+import { sessionService } from "../../auth/services/session.service";
+import { auditService } from "../../../platform/audit/audit.service";
 
 const adminRoutes = Router();
-const controller = new AdminUsersController(new AdminUsersService(new SequelizeAdminUserRepository()));
+const controller = new AdminUsersController(
+  new AdminUsersService(new SequelizeAdminUserRepository(), sessionService, auditService),
+);
 
 adminRoutes.use(authenticate, authorize("admin"));
 adminRoutes.get("/users", (request, response) => controller.list(request, response));

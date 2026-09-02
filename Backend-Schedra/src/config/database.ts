@@ -1,6 +1,14 @@
 import pg from "pg";
 import mysql2 from "mysql2";
-import { DataTypes, Op, Sequelize, type Options } from "sequelize";
+import {
+  DataTypes,
+  Op,
+  Sequelize,
+  UniqueConstraintError,
+  type Model,
+  type ModelStatic,
+  type Options,
+} from "sequelize";
 
 import { env } from "./env";
 import { AppointmentModel } from "../modules/appointments/models/appointment.model";
@@ -12,6 +20,11 @@ import { ProfessionalModel } from "../modules/professionals/models/professional.
 import { ProfessionalWorkDayModel } from "../modules/professionals/models/professional-work-day.model";
 import { initializePlatformModels } from "../platform/models/platform-models";
 import { PersonalEventModel } from "../modules/personal-events/models/personal-event.model";
+import { MigrationRunner } from "../database/migrations/migration-runner";
+import { tenantService } from "../platform/tenancy/tenant.service";
+
+type DynamicRecord = Model<Record<string, unknown>, Record<string, unknown>>;
+const APPOINTMENT_SLOT_SIZE_MS = 5 * 60_000;
 
 class Database {
   private sequelize: Sequelize | null = null;
@@ -139,6 +152,10 @@ class Database {
   }
 
   private async seedAuthUser(): Promise<void> {
+    if (!env.authSeedEnabled) {
+      return;
+    }
+
     const email = env.authSeedUser.email.toLowerCase();
     const hashedPassword = await hashPassword(env.authSeedUser.password);
     const existingUser = await UserModel.findOne({
@@ -194,11 +211,57 @@ class Database {
   }
 
   public async synchronize(): Promise<void> {
-    await this.getConnection().sync();
+    await this.migrate();
     await this.ensureUserProfileColumns();
     await this.seedAuthUser();
+    await tenantService.provisionAllExistingUsers();
+    await this.repairLegacyAppointments();
+    await this.repairLegacyAppointmentSlots();
 
     console.log("Database tables synchronized.");
+  }
+
+  public async migrate(): Promise<void> {
+    this.initializeModels();
+    const connection = this.getConnection();
+
+    if (env.database.dialect === "mysql") {
+      await connection.sync();
+      await new MigrationRunner(connection).run();
+      return;
+    }
+
+    // Keep concurrent serverless cold starts from racing on table and index creation.
+    const migrationLock = await connection.transaction();
+    try {
+      await connection.query("SELECT pg_advisory_xact_lock(1396918340)", {
+        transaction: migrationLock,
+      });
+      await connection.sync();
+      await new MigrationRunner(connection).run();
+      await migrationLock.commit();
+    } catch (error) {
+      await migrationLock.rollback();
+      throw error;
+    }
+  }
+
+  public async close(): Promise<void> {
+    if (this.sequelize) {
+      await this.sequelize.close();
+      this.sequelize = null;
+      this.modelsInitialized = false;
+    }
+  }
+
+  public async ping(): Promise<boolean> {
+    if (!this.isConfigured()) return false;
+    try {
+      await this.getConnection().authenticate();
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   private async ensureUserProfileColumns(): Promise<void> {
@@ -235,6 +298,74 @@ class Database {
         allowNull: false,
         defaultValue: true,
       });
+    }
+  }
+
+  private async repairLegacyAppointments(): Promise<void> {
+    const appointments = await AppointmentModel.findAll({
+      where: {
+        [Op.or]: [
+          { endsAt: null },
+          { clientNameSnapshot: null },
+          { professionalNameSnapshot: null },
+          { serviceNameSnapshot: null },
+        ],
+      },
+    });
+
+    for (const appointment of appointments) {
+      const [client, professional, service] = await Promise.all([
+        ClientModel.findByPk(appointment.clientId, { paranoid: false }),
+        ProfessionalModel.findByPk(appointment.professionalId, { paranoid: false }),
+        ServiceModel.findByPk(appointment.serviceId, { paranoid: false }),
+      ]);
+      const durationMinutes = service?.durationMinutes ?? 30;
+      appointment.durationMinutes ??= durationMinutes;
+      appointment.endsAt ??= new Date(appointment.scheduledAt.getTime() + durationMinutes * 60_000);
+      appointment.clientNameSnapshot ??= client?.name ?? "Cliente";
+      appointment.professionalNameSnapshot ??= professional?.name ?? "Profissional";
+      appointment.serviceNameSnapshot ??= service?.name ?? "Serviço";
+      appointment.priceSnapshot ??= service ? Number(service.price) : 0;
+      await appointment.save({ silent: true });
+    }
+  }
+
+  private async repairLegacyAppointmentSlots(): Promise<void> {
+    const Slot = this.getConnection().models.AppointmentSlot as ModelStatic<DynamicRecord>;
+    const appointments = await AppointmentModel.findAll({
+      where: {
+        organizationId: { [Op.ne]: null },
+        status: { [Op.ne]: "cancelado" },
+      },
+      order: [["id", "ASC"]],
+    });
+    const conflicts: number[] = [];
+
+    for (const appointment of appointments) {
+      if (!appointment.organizationId || !appointment.endsAt) continue;
+      if (await Slot.count({ where: { appointmentId: appointment.id } })) continue;
+      const slots: Array<Record<string, unknown>> = [];
+      let cursor = Math.floor(appointment.scheduledAt.getTime() / APPOINTMENT_SLOT_SIZE_MS) * APPOINTMENT_SLOT_SIZE_MS;
+      while (cursor < appointment.endsAt.getTime()) {
+        slots.push({
+          organizationId: appointment.organizationId,
+          appointmentId: appointment.id,
+          professionalId: appointment.professionalId,
+          slotStart: new Date(cursor),
+        });
+        cursor += APPOINTMENT_SLOT_SIZE_MS;
+      }
+
+      try {
+        await this.getConnection().transaction((transaction) => Slot.bulkCreate(slots, { transaction }));
+      } catch (error) {
+        if (!(error instanceof UniqueConstraintError)) throw error;
+        conflicts.push(appointment.id);
+      }
+    }
+
+    if (conflicts.length) {
+      console.warn(`Legacy scheduling conflicts detected for appointment ids: ${conflicts.join(", ")}.`);
     }
   }
 }

@@ -11,6 +11,9 @@ import {
 import { ProfessionalModel } from "../models/professional.model";
 import { ProfessionalWorkDayModel } from "../models/professional-work-day.model";
 import { ListProfessionalsRepositoryResult, ProfessionalRepository } from "./professional.repository";
+import { buildTenantOwnership, buildTenantWhere, getActiveOrganizationId } from "../../../shared/data/tenant-scope";
+import { database } from "../../../config/database";
+import { UserModel } from "../../auth/models/user.model";
 
 type ListProfessionalsInput = {
   page: number;
@@ -23,7 +26,7 @@ export class SequelizeProfessionalRepository implements ProfessionalRepository {
     const professional = await ProfessionalModel.findOne({
       where: {
         id,
-        userId,
+        ...buildTenantWhere(userId),
       },
     });
 
@@ -41,7 +44,7 @@ export class SequelizeProfessionalRepository implements ProfessionalRepository {
     const professional = await ProfessionalModel.findOne({
       where: {
         id: professionalId,
-        userId,
+        ...buildTenantWhere(userId),
       },
     });
 
@@ -67,7 +70,7 @@ export class SequelizeProfessionalRepository implements ProfessionalRepository {
 
     const { rows, count } = await ProfessionalModel.findAndCountAll({
       where: {
-        userId,
+        ...buildTenantWhere(userId),
         ...(search
           ? {
               [Op.or]: [
@@ -113,7 +116,8 @@ export class SequelizeProfessionalRepository implements ProfessionalRepository {
 
   public async create(userId: number, input: CreateProfessionalRequestDto): Promise<ProfessionalDto> {
     const professional = await ProfessionalModel.create({
-      userId,
+      ...buildTenantOwnership(userId),
+      membershipId: await this.resolveMembershipId(input.email),
       name: input.name,
       email: input.email,
       phone: input.phone,
@@ -132,7 +136,7 @@ export class SequelizeProfessionalRepository implements ProfessionalRepository {
     const professional = await ProfessionalModel.findOne({
       where: {
         id,
-        userId,
+        ...buildTenantWhere(userId),
       },
     });
 
@@ -145,6 +149,7 @@ export class SequelizeProfessionalRepository implements ProfessionalRepository {
     professional.phone = input.phone;
     professional.specialty = input.specialty;
     professional.status = input.status;
+    professional.membershipId = await this.resolveMembershipId(input.email);
 
     await professional.save();
 
@@ -159,7 +164,7 @@ export class SequelizeProfessionalRepository implements ProfessionalRepository {
     const professional = await ProfessionalModel.findOne({
       where: {
         id: professionalId,
-        userId,
+        ...buildTenantWhere(userId),
       },
     });
 
@@ -215,7 +220,7 @@ export class SequelizeProfessionalRepository implements ProfessionalRepository {
     const deletedCount = await ProfessionalModel.destroy({
       where: {
         id,
-        userId,
+        ...buildTenantWhere(userId),
       },
     });
 
@@ -244,5 +249,15 @@ export class SequelizeProfessionalRepository implements ProfessionalRepository {
       breakStart: workDay.breakStart,
       breakEnd: workDay.breakEnd,
     };
+  }
+
+  private async resolveMembershipId(email: string): Promise<number | null> {
+    const organizationId = getActiveOrganizationId();
+    if (!organizationId) return null;
+    const user = await UserModel.findOne({ where: { email: email.trim().toLowerCase(), active: true } });
+    if (!user) return null;
+    const Membership = database.getConnection().models.Membership;
+    const membership = await Membership?.findOne({ where: { organizationId, userId: user.id, status: "active" } });
+    return membership ? Number(membership.get("id")) : null;
   }
 }

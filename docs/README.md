@@ -8,6 +8,8 @@
 | [Diagramas](DIAGRAMS.md) | DER, casos de uso, atividades e sequências |
 | [Validação mobile](MOBILE_VALIDATION.md) | Compatibilidade, segurança e roteiro de apresentação |
 | [Arquitetura de produto](SCHEDRA_PRODUCT_ARCHITECTURE.md) | Identidade, modelo de dados e preparação técnica |
+| [Operação e recuperação](OPERATIONS.md) | Deploy, métricas, backup, restauração e release |
+| [Revisão de segurança](SECURITY_REVIEW.md) | Controles implementados e riscos de dependências |
 | [Rubrica anterior](RUBRICA_2026.md) | Evidências de DevOps, redes e testes da entrega anterior |
 
 ## Ordem sugerida para apresentação

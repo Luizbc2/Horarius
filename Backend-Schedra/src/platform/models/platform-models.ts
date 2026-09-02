@@ -30,6 +30,7 @@ const definitions: PlatformModelDefinition[] = [
     attributes: {
       id: id(), ownerUserId: foreignKey("users"), name: { type: DataTypes.STRING, allowNull: false },
       slug: { type: DataTypes.STRING, allowNull: false, unique: true }, status: { type: DataTypes.STRING, allowNull: false, defaultValue: "active" },
+      timezone: { type: DataTypes.STRING(64), allowNull: false, defaultValue: "America/Sao_Paulo" },
     },
   },
   {
@@ -82,9 +83,9 @@ const definitions: PlatformModelDefinition[] = [
     tableName: "service_categories",
     purpose: "Categorias usadas para organizar o catálogo.",
     attributes: {
-      id: id(), userId: foreignKey("users"), name: { type: DataTypes.STRING, allowNull: false }, color: { type: DataTypes.STRING(7), allowNull: true },
+      id: id(), organizationId: foreignKey("organizations"), name: { type: DataTypes.STRING, allowNull: false }, color: { type: DataTypes.STRING(7), allowNull: true },
     },
-    indexes: [{ unique: true, fields: ["userId", "name"] }],
+    indexes: [{ unique: true, fields: ["organizationId", "name"] }],
   },
   {
     modelName: "ProfessionalService",
@@ -211,7 +212,7 @@ const definitions: PlatformModelDefinition[] = [
     tableName: "audit_logs",
     purpose: "Rastro de segurança para ações sensíveis.",
     attributes: {
-      id: id(), organizationId: foreignKey("organizations"), userId: foreignKey("users", true), action: { type: DataTypes.STRING, allowNull: false },
+      id: id(), organizationId: foreignKey("organizations", true), userId: foreignKey("users", true), action: { type: DataTypes.STRING, allowNull: false },
       entityType: { type: DataTypes.STRING, allowNull: false }, entityId: { type: DataTypes.STRING, allowNull: true }, metadata: { type: DataTypes.JSON, allowNull: true }, ipAddress: { type: DataTypes.STRING, allowNull: true },
     },
   },
@@ -220,7 +221,7 @@ const definitions: PlatformModelDefinition[] = [
     tableName: "waitlist_entries",
     purpose: "Fila de espera para horários indisponíveis.",
     attributes: {
-      id: id(), userId: foreignKey("users"), clientId: foreignKey("clients"), serviceId: foreignKey("services", true), professionalId: foreignKey("professionals", true),
+      id: id(), organizationId: foreignKey("organizations"), clientId: foreignKey("clients"), serviceId: foreignKey("services", true), professionalId: foreignKey("professionals", true),
       preferredDate: { type: DataTypes.DATEONLY, allowNull: false }, period: { type: DataTypes.STRING, allowNull: true }, status: { type: DataTypes.STRING, allowNull: false, defaultValue: "waiting" },
     },
   },
@@ -241,6 +242,32 @@ const definitions: PlatformModelDefinition[] = [
       id: id(), userId: foreignKey("users"), platform: { type: DataTypes.STRING, allowNull: false }, token: { type: DataTypes.STRING(512), allowNull: false, unique: true },
       lastSeenAt: { type: DataTypes.DATE, allowNull: false }, active: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true },
     },
+  },
+  {
+    modelName: "AuthSession",
+    tableName: "auth_sessions",
+    purpose: "Sessões autenticadas revogáveis e rotação de refresh tokens.",
+    attributes: {
+      id: id(), userId: foreignKey("users"), organizationId: foreignKey("organizations", true),
+      refreshTokenHash: { type: DataTypes.STRING(64), allowNull: false, unique: true },
+      expiresAt: { type: DataTypes.DATE, allowNull: false }, revokedAt: { type: DataTypes.DATE, allowNull: true },
+      lastUsedAt: { type: DataTypes.DATE, allowNull: false }, userAgent: { type: DataTypes.STRING(512), allowNull: true },
+      ipAddress: { type: DataTypes.STRING(64), allowNull: true },
+    },
+    indexes: [{ fields: ["userId", "revokedAt"] }],
+  },
+  {
+    modelName: "AppointmentSlot",
+    tableName: "appointment_slots",
+    purpose: "Slots transacionais que impedem sobreposição de horários.",
+    attributes: {
+      id: id(), organizationId: foreignKey("organizations"), appointmentId: foreignKey("appointments"),
+      professionalId: foreignKey("professionals"), slotStart: { type: DataTypes.DATE, allowNull: false },
+    },
+    indexes: [
+      { unique: true, fields: ["organizationId", "professionalId", "slotStart"] },
+      { fields: ["appointmentId"] },
+    ],
   },
 ];
 

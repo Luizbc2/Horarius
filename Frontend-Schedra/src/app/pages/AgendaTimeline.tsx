@@ -525,19 +525,21 @@ export function AgendaTimeline() {
 
       const appointmentsService = createAppointmentsService(token);
 
-      void Promise.all([
-        appointmentsService.update(
-          draggedAppointment.id,
-          buildTimelineUpdatePayload(draggedAppointment, targetAppointment, selectedDate),
-        ),
-        appointmentsService.update(
-          targetAppointment.id,
-          buildTimelineUpdatePayload(targetAppointment, draggedAppointment, selectedDate),
-        ),
-      ]).catch((error) => {
-        setAppointments(previousAppointments);
-        toast.error(getApiErrorMessage(error, "Não foi possível trocar os agendamentos."));
-      });
+      void appointmentsService
+        .swap(draggedAppointment, targetAppointment)
+        .then((response) => {
+          const updatedAppointments = new Map(
+            response.appointments.map((appointment) => [appointment.id, mapTimelineAppointment(appointment)]),
+          );
+          setAppointments((currentAppointments) =>
+            currentAppointments.map((appointment) => updatedAppointments.get(appointment.id) ?? appointment),
+          );
+          toast.success(response.message);
+        })
+        .catch((error) => {
+          setAppointments(previousAppointments);
+          toast.error(getApiErrorMessage(error, "Não foi possível trocar os agendamentos."));
+        });
 
       setDraggedAppointmentId(null);
       setDragOverSlot(null);
@@ -567,6 +569,16 @@ export function AgendaTimeline() {
 
     void appointmentsService
       .update(draggedAppointment.id, buildTimelineUpdatePayload(draggedAppointment, slot, selectedDate))
+      .then((response) => {
+        setAppointments((currentAppointments) =>
+          currentAppointments.map((appointment) =>
+            appointment.id === draggedAppointment.id
+              ? mapTimelineAppointment(response.appointment)
+              : appointment,
+          ),
+        );
+        toast.success(response.message);
+      })
       .catch((error) => {
         setAppointments(previousAppointments);
         toast.error(getApiErrorMessage(error, "Não foi possível mover o agendamento."));
@@ -627,12 +639,7 @@ export function AgendaTimeline() {
         setAppointments((currentAppointments) =>
           currentAppointments.map((appointment) =>
             appointment.id === editingAppointmentId
-              ? {
-                  ...appointment,
-                  client: response.appointment.clientName,
-                  service: response.appointment.serviceName,
-                  ...mapTimelineAppointment(response.appointment),
-                }
+              ? mapTimelineAppointment(response.appointment)
               : appointment,
           ),
         );

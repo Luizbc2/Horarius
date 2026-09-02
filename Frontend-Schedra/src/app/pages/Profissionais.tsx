@@ -45,6 +45,11 @@ export function Profissionais() {
     search,
     silent,
   }: LoadProfessionalsRequest) => {
+    if (!user) {
+      setIsLoading(false);
+      return;
+    }
+
     const professionalsService = createProfessionalsService(authToken);
 
     if (!silent) {

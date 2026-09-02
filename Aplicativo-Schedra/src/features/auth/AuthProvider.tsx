@@ -4,9 +4,16 @@ import { createContext, type PropsWithChildren, useContext, useEffect, useMemo, 
 import { Animated, Easing, Platform } from "react-native";
 
 import * as authApi from "./api/auth-api";
-import type { AccountType, AuthUser, LoginInput, SignupInput } from "./types";
+import type { AccountType, AuthOrganization, AuthUser, LoginInput, SignupInput } from "./types";
+import { configureApiAuth } from "../../shared/api/client";
 
-type StoredSession = { token: string; user: AuthUser; workspaceMode: AccountType };
+type StoredSession = {
+  token: string;
+  refreshToken?: string;
+  organization?: AuthOrganization;
+  user: AuthUser;
+  workspaceMode: AccountType;
+};
 type AuthContextValue = StoredSession & {
   loading: boolean;
   modeTransition: Animated.Value;
@@ -35,11 +42,46 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
   useEffect(() => {
     sessionStorage.get().then((stored) => {
-      if (stored) {
+      if (!stored) return;
+      try {
         const restored = JSON.parse(stored) as Partial<StoredSession> & Pick<StoredSession, "token" | "user">;
+        if (!restored.token || !restored.user) return;
         setSession({ ...restored, workspaceMode: restored.workspaceMode ?? restored.user.accountType ?? "business" });
+      } catch {
+        void sessionStorage.remove();
       }
     }).finally(() => setLoading(false));
+
+    configureApiAuth({
+      getSession: async () => {
+        const stored = await sessionStorage.get();
+        if (!stored) return null;
+        try {
+          const parsed = JSON.parse(stored) as StoredSession;
+          return { token: parsed.token, refreshToken: parsed.refreshToken };
+        } catch {
+          return null;
+        }
+      },
+      onRefresh: async (payload) => {
+        const stored = await sessionStorage.get();
+        if (!stored) return;
+        const previous = JSON.parse(stored) as StoredSession;
+        const next = {
+          ...previous,
+          token: payload.token,
+          refreshToken: payload.refreshToken,
+          user: (payload.user as AuthUser | undefined) ?? previous.user,
+          organization: (payload.organization as AuthOrganization | undefined) ?? previous.organization,
+        };
+        setSession(next);
+        await sessionStorage.set(JSON.stringify(next));
+      },
+      onExpire: async () => {
+        setSession(emptySession);
+        await sessionStorage.remove();
+      },
+    });
   }, []);
 
   const persist = async (nextSession: StoredSession) => {
@@ -81,7 +123,13 @@ export function AuthProvider({ children }: PropsWithChildren) {
     },
     signIn: async (input) => {
       const response = await authApi.login(input);
-      await persist({ token: response.token, user: response.user, workspaceMode: "business" });
+      await persist({
+        token: response.token,
+        refreshToken: response.refreshToken,
+        organization: response.organization,
+        user: response.user,
+        workspaceMode: "business",
+      });
     },
     signUp: async (input) => {
       await authApi.signup(input);
@@ -89,9 +137,16 @@ export function AuthProvider({ children }: PropsWithChildren) {
         email: input.email,
         password: input.password,
       });
-      await persist({ token: response.token, user: response.user, workspaceMode: "business" });
+      await persist({
+        token: response.token,
+        refreshToken: response.refreshToken,
+        organization: response.organization,
+        user: response.user,
+        workspaceMode: "business",
+      });
     },
     signOut: async () => {
+      if (session.token) await authApi.logout(session.token).catch(() => undefined);
       setSession(emptySession);
       await sessionStorage.remove();
     },

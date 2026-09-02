@@ -13,6 +13,7 @@ export interface AdminUserRepository {
   updateRole(id: number, role: UserRole): Promise<AdminUserDto | null>;
   updateActive(id: number, active: boolean): Promise<AdminUserDto | null>;
   delete(id: number): Promise<boolean>;
+  countActiveAdmins?(): Promise<number>;
 }
 
 export class SequelizeAdminUserRepository implements AdminUserRepository {
@@ -65,6 +66,11 @@ export class SequelizeAdminUserRepository implements AdminUserRepository {
   public async delete(id: number): Promise<boolean> {
     await this.ensureModel();
     return (await UserModel.destroy({ where: { id } })) > 0;
+  }
+
+  public async countActiveAdmins(): Promise<number> {
+    await this.ensureModel();
+    return UserModel.count({ where: { role: "admin", active: true } });
   }
 
   private toDto(user: UserModel): AdminUserDto {

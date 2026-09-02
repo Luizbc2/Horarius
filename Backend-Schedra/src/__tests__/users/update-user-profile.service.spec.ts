@@ -17,7 +17,7 @@ describe("UpdateUserProfileService", () => {
 
     expect(result).toEqual({
       success: false,
-      message: "Id do usuário autenticado, id do usuário, nome, CPF e senha são obrigatórios.",
+      message: "Id do usuário autenticado, id do usuário, nome e CPF são obrigatórios.",
       statusCode: 400,
     });
   });
@@ -150,6 +150,33 @@ describe("UpdateUserProfileService", () => {
       avatarUrl: null,
     });
     await expect(comparePassword("Senha123!", repository.lastUpdatedInput?.password ?? "")).resolves.toBe(true);
+    expect(result.passwordChanged).toBe(true);
+  });
+
+  it("atualiza dados pessoais sem obrigar a troca de senha", async () => {
+    const repository = new InMemoryUserRepository({
+      users: [{
+        id: 1,
+        name: "Maria",
+        email: "maria@schedra.com",
+        cpf: "52998224725",
+        password: "hash-existente",
+      }],
+    });
+    const result = await new UpdateUserProfileService(repository).execute({
+      authenticatedUserId: 1,
+      userId: 1,
+      name: "Maria Atualizada",
+      email: "maria@schedra.com",
+      cpf: "52998224725",
+      password: "",
+    });
+
+    expect(result.success).toBe(true);
+    if (!result.success) return;
+    expect(result.passwordChanged).toBe(false);
+    expect(repository.lastUpdatedInput?.password).toBeUndefined();
+    expect((await repository.findById(1))?.password).toBe("hash-existente");
   });
 });
 

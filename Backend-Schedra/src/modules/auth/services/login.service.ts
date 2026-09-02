@@ -4,6 +4,9 @@ import { comparePassword } from "../utils/password.util";
 import { generateAccessToken } from "../utils/jwt.util";
 import { isValidEmail } from "../../../shared/utils/email.util";
 import { INPUT_LIMITS } from "../../../shared/utils/input-validation.util";
+import type { TenantService } from "../../../platform/tenancy/tenant.service";
+import type { SessionMetadata, SessionService } from "./session.service";
+import { env } from "../../../config/env";
 
 type ServiceResult<T> =
   | {
@@ -17,9 +20,13 @@ type ServiceResult<T> =
     };
 
 export class LoginService {
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(
+    private readonly userRepository: UserRepository,
+    private readonly tenancy?: TenantService,
+    private readonly sessions?: SessionService,
+  ) {}
 
-  public async execute(input: LoginInput): Promise<ServiceResult<LoginResponse>> {
+  public async execute(input: LoginInput, metadata: SessionMetadata = {}): Promise<ServiceResult<LoginResponse>> {
     const email = input.email.trim().toLowerCase();
     const password = input.password.trim();
 
@@ -95,11 +102,36 @@ export class LoginService {
 
     const userAccountType = user.accountType ?? "business";
 
+    const workspace = this.tenancy
+      ? await this.tenancy.ensureDefaultWorkspace({ id: user.id, name: user.name, email: user.email })
+      : null;
+    const issuedSession = workspace && this.sessions
+      ? await this.sessions.issue(user, workspace, metadata)
+      : null;
+
+    if (env.nodeEnv !== "test" && (!workspace || !issuedSession)) {
+      return {
+        success: false,
+        message: "Não foi possível criar uma sessão segura agora.",
+        statusCode: 503,
+      };
+    }
+
     return {
       success: true,
       data: {
         message: "Login realizado com sucesso.",
-        token: generateAccessToken(user),
+        token: issuedSession?.token ?? generateAccessToken(user, { workspace }),
+        ...(issuedSession ? { refreshToken: issuedSession.refreshToken } : {}),
+        ...(workspace ? {
+          organization: {
+            id: workspace.id,
+            name: workspace.name,
+            slug: workspace.slug,
+            role: workspace.role,
+            permissions: workspace.permissions,
+          },
+        } : {}),
         user: {
           id: user.id,
           name: user.name,

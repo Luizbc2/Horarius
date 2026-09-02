@@ -31,7 +31,9 @@ describe("Protected routes", () => {
 
     expect(response.status).toBe(401);
     expect(response.body).toEqual({
+      code: "UNAUTHENTICATED",
       message: "O token de autenticação é obrigatório.",
+      requestId: expect.any(String),
     });
   });
 
@@ -42,7 +44,9 @@ describe("Protected routes", () => {
 
     expect(response.status).toBe(401);
     expect(response.body).toEqual({
+      code: "UNAUTHENTICATED",
       message: "Token inválido ou expirado.",
+      requestId: expect.any(String),
     });
   });
 });

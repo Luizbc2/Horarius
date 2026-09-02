@@ -2,7 +2,7 @@
 
 ## Direção
 
-O Schedra é uma plataforma de operação e agenda para negócios de serviços. O frontend web continua em React e o futuro aplicativo deve usar React Native com Expo, consumindo a mesma API REST e os mesmos contratos de domínio.
+O Schedra é uma plataforma de operação e agenda para negócios de serviços. O frontend web usa React e o aplicativo usa React Native com Expo, ambos consumindo a mesma API REST e os mesmos contratos de domínio.
 
 ## Identidade visual
 
@@ -23,11 +23,11 @@ Oswald Medium define a hierarquia de títulos e Roboto atende textos, formulári
 
 ## Modelo de dados
 
-O banco passa a ter 30 tabelas: 6 tabelas operacionais existentes e 24 tabelas de plataforma.
+O banco possui 33 tabelas de domínio: 7 tabelas operacionais e 26 tabelas de plataforma, além de `schema_migrations` para controle técnico de versão.
 
 ### Núcleo existente
 
-`users`, `clients`, `services`, `professionals`, `professional_work_days` e `appointments`.
+`users`, `clients`, `services`, `professionals`, `professional_work_days`, `appointments` e `personal_events`.
 
 ### Organização e acesso
 
@@ -43,13 +43,26 @@ O banco passa a ter 30 tabelas: 6 tabelas operacionais existentes e 24 tabelas d
 
 ### Financeiro, segurança e mobile
 
-`payment_methods`, `payments`, `invoices`, `coupons`, `notifications`, `audit_logs` e `device_tokens`.
+`payment_methods`, `payments`, `invoices`, `coupons`, `notifications`, `audit_logs`, `device_tokens`, `auth_sessions` e `appointment_slots`.
+
+`notifications` e `device_tokens` são reservas de esquema e não representam uma funcionalidade ativa. O aplicativo não depende de `expo-notifications`; lembretes permanecem fora do escopo atual.
 
 ## Preparação para Expo
 
 - A API permanece como fonte única de dados.
 - Cores e marca já estão isoladas em TypeScript.
-- `device_tokens` suporta push notifications por dispositivo.
+- O contrato de autenticação com access token curto e refresh rotativo é compartilhado por web e mobile.
 - `memberships`, `roles` e `permissions` permitem sessões com escopos adequados no app.
 - `locations` prepara seleção e troca de unidade.
 - Nenhuma regra de negócio foi movida para componentes visuais.
+## Implementação atual
+
+O backend opera como monólito modular multiempresa. Usuários acessam organizações por meio de vínculos com papéis e permissões; clientes, profissionais, serviços e agendamentos são isolados pela organização ativa da sessão. Contas existentes recebem automaticamente um workspace padrão e seus registros legados são vinculados durante o bootstrap.
+
+Os agendamentos persistem início, fim, duração, preço e snapshots de cliente, profissional e serviço no momento da reserva. Slots transacionais de cinco minutos impedem sobreposição inclusive sob concorrência, enquanto `version` evita sobrescrita silenciosa. Regras semanais, intervalos, serviços habilitados e bloqueios de agenda são validados antes da transação. Mudanças de status e operações administrativas sensíveis geram histórico e auditoria.
+
+Clientes, profissionais, serviços e agendamentos usam exclusão lógica. Relações históricas continuam legíveis pelos snapshots mesmo após o cadastro operacional ser arquivado.
+
+As alterações de esquema são registradas em `schema_migrations`. Em desenvolvimento, `DB_AUTO_SYNC=true` cria tabelas ausentes antes das migrations; em ambientes provisionados, use `npm run db:migrate` e mantenha `DB_AUTO_SYNC=false`.
+
+O runtime fornece readiness com verificação de banco, métricas Prometheus protegidas, logs JSON correlacionados e volume persistente para avatares. Backup e restauração estão definidos em `docs/OPERATIONS.md`. Para múltiplas réplicas, o adaptador local de mídia deve ser substituído por armazenamento de objetos compatível com S3.

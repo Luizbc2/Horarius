@@ -2,6 +2,7 @@ import type { AppointmentApiItem, AppointmentStatus } from "../../services/appoi
 
 export type AgendaListItem = {
   id: number;
+  version: number;
   clientId: number;
   date: string;
   notes: string;
@@ -62,6 +63,7 @@ export function formatAppointmentForList(appointment: AppointmentApiItem): Agend
 
   return {
     id: appointment.id,
+    version: appointment.version,
     clientId: appointment.clientId,
     date: scheduledDate.toLocaleDateString("pt-BR"),
     notes: appointment.notes,

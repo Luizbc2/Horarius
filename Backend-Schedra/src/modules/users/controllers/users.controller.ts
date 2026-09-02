@@ -4,11 +4,19 @@ import { CreateUserService } from "../services/create-user.service";
 import { UpdateUserProfileService } from "../services/update-user-profile.service";
 import { getAuthenticatedUserId } from "../../auth/utils/auth-request.util";
 import { asRequestBody, asString } from "../../../shared/http/request-parser";
+import {
+  InvalidAvatarContentError,
+  processAvatar,
+  removeLocalAvatar,
+} from "../upload/avatar-upload";
+import { recordRequestAudit } from "../../../shared/http/request-audit";
+import type { SessionService } from "../../auth/services/session.service";
 
 export class UsersController {
   constructor(
     private readonly createUserService: CreateUserService,
     private readonly updateUserProfileService: UpdateUserProfileService,
+    private readonly sessionService?: SessionService,
   ) {}
 
   public async create(request: Request, response: Response): Promise<Response> {
@@ -45,6 +53,17 @@ export class UsersController {
         return this.sendFailure(response, result.statusCode, result.message);
       }
 
+      if (result.passwordChanged && this.sessionService) {
+        if (request.auth?.sid) {
+          await this.sessionService.revokeAllForUserExcept(authenticatedUserId, request.auth.sid);
+        } else {
+          await this.sessionService.revokeAllForUser(authenticatedUserId);
+        }
+      }
+
+      await recordRequestAudit(request, "user.profile_updated", "user", authenticatedUserId, {
+        passwordChanged: result.passwordChanged,
+      });
       return response.status(200).json(result.data);
     } catch (error) {
       console.error("User profile update request failed.", error);
@@ -66,16 +85,33 @@ export class UsersController {
       return this.sendFailure(response, 400, "Selecione uma imagem para o avatar.");
     }
 
-    const user = await this.updateUserProfileService.updateAvatar(
-      authenticatedUserId,
-      `/uploads/avatars/${request.file.filename}`,
-    );
+    let avatarUrl: string;
 
-    if (!user) {
-      return this.sendFailure(response, 404, "Usuário não encontrado.");
+    try {
+      avatarUrl = await processAvatar(request.file, authenticatedUserId);
+    } catch (error) {
+      if (error instanceof InvalidAvatarContentError) {
+        return this.sendFailure(response, 415, error.message);
+      }
+      throw error;
     }
 
-    return response.status(200).json({ message: "Avatar atualizado com sucesso.", user });
+    try {
+      const previousUser = await this.updateUserProfileService.findById(authenticatedUserId);
+      const user = await this.updateUserProfileService.updateAvatar(authenticatedUserId, avatarUrl);
+
+      if (!user) {
+        await removeLocalAvatar(avatarUrl);
+        return this.sendFailure(response, 404, "Usuário não encontrado.");
+      }
+
+      await removeLocalAvatar(previousUser?.avatarUrl);
+      await recordRequestAudit(request, "user.avatar_updated", "user", authenticatedUserId);
+      return response.status(200).json({ message: "Avatar atualizado com sucesso.", user });
+    } catch (error) {
+      await removeLocalAvatar(avatarUrl);
+      throw error;
+    }
   }
 
   private buildCreatePayload(request: Request) {

@@ -1,8 +1,10 @@
 import { randomUUID } from "node:crypto";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import type { RequestHandler } from "express";
 import multer, { type FileFilterCallback, type Multer, type StorageEngine } from "multer";
+import sharp, { type Metadata } from "sharp";
 
 export const AVATAR_MAX_FILE_SIZE = 5 * 1024 * 1024;
 
@@ -20,6 +22,20 @@ export class InvalidAvatarFileError extends Error {
   }
 }
 
+export class InvalidAvatarContentError extends Error {
+  constructor() {
+    super("O conteúdo enviado não é uma imagem JPG, PNG ou WEBP válida.");
+    this.name = "InvalidAvatarContentError";
+  }
+}
+
+export class AvatarStorageError extends Error {
+  constructor() {
+    super("Não foi possível armazenar a imagem processada.");
+    this.name = "AvatarStorageError";
+  }
+}
+
 export const getAvatarExtension = (originalName: string): string =>
   path.extname(originalName).toLowerCase();
 
@@ -30,6 +46,9 @@ export const isAllowedAvatarFile = (file: Pick<Express.Multer.File, "originalnam
 
 export const buildAvatarFilename = (originalName: string): string =>
   `user-${Date.now()}-${randomUUID()}${getAvatarExtension(originalName)}`;
+
+const buildProcessedAvatarFilename = (userId: number): string =>
+  `user-${userId}-${Date.now()}-${randomUUID()}.webp`;
 
 export const createAvatarUpload = (
   storage: StorageEngine,
@@ -47,13 +66,59 @@ export const createAvatarUpload = (
   },
 });
 
-export const avatarDirectory = path.resolve(process.cwd(), "uploads", "avatars");
-fs.mkdirSync(avatarDirectory, { recursive: true });
+const avatarUploadRoot = process.env.AVATAR_UPLOAD_ROOT?.trim()
+  || (process.env.VERCEL ? path.join(os.tmpdir(), "schedra-uploads") : path.resolve(process.cwd(), "uploads"));
 
-export const avatarUpload = createAvatarUpload(multer.diskStorage({
-  destination: avatarDirectory,
-  filename: (_request, file, callback) => callback(null, buildAvatarFilename(file.originalname)),
-}));
+export const avatarDirectory = path.join(avatarUploadRoot, "avatars");
+
+export const avatarUpload = createAvatarUpload(multer.memoryStorage());
+
+export const processAvatar = async (
+  file: Express.Multer.File,
+  userId: number,
+  outputDirectory = avatarDirectory,
+): Promise<string> => {
+  let metadata: Metadata;
+
+  try {
+    metadata = await sharp(file.buffer, { failOn: "warning", limitInputPixels: 16_777_216 }).metadata();
+
+    if (!metadata.format || !["jpeg", "png", "webp"].includes(metadata.format)) {
+      throw new InvalidAvatarContentError();
+    }
+
+    if (!metadata.width || !metadata.height || metadata.width > 4096 || metadata.height > 4096) {
+      throw new InvalidAvatarContentError();
+    }
+  } catch (error) {
+    if (error instanceof InvalidAvatarContentError) throw error;
+    throw new InvalidAvatarContentError();
+  }
+
+  const filename = buildProcessedAvatarFilename(userId);
+  const destination = path.join(outputDirectory, filename);
+  try {
+    await fs.promises.mkdir(outputDirectory, { recursive: true });
+    await sharp(file.buffer, { failOn: "warning", limitInputPixels: 16_777_216 })
+      .rotate()
+      .resize(512, 512, { fit: "cover", position: "attention", withoutEnlargement: true })
+      .webp({ quality: 86, effort: 4 })
+      .toFile(destination);
+    return `/uploads/avatars/${filename}`;
+  } catch {
+    throw new AvatarStorageError();
+  }
+};
+
+export const removeLocalAvatar = async (avatarUrl?: string | null): Promise<void> => {
+  if (!avatarUrl?.startsWith("/uploads/avatars/")) return;
+  const filename = path.basename(avatarUrl);
+  try {
+    await fs.promises.rm(path.join(avatarDirectory, filename), { force: true });
+  } catch (error) {
+    console.error(`Avatar cleanup failed for ${filename}.`, error);
+  }
+};
 
 export const uploadAvatarSingle: RequestHandler = (request, response, next) => {
   avatarUpload.single("avatar")(request, response, (error: unknown) => {
@@ -68,7 +133,7 @@ export const uploadAvatarSingle: RequestHandler = (request, response, next) => {
     }
 
     if (error instanceof InvalidAvatarFileError) {
-      response.status(400).json({ message: error.message });
+      response.status(415).json({ message: error.message });
       return;
     }
 

@@ -5,6 +5,13 @@ import path from "node:path";
 import { env } from "./config/env";
 import { HealthController } from "./controllers/health.controller";
 import { router } from "./routes";
+import { requestContextMiddleware } from "./shared/http/request-context";
+import { securityHeaders } from "./shared/http/security.middleware";
+import { createRateLimiter } from "./shared/http/rate-limit.middleware";
+import { errorEnvelopeMiddleware, errorHandler, notFoundHandler } from "./shared/http/error.middleware";
+import { openApiDocument } from "./docs/openapi";
+import { requestLoggingMiddleware } from "./shared/http/request-logging.middleware";
+import { requestMetricsMiddleware } from "./shared/http/metrics";
 
 const isProduction = process.env.NODE_ENV === "production";
 
@@ -88,8 +95,18 @@ export class App {
   private middlewares(): void {
     const allowedOrigins = buildAllowedOrigins();
 
+    this.server.disable("x-powered-by");
+    this.server.set("trust proxy", 1);
+    this.server.use(requestContextMiddleware);
+    this.server.use(errorEnvelopeMiddleware);
+    this.server.use(requestMetricsMiddleware);
+    this.server.use(requestLoggingMiddleware);
+    this.server.use(securityHeaders);
+    this.server.use(createRateLimiter({ windowMs: env.rateLimit.windowMs, maxRequests: env.rateLimit.maxRequests }));
+
     this.server.use(
       cors({
+        credentials: true,
         origin(origin, callback) {
           if (!isProduction) {
             callback(null, true);
@@ -99,8 +116,7 @@ export class App {
           if (
             !origin ||
             allowedOrigins.includes(origin) ||
-            isLocalDevelopmentOrigin(origin) ||
-            isPrivateNetworkOrigin(origin)
+            (!isProduction && (isLocalDevelopmentOrigin(origin) || isPrivateNetworkOrigin(origin)))
           ) {
             callback(null, true);
             return;
@@ -110,20 +126,20 @@ export class App {
         },
       })
     );
-    this.server.use(express.json());
+    this.server.use(express.json({ limit: "1mb" }));
     this.server.use("/uploads", express.static(path.resolve(process.cwd(), "uploads")));
   }
 
   private routes(): void {
     this.server.get("/", (request, response) => this.healthController.check(request, response));
     this.server.get("/health", (request, response) => this.healthController.check(request, response));
+    this.server.get("/ready", (request, response) => this.healthController.ready(request, response));
+    this.server.get("/metrics", (request, response) => this.healthController.metrics(request, response));
+    this.server.get("/api/docs/openapi.json", (_request, response) => response.status(200).json(openApiDocument));
+    this.server.use("/api/auth", createRateLimiter({ windowMs: env.rateLimit.windowMs, maxRequests: env.rateLimit.authMaxRequests }));
     this.server.use("/api", router);
-    this.server.use((error: unknown, _request: express.Request, response: express.Response, _next: express.NextFunction) => {
-      console.error("Unhandled backend error.", error);
-      response.status(500).json({
-        message: "Internal server error",
-      });
-    });
+    this.server.use(notFoundHandler);
+    this.server.use(errorHandler);
   }
 }
 

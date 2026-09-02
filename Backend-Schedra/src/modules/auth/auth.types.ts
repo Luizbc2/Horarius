@@ -22,6 +22,11 @@ export type AccessTokenPayload = {
   sub: string;
   email: string;
   role: UserRole;
+  sid?: number;
+  organizationId?: number;
+  membershipId?: number;
+  organizationRole?: string;
+  permissions?: string[];
   iat?: number;
   exp?: number;
 };
@@ -29,5 +34,13 @@ export type AccessTokenPayload = {
 export type LoginResponse = {
   message: string;
   token: string;
+  refreshToken?: string;
+  organization?: {
+    id: number;
+    name: string;
+    slug: string;
+    role: string;
+    permissions: string[];
+  };
   user: Omit<AuthenticatedUser, "password">;
 };

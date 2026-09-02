@@ -4,11 +4,4 @@ export type JsonObject = {
 };
 export type JsonValue = JsonPrimitive | JsonObject | JsonValue[];
 
-export type ApiErrorInput =
-  | Error
-  | {
-      message?: string;
-      status?: number;
-    }
-  | null
-  | undefined;
+export type ApiErrorInput = unknown;

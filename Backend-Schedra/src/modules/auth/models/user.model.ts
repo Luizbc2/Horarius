@@ -18,6 +18,7 @@ export class UserModel extends Model<InferAttributes<UserModel>, InferCreationAt
   declare role: CreationOptional<UserRole>;
   declare active: CreationOptional<boolean>;
   declare avatarUrl: CreationOptional<string | null>;
+  declare deletedAt: CreationOptional<Date | null>;
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
 
@@ -76,6 +77,11 @@ export class UserModel extends Model<InferAttributes<UserModel>, InferCreationAt
           allowNull: true,
           defaultValue: null,
         },
+        deletedAt: {
+          type: DataTypes.DATE,
+          allowNull: true,
+          defaultValue: null,
+        },
         createdAt: {
           type: DataTypes.DATE,
           allowNull: false
@@ -90,6 +96,7 @@ export class UserModel extends Model<InferAttributes<UserModel>, InferCreationAt
         modelName: "User",
         tableName: "users",
         timestamps: true,
+        paranoid: true,
         hooks: {
           beforeValidate: (user) => {
             user.name = user.name.trim();

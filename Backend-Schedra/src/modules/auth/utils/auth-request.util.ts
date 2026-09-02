@@ -17,3 +17,8 @@ export const getAuthenticatedUserId = (request: Request): number | null => {
 
   return Number.isInteger(userId) && userId > 0 ? userId : null;
 };
+
+export const getAuthenticatedOrganizationId = (request: Request): number | null => {
+  const organizationId = request.auth?.organizationId;
+  return Number.isInteger(organizationId) && Number(organizationId) > 0 ? Number(organizationId) : null;
+};

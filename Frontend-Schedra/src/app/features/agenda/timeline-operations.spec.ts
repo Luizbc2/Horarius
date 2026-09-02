@@ -11,6 +11,7 @@ const appointments: TimelineAppointment[] = [];
 const scheduledAppointments: TimelineAppointment[] = [
   {
     id: 1,
+    version: 0,
     clientId: 1,
     time: "09:00",
     client: "Ana",
@@ -23,6 +24,7 @@ const scheduledAppointments: TimelineAppointment[] = [
   },
   {
     id: 2,
+    version: 0,
     clientId: 2,
     time: "10:00",
     client: "Bruno",

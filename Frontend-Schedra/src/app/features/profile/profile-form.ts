@@ -83,11 +83,13 @@ export function validateProfileForm(formData: ProfileFormData) {
     errors.cpf = "Digite um CPF valido.";
   }
 
-  if (!formData.password.trim()) {
+  const isPasswordUpdate = Boolean(formData.password || formData.confirmPassword);
+
+  if (isPasswordUpdate && !formData.password.trim()) {
     errors.password = "Informe uma nova senha.";
-  } else if (formData.password.length > FIELD_LIMITS.password) {
+  } else if (isPasswordUpdate && formData.password.length > FIELD_LIMITS.password) {
     errors.password = `A senha deve ter no máximo ${FIELD_LIMITS.password} caracteres.`;
-  } else {
+  } else if (isPasswordUpdate) {
     const passwordError = validatePasswordStrength(formData.password);
 
     if (passwordError) {
@@ -95,7 +97,7 @@ export function validateProfileForm(formData: ProfileFormData) {
     }
   }
 
-  if (!formData.confirmPassword.trim()) {
+  if (isPasswordUpdate && !formData.confirmPassword.trim()) {
     errors.confirmPassword = "Confirme a nova senha.";
   } else if (formData.password !== formData.confirmPassword) {
     errors.confirmPassword = "As senhas precisam ser iguais.";

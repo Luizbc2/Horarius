@@ -23,6 +23,7 @@ import {
   type RequestBody,
   type RequestValue,
 } from "../../../shared/http/request-parser";
+import { recordRequestAudit } from "../../../shared/http/request-audit";
 
 const professionalRepository = new SequelizeProfessionalRepository();
 
@@ -81,6 +82,7 @@ export class ProfessionalsController {
       return this.sendFailure(response, result.statusCode, result.message);
     }
 
+    await recordRequestAudit(request, "professional.created", "professional", result.data.professional.id);
     return response.status(201).json(result.data);
   }
 
@@ -121,6 +123,7 @@ export class ProfessionalsController {
       return this.sendFailure(response, result.statusCode, result.message);
     }
 
+    await recordRequestAudit(request, "professional.updated", "professional", result.data.professional.id);
     return response.status(200).json(result.data);
   }
 
@@ -139,6 +142,7 @@ export class ProfessionalsController {
       return this.sendFailure(response, result.statusCode, result.message);
     }
 
+    await recordRequestAudit(request, "professional.deleted", "professional", id);
     return response.status(200).json(result.data);
   }
 
@@ -161,6 +165,7 @@ export class ProfessionalsController {
       return this.sendFailure(response, result.statusCode, result.message);
     }
 
+    await recordRequestAudit(request, "professional.schedule_updated", "professional", id);
     return response.status(200).json(result.data);
   }
 

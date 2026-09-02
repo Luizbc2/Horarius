@@ -4,7 +4,7 @@ import { AuthenticatedUser } from "../auth.types";
 export type UpdateUserProfileInput = {
   name: string;
   cpf: string;
-  password: string;
+  password?: string;
 };
 
 export interface UserRepository {
