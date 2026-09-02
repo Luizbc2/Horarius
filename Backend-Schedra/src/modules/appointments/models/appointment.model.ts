@@ -161,12 +161,6 @@ export class AppointmentModel extends Model<
           {
             fields: ["userId"],
           },
-          {
-            fields: ["organizationId", "scheduledAt"],
-          },
-          {
-            fields: ["organizationId", "professionalId", "scheduledAt"],
-          },
         ],
         version: true,
         hooks: {

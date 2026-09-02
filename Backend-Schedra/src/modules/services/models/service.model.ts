@@ -97,9 +97,6 @@ export class ServiceModel extends Model<InferAttributes<ServiceModel>, InferCrea
           {
             fields: ["userId"],
           },
-          {
-            fields: ["organizationId"],
-          },
         ],
         hooks: {
           beforeValidate: (service) => {

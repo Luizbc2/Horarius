@@ -91,9 +91,6 @@ export class ClientModel extends Model<InferAttributes<ClientModel>, InferCreati
         indexes: [
           {
             fields: ["userId"]
-          },
-          {
-            fields: ["organizationId"]
           }
         ],
         hooks: {

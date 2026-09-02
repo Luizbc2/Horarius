@@ -109,12 +109,6 @@ export class ProfessionalModel extends Model<
           {
             fields: ["userId"],
           },
-          {
-            fields: ["organizationId"],
-          },
-          {
-            fields: ["membershipId"],
-          },
         ],
         hooks: {
           beforeValidate: (professional) => {
