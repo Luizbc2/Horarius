@@ -6,6 +6,10 @@ export default async function handler(request: Parameters<typeof app>[0], respon
     await prepareBackend();
   } catch (error) {
     console.error("Backend preparation failed in Vercel handler.", error);
+    return response.status(503).json({
+      message: "Servico temporariamente indisponivel.",
+      status: "unavailable",
+    });
   }
 
   return app(request, response);
